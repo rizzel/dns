@@ -1,0 +1,74 @@
+body {
+	background-color: #000000;
+	color: #FF0000;
+}
+
+a {
+	color: #FF0099;
+	text-decoration: none;
+}
+
+a[target=_blank] {
+	color: #FF5500;
+}
+
+a:hover {
+	text-decoration: underline;
+}
+
+
+#loadProgresses {
+	display: inline-block;
+	position: fixed;
+	right: 5px;
+	bottom: 5px;
+	z-index: 100;
+}
+
+.popup {
+	display: inline-block;
+	position: absolute;
+	border: 2px #990000 solid;
+	border-radius: 7px;
+	padding: 8px;
+	background-color: #000000;
+	z-index: 1000;
+}
+
+.popupClose {
+	float: right;
+	right: 20px;
+	top: 10px;
+}
+
+
+#user {
+	float: right;
+	border: 1px #990000 solid;
+	border-radius: 5px;
+}
+
+.hider {
+	display: none;
+	border: 2px solid #990000;
+	border-radius: 5px;
+}
+
+.hider.active {
+	display: block;
+}
+
+#user_hinzu_nomatch {
+	font-weight: bold;
+}
+
+.falsch {
+	background-image: url(../img/error.png);
+	background-repeat: no-repeat;
+	background-position: right center;
+	background-size: contain
+}
+
+.addRecord {
+	display: none;
+}
