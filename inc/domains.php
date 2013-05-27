@@ -13,7 +13,7 @@ class DNSDomains {
 		if ($this->page->user->getCurrentUser()->level != 'admin')
 			return false;
 		$get = $this->page->db->query(
-			"SELECT d.*, r.content AS mx, r2.content AS soa FROM domains d
+			"SELECT d.*, r.content AS mx, LEFT(r2.content, LENGTH(r2.content) - 2) AS soa FROM domains d
 				LEFT JOIN records r
 				ON r.domain_id = d.id AND r.type = 'MX'
 				LEFT JOIN records r2
