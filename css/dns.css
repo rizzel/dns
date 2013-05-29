@@ -83,3 +83,16 @@ blockquote {
 	font-weight: bold;
 	text-decoration: underline;
 }
+
+#addRecordTest.frei {
+	color: #00FF00;
+}
+
+#addRecordTest.belegt {
+	background-color: #660000;
+}
+
+#addRecordTest.invalid {
+	background-color: #880000;
+	color: #AAAAAA;
+}

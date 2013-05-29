@@ -25,6 +25,7 @@ $loggedIn = $page->user->isLoggedIn();
 		<div>
 			<label for="addRecordName">Name (URI):</label>
 			<input type="text" id="addRecordName" />
+			<span id="addRecordTest"></span>
 		</div>
 		<div>
 			<label for="addRecordContent">IPv4:</label>

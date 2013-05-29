@@ -190,7 +190,16 @@ class DNSDomains {
 			return $this->updateSOARecord($domain);
 	}
 
-	private function isValidDomainName($name)
+	public function isFreeDomain($name, $type)
+	{
+		$dom = $this->page->db->query("SELECT COUNT(*) AS c FROM records WHERE name = ? AND type = ?",
+									  array($name, $type)
+		);
+		if ($dom && $row = $dom->fetch())
+			return ($row['c'] == 0);
+	}
+
+	public function isValidDomainName($name)
 	{
 		return (
 			!preg_match('/^\./', $name) && // darf nicht mit einem punkt beginnen

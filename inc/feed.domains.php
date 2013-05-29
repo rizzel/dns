@@ -109,6 +109,28 @@ class DNSFeedsDomains extends DNSFeeds
 			$this->setResult();
 	}
 
+	public function domains_recordTest($domainid, $record, $type)
+	{
+		if (strlen($record) == 0)
+		{
+			$this->setResult();
+			return;
+		}
+		$domN = $this->page->db->query("SELECT name FROM domains WHERE id = ?", $domainid);
+		if (!$domN || !($domain = $domN->fetch()))
+			return false;
+		$domain = $domain['name'];
+		if (!preg_match("/$domain\$/", $record))
+			$record = "$record.$domain";
+		preg_replace('/\.\.+/', '.', $record);
+		if (!$this->page->domains->isValidDomainName($record))
+			$this->setResult(array('domain' => $record, 'type' => $type, 'status' => 'Ungültiger Name', 'invalid' => true));
+		elseif (!$this->page->domains->isFreeDomain($record, $type))
+			$this->setResult(array('domain' => $record, 'type' => $type, 'status' => 'Nicht mehr frei'));
+		else
+			$this->setResult(array('domain' => $record, 'type' => $type, 'status' => 'Domain ist frei', 'free' => true));
+	}
+
 	public function domains_mail()
 	{
 		if (mail("dns@ggdns.de", "test", "huhu, test", implode("\n", array(

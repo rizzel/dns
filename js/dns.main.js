@@ -251,6 +251,35 @@ initPageSpecific = function ()
 		}
 	});
 
+	$('#addRecordName').on('keyup', function () {
+		dns.loadRemote.loadRemote('domains/recordTest',
+			[
+				$('#addRecordDomain').val(),
+				$('#addRecordName').val(),
+				$('#addRecordType').val()
+			],
+			function (data, success) {
+				var $testSpan = $('#addRecordTest');
+				if (!success || !data.data)
+				{
+					$testSpan.hide();
+					return;
+				}
+				$testSpan
+					.removeClass()
+					.attr('title', data.data.status)
+					.show()
+					.text("%s: %s".format(data.data.type, data.data.domain));
+				if (data.data.free)
+					$testSpan.addClass('frei');
+				else if (data.data.invalid)
+					$testSpan.addClass('invalid')
+				else
+					$testSpan.addClass('belegt');
+			}
+		);
+	});
+
 	$('#addRecordSubmit').on('click', function () {
 		var type = $('#addRecordType').val();
 		var name = $('#addRecordName');
