@@ -2,6 +2,7 @@
 <html>
 	<head>
 		<title><?php echo $page->header['title']; ?></title>
+		<meta name="robots" content="noindex,nofollow" />
 		<?php foreach ($page->header['metadata'] as $meta => $data) { ?>
 		<meta name="<?php echo $meta; ?>" content="<?php echo $data; ?>" />
 		<?php } ?>

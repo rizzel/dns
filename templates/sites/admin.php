@@ -1,6 +1,6 @@
 <div id="admin">
-	<h4>Administration</h4>
-	<h5>Users</h5>
+	<h3>Administration</h3>
+	<h4>Users</h4>
 	<input type="button" id="user_hinzu_button" value="User hinzufügen" />
 	<div id="user_hinzu" class="hider">
 		<label for="user_hinzu_username">Name:</label>
@@ -44,7 +44,7 @@
 		<input type="button" class="popupAbort" value="Abbruch" />
 	</div>
 
-	<h5>Domains</h5>
+	<h4>Domains</h4>
 	<input type="button" id="domain_hinzu_button" value="Domain hinzufügen" />
 	<div id="domain_hinzu" class="hider">
 		<label for="domain_hinzu_name">Name:</label>

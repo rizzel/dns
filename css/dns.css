@@ -78,3 +78,9 @@ blockquote {
 	background-color: #222222;
 	padding: 5px 10px;
 }
+
+.nicht {
+	color: #000000;
+	background-color: #FF0000;
+	font-weight: bold;
+}

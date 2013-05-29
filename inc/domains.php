@@ -39,7 +39,7 @@ class DNSDomains {
 		);
 		return ($set->rowCount() > 0);
 	}
-	
+
 	public function addDomain($name, $type, $soa)
 	{
 		if ($this->page->user->getCurrentUser()->level != 'admin')
@@ -64,7 +64,7 @@ class DNSDomains {
 		if ($del->rowCount() > 0)
 			return $this->updateSOARecord($did);
 	}
-	
+
 	public function deleteSpecialRecords($domainid, $type)
 	{
 		if ($this->page->user->getCurrentUser()->level != 'admin')
@@ -101,7 +101,7 @@ class DNSDomains {
 				$this->updateSOARecord($domainid);
 		}
 	}
-	
+
 	public function updateSpecialRecord($recordid, $name, $type, $content, $ttl)
 	{
 		if ($this->page->user->getCurrentUser()->level != 'admin')
@@ -167,6 +167,17 @@ class DNSDomains {
 			return false;
 		if (strlen($name) == 0 || strlen($content) == 0 || !preg_match('/^\d+$/', $ttl))
 			return false;
+		if (!$this->testRecordType($name, $type))
+			return false;
+		$domN = $this->page->db->query("SELECT name FROM domains WHERE id = ?", $domain);
+		if (!$domN || !($dom = $domN->fetch()))
+			return false;
+		$dom = $dom['name'];
+		if (!preg_match("/$dom\$/", $name))
+			$name = "$name.$dom";
+		preg_replace('/\.\.+/', '.', $name);
+		if (!$this->isValidDomainName($name))
+			return false;
 		$set = $this->page->db->query(
 			"INSERT INTO records (domain_id, name, type, content, ttl, change_date, password, user) VALUES
 			(?, ?, ?, ?, ?, UNIX_TIMESTAMP(), ?, ?)",
@@ -177,6 +188,16 @@ class DNSDomains {
 		);
 		if ($set->rowCount() > 0)
 			return $this->updateSOARecord($domain);
+	}
+
+	private function isValidDomainName($name)
+	{
+		return (
+			!preg_match('/^\./', $name) && // darf nicht mit einem punkt beginnen
+			!preg_match('/\.$/', $name) && // darf nicht mit einem punkt aufhören
+			!preg_match('/(^|\.)-', $name) && // darf kein - am anfang einer subdomain haben
+			!preg_match('/-(\.|$)', $name) && // darf kein - am ende einer subdomain haben
+			preg_match('/^[0-9a-zA-Z.-]+$/', $name)); // darf nur diese zeichen beinhalten
 	}
 
 	public function getMyRecords()
@@ -226,6 +247,9 @@ class DNSDomains {
 
 	public function updateRecord($recordid, $key, $value)
 	{
+		if ($key == 'name' &&
+			!$this->testRecordType($value, null, $recordid))
+			return false;
 		$set = $this->page->db->query(
 			"UPDATE records r
 				INNER JOIN dns_users u
@@ -244,18 +268,60 @@ class DNSDomains {
 			return $this->updateSOARecord($this->getDomainForRecord($recordid));
 	}
 
-	public function recordUpdateIP($recordid, $password, $content)
+	/**
+	 * @param array $args DomainID, Passwort, Content
+	 */
+	public function recordUpdateIP($args)
 	{
+		if (count($args) < 2 || count($args) > 3)
+			return false;
+		if (count($args) == 2)
+			array_push($args, $this->page->user->getIPs()[0]);
 		$check = $this->page->db->query(
 			"UPDATE records
 				SET content = ?, change_date = UNIX_TIMESTAMP()
 				WHERE id = ? AND password = ? AND LENGTH(password) > 0",
-			array(
-				$content, $recordid, $password
-			)
+			array($args[2], $args[0], $args[1])
 		);
 		if ($check->rowCount() > 0)
 			return $this->updateSOARecord($this->getDomainForRecord($recordid));
+	}
+
+	/**
+	 * @param array $args DomainName, Passwort, Content
+	 */
+	public function recordUpdateIP4($args)
+	{
+		return $this->recordUpdateIPx($args[0], $args[1], 'A', count($args) > 2 ? $args[2] : null);
+	}
+
+	/**
+	 * @param array $args DomainName, Passwort, Content
+	 */
+	public function recordUpdateIP6($args)
+	{
+		return $this->recordUpdateIPx($args[0], $args[1], 'AAAA', count($args) > 2 ? $args[2] : null);
+	}
+
+	private function recordUpdateIPx($name, $passwort, $type, $content = null)
+	{
+		if ($content == null)
+			$content = $this->page->user->getIPs()[0];
+		$check = $this->page->db->query(
+			"UPDATE records
+				SET content = ?, change_date = UNIX_TIMESTAMP()
+				WHERE name = ? AND password = ? AND LENGTH(password) > 0 AND type = ?",
+			array($content, $name, $passwort, $type)
+		);
+		if ($check->rowCount() > 0)
+		{
+			$get = $this->page->db->query(
+				"SELECT domain_id FROM records WHERE name = ? AND password = ? AND LENGTH(password) > 0 AND type = ?",
+				array($name, $passwort, $type)
+			);
+			if ($get && $row = $get->fetch())
+				return $this->updateSOARecord($row['domain_id']);
+		}
 	}
 
 	private function getDomainForRecord($recordid)
@@ -263,5 +329,34 @@ class DNSDomains {
 		$get = $this->page->db->query("SELECT domain_id FROM records WHERE id = ?", $recordid);
 		if ($get && $row = $get->fetch())
 			return $row['domain_id'];
+	}
+
+	private function testRecordType($name, $type, $recordid = -1)
+	{
+		if ($type == null)
+		{
+			$get = $this->page->db->query(
+				"SELECT type FROM records WHERE id = ?",
+				$recordid
+			);
+			if ($get && $row = $get->fetch())
+				$type = $row['type'];
+		}
+		$get = $this->page->db->query(
+			"SELECT id FROM records
+				WHERE name = ? AND type = ?",
+			array($name, $type)
+		);
+		if ($get)
+		{
+			$ok = true;
+			while ($row = $get->fetch())
+			{
+				if ($row['id'] != $recordid)
+					$ok = false;
+			}
+			return $ok;
+		}
+		return $false;
 	}
 }

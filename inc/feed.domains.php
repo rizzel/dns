@@ -32,19 +32,19 @@ class DNSFeedsDomains extends DNSFeeds
 		if ($this->page->domains->deleteSpecialRecord($rid))
 			$this->setResult();
 	}
-	
+
 	public function domains_addDomainRecord($did, $rname, $rtype, $rcontent, $rttl)
 	{
 		if ($this->page->domains->insertSpecialRecord($did, $rname, $rtype, $rcontent, $rttl))
 			$this->setResult();
 	}
-	
+
 	public function domains_updateDomainRecord($rid, $rname, $rtype, $rcontent, $rttl)
 	{
 		if ($this->page->domains->updateSpecialRecord($rid, $rname, $rtype, $rcontent, $rttl))
 			$this->setResult();
 	}
-	
+
 	public function domains_updateSOA($id, $soa)
 	{
 		if ($this->page->domains->deleteSpecialRecords($id, 'SOA') &&
@@ -85,12 +85,6 @@ class DNSFeedsDomains extends DNSFeeds
 			$this->setResult();
 	}
 
-	public function domains_updateIP($recordid, $password, $ip)
-	{
-		if ($this->page->domains->recordUpdateIP($recordid, $password, $ip))
-			$this->setResult();
-	}
-
 	public function domains_updateRecordName($recordid, $name)
 	{
 		if ($this->page->domains->updateRecord($recordid, 'name', $name))
@@ -112,6 +106,15 @@ class DNSFeedsDomains extends DNSFeeds
 	public function domains_updateRecordTTL($recordid, $ttl)
 	{
 		if ($this->page->domains->updateRecord($recordid, 'ttl', $ttl))
+			$this->setResult();
+	}
+
+	public function domains_mail()
+	{
+		if (mail("dns@ggdns.de", "test", "huhu, test", implode("\n", array(
+				'From: dns@ggdns.de',
+				'Reply-To: dns@ggdns.de'
+			))))
 			$this->setResult();
 	}
 }

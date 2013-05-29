@@ -6,7 +6,7 @@ $loggedIn = $page->user->isLoggedIn();
 
 ?>
 <div id="records">
-	<h4>User Verwaltung.</h4>
+	<h3>User Verwaltung.</h3>
 <?php if ($loggedIn) { ?>
 	<div>
 		<div>

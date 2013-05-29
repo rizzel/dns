@@ -258,7 +258,7 @@ initPageSpecific = function ()
 		var password = $('#addRecordPassword');
 		var ttl = $('#addRecordTTL');
 		var ok = true;
-		if (!name.val().match(/\./))
+		if (name.val().length < 1)
 		{
 			dns.fehler(name);
 			ok = false;

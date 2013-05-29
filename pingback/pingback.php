@@ -5,7 +5,7 @@
 
 	$args = array_map('htmlspecialchars', array_map('urldecode', preg_split('/[;&]/', $_SERVER['QUERY_STRING'])));
 
-	$splitted = array();	
+	$splitted = array();
 	if (array_key_exists('PATH_INFO', $_SERVER))
 		$splitted = explode('/', $_SERVER['PATH_INFO']);
 
@@ -49,10 +49,23 @@
 			}
 			break;
 		case '/ip':
-			if ($page->domains->recordUpdateIP($args[0], $args[1], $args[2]))
+			if ($page->domains->recordUpdateIP($args))
 				exit(0);
 			else
 				$page->call404();
+			break;
+		case '/ip4':
+			if ($page->domains->recordUpdateIP4($args))
+				exit(0);
+			else
+				$page->call404();
+			break;
+		case '/ip6':
+			if ($page->domains->recordUpdateIP6($args))
+				exit(0);
+			else
+				$page->call404();
+			break;
 		default:
 			header("Content-Type: text/plain");
 			echo "PI: [[" . $_SERVER['PATH_INFO'] . "]]\n";
