@@ -116,13 +116,8 @@ class DNSFeedsDomains extends DNSFeeds
 			$this->setResult();
 			return;
 		}
-		$domN = $this->page->db->query("SELECT name FROM domains WHERE id = ?", $domainid);
-		if (!$domN || !($domain = $domN->fetch()))
-			return false;
-		$domain = $domain['name'];
-		if (!preg_match("/$domain\$/", $record))
-			$record = "$record.$domain";
-		preg_replace('/\.\.+/', '.', $record);
+		if (($record = $this->page->domains->fixRecordName($domainid, $record)) === false)
+			return;
 		if (!$this->page->domains->isValidDomainName($record))
 			$this->setResult(array('domain' => $record, 'type' => $type, 'status' => 'Ungültiger Name', 'invalid' => true));
 		elseif (!$this->page->domains->isFreeDomain($record, $type))

@@ -169,13 +169,8 @@ class DNSDomains {
 			return false;
 		if (!$this->testRecordType($name, $type))
 			return false;
-		$domN = $this->page->db->query("SELECT name FROM domains WHERE id = ?", $domain);
-		if (!$domN || !($dom = $domN->fetch()))
+		if (($name = $this->fixRecordName($domain, $name)) === false)
 			return false;
-		$dom = $dom['name'];
-		if (!preg_match("/$dom\$/", $name))
-			$name = "$name.$dom";
-		preg_replace('/\.\.+/', '.', $name);
 		if (!$this->isValidDomainName($name))
 			return false;
 		$set = $this->page->db->query(
@@ -188,6 +183,18 @@ class DNSDomains {
 		);
 		if ($set->rowCount() > 0)
 			return $this->updateSOARecord($domain);
+	}
+
+	public function fixRecordName($domainid, $record)
+	{
+		$domN = $this->page->db->query("SELECT name FROM domains WHERE id = ?", $domainid);
+		if (!$domN || !($dom = $domN->fetch()))
+			return false;
+		$dom = $dom['name'];
+		if (!preg_match("/$dom\$/", $record))
+			$record = "$record.$dom";
+		preg_replace('/\.\.+/', '.', $record);
+		return $record;
 	}
 
 	public function isFreeDomain($name, $type)
