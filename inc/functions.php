@@ -414,7 +414,7 @@ class DNSUser {
 	{
 		$ret = array($_SERVER['REMOTE_ADDR']);
 		if (array_key_exists('HTTP_X_FORWARDED_FOR', $_SERVER))
-			array_push($ret, $_SERVER['HTTP_X_FORWARDED_FOR']);
+			array_unshift($ret, $_SERVER['HTTP_X_FORWARDED_FOR']);
 		return $ret;
 	}
 }
