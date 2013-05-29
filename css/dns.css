@@ -72,3 +72,9 @@ a:hover {
 .addRecord {
 	display: none;
 }
+
+blockquote {
+	border: dotted 1px #FF6666;
+	background-color: #222222;
+	padding: 5px 10px;
+}

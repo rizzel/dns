@@ -83,6 +83,23 @@ $loggedIn = $page->user->isLoggedIn();
 		<input type="button" id="recordListTTLSubmit" value="OK" />
 		<input type="button" class="popupAbort" value="Abbruch" />
 	</div>
+	<h5>Aktualisierung eines Content-Feldes</h5>
+	<p>
+		Ein Content-Feld fuer ein Record kann ueber die URL
+		<blockquote>http://ggdns.de/ip?${DOMAINID};${PASSWORT};${CONTENT_FELD}</blockquote>
+		aktualisiert werden. Das Passwort zu jedem Record wird im Klartext gespeichert und kann
+		via Klick auf "Klick" in der Passwort-Spalte angezeigt werden.
+	</p>
+	<p>
+		Bugs und Feature-Request an <a href="mailto:rizzle@underdog-projects.net">rizzle@underdog-projects.net</a>.
+	</p>
+	<p>
+		Geplante Features:
+		<ul>
+			<li>SSL</li>
+			<li>kollisionsueberpruefung fuer Namen</li>
+		</ul>
+	</p>
 <?php
 }
 else

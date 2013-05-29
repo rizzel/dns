@@ -27,15 +27,35 @@ class DNSFeedsDomains extends DNSFeeds
 			$this->setResult();
 	}
 
+	public function domains_deleteDomainRecord($rid)
+	{
+		if ($this->page->domains->deleteSpecialRecord($rid))
+			$this->setResult();
+	}
+	
+	public function domains_addDomainRecord($did, $rname, $rtype, $rcontent, $rttl)
+	{
+		if ($this->page->domains->insertSpecialRecord($did, $rname, $rtype, $rcontent, $rttl))
+			$this->setResult();
+	}
+	
+	public function domains_updateDomainRecord($rid, $rname, $rtype, $rcontent, $rttl)
+	{
+		if ($this->page->domains->updateSpecialRecord($rid, $rname, $rtype, $rcontent, $rttl))
+			$this->setResult();
+	}
+	
 	public function domains_updateSOA($id, $soa)
 	{
-		if ($this->page->domains->updateDomainSOA($id, $soa))
+		if ($this->page->domains->deleteSpecialRecords($id, 'SOA') &&
+			$this->page->domains->insertSpecialRecord($id, NULL, 'SOA', $soa))
 			$this->setResult();
 	}
 
 	public function domains_updateMX($id, $mx)
 	{
-		if ($this->page->domains->updateDomainMX($id, $mx))
+		if ($this->page->domains->deleteSpecialRecords($id, 'MX') &&
+			$this->page->domains->insertSpecialRecord($id, NULL, 'MX', $mx))
 			$this->setResult();
 	}
 
@@ -65,7 +85,7 @@ class DNSFeedsDomains extends DNSFeeds
 			$this->setResult();
 	}
 
-	public function domaisn_updateIP($recordid, $password, $ip)
+	public function domains_updateIP($recordid, $password, $ip)
 	{
 		if ($this->page->domains->recordUpdateIP($recordid, $password, $ip))
 			$this->setResult();

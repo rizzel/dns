@@ -43,7 +43,10 @@ initPageSpecific = function ()
 							$('#users').append('<tr uid="%s" level="%s"> \
 									<td>%s</td> \
 									<td>%s</td> \
-									<td>%s</td> \
+									<td> \
+										<span class="userListZeigen">%s</span> \
+										<span class="userListZeigen" style="display: none">%s</span> \
+									</td> \
 									<td> \
 										<a href="#" class="userListDel">Entf.</a> \
 										<a href="#" class="userListLevel">Level</a> \
@@ -53,6 +56,7 @@ initPageSpecific = function ()
 								data.data[i].level,
 								data.data[i].username,
 								data.data[i].level,
+								records.length,
 								records.join('<br />')
 							));
 						}
@@ -75,6 +79,10 @@ initPageSpecific = function ()
 								.css('top', pos.top + 20)
 								.show();
 							return false;
+						});
+
+						$table.find('.userListZeigen').on('click', function () {
+							$(this).parent().find('.userListZeigen').toggle();
 						});
 					},
 					{
@@ -132,31 +140,44 @@ initPageSpecific = function ()
 						var $table = $('#domains');
 						for (var i in data.data)
 						{
-							$('#domains').append('<tr did="%d" dname="%s" dsoa="%s" dmx="%s"> \
+							var $row = $('<tr did="%d" dname="%s"> \
 									<td>%d</td> \
 									<td>%s</td> \
 									<td>%s</td> \
 									<td>%d</td> \
-									<td>%s</td> \
-									<td>%s</td> \
+									<td class="specialRecords"></td> \
 									<td> \
 										<a href="#" class="domainListDel">Entf.</a> \
 										<a href="#" class="domainListName">Name</a> \
-										<a href="#" class="domainListSOA">SOA</a> \
-										<a href="#" class="domainListMX">MX</a> \
+										<a href="#" class="domainListRecordAdd">+Rec</a> \
 									</td> \
 								</tr>'.format(
 								data.data[i].id,
 								data.data[i].name,
-								data.data[i].soa === null ? '' : data.data[i].soa,
-								data.data[i].mx === null ? '' : data.data[i].mx,
 								data.data[i].id,
 								data.data[i].name,
 								data.data[i].type,
-								data.data[i].last_check,
-								data.data[i].soa === null ? 'Keiner' : data.data[i].soa,
-								data.data[i].mx === null ? 'Keiner' : data.data[i].mx
+								data.data[i].last_check
 							));
+							var $special = $row.find('.specialRecords').append(
+								'<table border="1"><tr><th>ID</th><th>Name</th><th>Type</th><th>Content</th><th>TTL</th><th>OP</th></tr>'
+							);
+							for (var j in data.data[i].records)
+							{
+								var r = data.data[i].records[j];
+								$special.find('table').append('<tr rid="%d" rname="%s" rtype="%s" rcontent="%s" rttl="%s"> \
+															  <td>%d</td><td>%s</td><td>%s</td><td>%s</td><td>%d</td> \
+															  <td> \
+															  <a href="#" title="Editieren" class="domainListRecordEdit">#</a> \
+															  <a href="#" title="Loeschen" class="domainListRecordDelete">-</a> \
+															  </td> \
+															  </tr>'.format(
+									r.id, r.name, r.type, r.content, r.ttl,
+									r.id, r.name, r.type, r.content, r.ttl
+								));
+							}
+							$row.find('.specialRecords').append('</table>');
+							$('#domains').append($row);
 						}
 
 						$table.find('.domainListDel').on('click', function () {
@@ -178,29 +199,48 @@ initPageSpecific = function ()
 								.show();
 							return false;
 						});
-						$table.find('.domainListSOA').on('click', function () {
+						
+						$table.find('.domainListRecordAdd').on('click', function () {
 							var $this = $(this);
 							var pos = $this.offset();
-							var d = $this.parents('tr').attr('did');
-							$('#domainsListSOA').val($this.parents('tr').attr('soa'));
-							$('#domainsListSOAPopup')
-								.attr('did', d)
+							$('#domainsListRecordName').val($this.parents('tr').attr('dname'));
+							$('#domainsListRecordType')[0].selectedIndex = 0;
+							$('#domainsListRecordContent').val('');
+							$('#domainsListRecordTTL').val('86400');
+							$('#domainsListRecordPopup')
+								.removeAttr('rid')
+								.attr('did', $(this).parents('tr[did]').attr('did'))
 								.css('left', pos.left - 60)
 								.css('top', pos.top + 20)
 								.show();
 							return false;
 						});
-						$table.find('.domainListMX').on('click', function () {
+						
+						$table.find('.domainListRecordEdit').on('click', function () {
 							var $this = $(this);
 							var pos = $this.offset();
-							var d = $this.parents('tr').attr('did');
-							$('#domainsListMX').val($this.parents('tr').attr('mx'));
-							$('#domainsListMXPopup')
-								.attr('did', d)
+							var r = $this.parents('tr').attr('rid');
+							var $tr = $this.parents('tr');
+							$('#domainsListRecordName').val($tr.attr('rname'));
+							$('#domainsListRecordType').val($tr.attr('rtype'));
+							$('#domainsListRecordContent').val($tr.attr('rcontent'));
+							$('#domainsListRecordTTL').val($tr.attr('rttl'));
+							$('#domainsListRecordPopup')
+								.attr('rid', r)
 								.css('left', pos.left - 60)
 								.css('top', pos.top + 20)
 								.show();
 							return false;
+						});
+						$table.find('.domainListRecordDelete').on('click', function () {
+							var rid = $(this).parents('tr').attr('rid');
+							var rname = $(this).parents('tr').attr('rname');
+							var rtype = $(this).parents('tr').attr('rtype');
+							var dname = $(this).parents('tr').parents('tr').attr('dname');
+							if (confirm("Record %s (%s) von Domain %s wirklich loeschen?".format(
+								rname, rtype, dname
+							)))
+								dns.admin.domains.recordDel(rid);
 						});
 					},
 					{
@@ -219,6 +259,14 @@ initPageSpecific = function ()
 					}
 				);
 			},
+			'recordDel': function (rid) {
+				dns.loadRemote.loadRemote('domains/deleteDomainRecord',
+					[rid],
+					function (data, success) {
+						dns.admin.domains.list();
+					}
+				);
+			},
 			'updateName': function (did, name) {
 				dns.loadRemote.loadRemote('domains/updateName',
 					[did, name],
@@ -230,26 +278,24 @@ initPageSpecific = function ()
 					{insertInDiv: $('#loadProgresses')}
 				);
 			},
-			'updateSOA': function (did, soa) {
-				dns.loadRemote.loadRemote('domains/updateSOA',
-					[did, soa],
+			'recordAdd': function (did, rname, rtype, rcontent, rttl) {
+				dns.loadRemote.loadRemote('domains/addDomainRecord',
+					[did, rname, rtype, rcontent, rttl],
 					function (data, success) {
 						if (success)
-							$('#domainsListSOAPopup').hide();
+							$('#domainsListRecordPopup').hide();
 						dns.admin.domains.list();
-					},
-					{insertInDiv: $('#loadProgresses')}
+					}
 				);
 			},
-			'updateMX': function (did, mx) {
-				dns.loadRemote.loadRemote('domains/updateMX',
-					[did, mx],
+			'recordUpdate': function (rid, rname, rtype, rcontent, rttl) {
+				dns.loadRemote.loadRemote('domains/updateDomainRecord',
+					[rid, rname, rtype, rcontent, rttl],
 					function (data, success) {
 						if (success)
-							$('#domainsListMXPopup').hide();
+							$('#domainsListRecordPopup').hide();
 						dns.admin.domains.list();
-					},
-					{insertInDiv: $('#loadProgresses')}
+					}
 				);
 			}
 		}
@@ -334,7 +380,6 @@ initPageSpecific = function ()
 		}
 	});
 
-
 	$('#domain_hinzu_submit').on('click', function () {
 		var name = $('#domain_hinzu_name');
 		var ok = true;
@@ -360,14 +405,21 @@ initPageSpecific = function ()
 		dns.admin.domains.updateName(d, $('#domainsListName').val());
 	});
 
-	$('#domainsListSOASubmit').on('click', function () {
-		var d = $('#domainsListSOAPopup').attr('did');
-		dns.admin.domains.updateSOA(d, $('#domainsListSOA').val());
-	});
-
-	$('#domainsListMXSubmit').on('click', function () {
-		var d = $('#domainsListMXPopup').attr('did');
-		dns.admin.domains.updateMX(d, $('#domainsListMX').val());
+	$('#domainsListRecordSubmit').on('click', function () {
+		var d = $('#domainsListRecordPopup').attr('did');
+		var r = $('#domainsListRecordPopup').attr('rid');
+		var rname = $('#domainsListRecordName').val();
+		var rtype = $('#domainsListRecordType').val();
+		var rcontent = $('#domainsListRecordContent').val();
+		var rttl = $('#domainsListRecordTTL').val();
+		if (typeof(r) == 'undefined')
+		{ // neuer record
+			dns.admin.domains.recordAdd(d, rname, rtype, rcontent, rttl);
+		}
+		else
+		{
+			dns.admin.domains.recordUpdate(r, rname, rtype, rcontent, rttl);
+		}
 	});
 
 	dns.admin.users.list();

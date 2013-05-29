@@ -13,17 +13,34 @@ class DNSDomains {
 		if ($this->page->user->getCurrentUser()->level != 'admin')
 			return false;
 		$get = $this->page->db->query(
-			"SELECT d.*, r.content AS mx, LEFT(r2.content, LENGTH(r2.content) - 2) AS soa FROM domains d
-				LEFT JOIN records r
-				ON r.domain_id = d.id AND r.type = 'MX'
-				LEFT JOIN records r2
-				ON r2.domain_id = d.id AND r2.type = 'SOA'
-				GROUP BY d.id"
+			"SELECT * FROM domains d"
 		);
-		return $get->fetchall();
+		$result = $get->fetchall();
+		foreach($result AS &$r)
+		{
+			$get = $this->page->db->query(
+				"SELECT id, name, type,
+					IF(type = 'SOA', SUBSTRING_INDEX(content, ' ', 2), content) AS content, ttl FROM records
+					WHERE domain_id = ? AND (type NOT IN ('A', 'AAAA', 'CNAME') OR user = '')",
+				$r['id']
+			);
+			$r['records'] = $get->fetchall();
+		}
+		return $result;
 	}
 
-	public function addDomain($name, $type, $soa, $mx)
+	private function updateSOARecord($domainid)
+	{
+		$set = $this->page->db->query(
+			"UPDATE records
+				SET content = CONCAT(SUBSTRING_INDEX(content, ' ', 2), ' ', UNIX_TIMESTAMP())
+				WHERE domain_id = ? AND type = 'SOA'",
+			$domainid
+		);
+		return ($set->rowCount() > 0);
+	}
+	
+	public function addDomain($name, $type, $soa)
 	{
 		if ($this->page->user->getCurrentUser()->level != 'admin')
 			return false;
@@ -32,43 +49,69 @@ class DNSDomains {
 			array($name, $type)
 		);
 		$id = $this->page->db->handle->lastInsertId();
-		$this->insertSOARecord($id, $name, $soa);
-		$this->insertMXRecord($id, $name, $mx);
+		$this->insertSpecialRecord($id, $name, 'SOA', $soa);
 		return true;
 	}
 
-	private function insertSOARecord($domainid, $name, $soa)
+	public function deleteSpecialRecord($recordid)
 	{
-		if ($soa && strlen($soa) > 0)
-		{
-			$this->page->db->query(
-				"INSERT INTO records (domain_id, name, type, content, ttl, change_date, user)
-				VALUES (?, ?, 'SOA', ?, 86400, UNIX_TIMESTAMP(), ?)",
-				array(
-					$domainid,
-					$name,
-					$soa . ' 0',
-					$this->page->user->getCurrentUser()->username
-				)
-			);
-		}
+		if ($this->page->user->getCurrentUser()->level != 'admin')
+			return false;
+		$did = $this->getDomainForRecord($recordid);
+		$del = $this->page->db->query(
+			"DELETE FROM records WHERE id = ?", $recordid
+		);
+		if ($del->rowCount() > 0)
+			return $this->updateSOARecord($did);
+	}
+	
+	public function deleteSpecialRecords($domainid, $type)
+	{
+		if ($this->page->user->getCurrentUser()->level != 'admin')
+			return false;
+		$del = $this->page->db->query(
+			"DELETE FROM records WHERE domain_id = ? AND type = ?",
+			array($domainid, $type)
+		);
+		if ($del->rowCount() > 0)
+			return $this->updateSOARecord($domainid);
 	}
 
-	private function insertMXRecord($domainid, $name, $mx)
+	public function insertSpecialRecord($domainid, $name, $type, $content, $ttl = 86400)
 	{
-		if ($mx && strlen($mx) > 0)
+		if ($this->page->user->getCurrentUser()->level != 'admin')
+			return false;
+		if ($content && strlen($content) > 0)
 		{
-			$this->page->db->query(
-				"INSERT INTO records (domain_id, name, type, content, ttl, prio, change_date, user)
-				VALUES (?, ?, 'MX', ? ,86400, 1, UNIX_TIMESTAMP(), ?)",
+			if ($name === NULL)
+				$name = $this->getDomainName($domainid);
+			$in = $this->page->db->query(
+				sprintf("INSERT INTO records (domain_id, name, type, content, ttl, change_date)
+				VALUES (?, ?, ?, %s, ?, UNIX_TIMESTAMP())",
+				$type == 'SOA' ? 'CONCAT(?, UNIX_TIMESTAMP())' : '?'),
 				array(
 					$domainid,
 					$name,
-					$mx,
-					$this->page->user->getCurrentUser()->username
+					$type,
+					$content,
+					$ttl
 				)
 			);
+			if ($in->rowCount() > 0)
+				$this->updateSOARecord($domainid);
 		}
+	}
+	
+	public function updateSpecialRecord($recordid, $name, $type, $content, $ttl)
+	{
+		if ($this->page->user->getCurrentUser()->level != 'admin')
+			return false;
+		$set = $this->page->db->query(
+			"UPDATE records SET name = ?, type = ?, content = ?, ttl = ? WHERE id = ?",
+			array($name, $type, $content, $ttl, $recordid)
+		);
+		if ($set->rowCount() > 0)
+			$this->updateSOARecord($this->getDomainForRecord($recordid));
 	}
 
 	public function deleteDomain($id)
@@ -91,55 +134,19 @@ class DNSDomains {
 		if ($this->page->user->getCurrentUser()->level != 'admin' ||
 			strlen($name) < 1 || strlen($name) > 255)
 			return false;
-		$this->page->db->query(
+		$set = $this->page->db->query(
 			"UPDATE domains SET name = ? WHERE id = ?",
 			array($name, $id)
 		);
-		return true;
+		if ($set->rowCount() > 0)
+			return $this->updateSOARecord($id);
 	}
 
-	public function updateDomainSOA($id, $soa)
+	private function getDomainName($domainid)
 	{
-		if ($this->page->user->getCurrentUser()->level != 'admin')
-			return false;
-		$this->page->db->query(
-			"DELETE FROM records WHERE domain_id = ? AND type = 'SOA'",
-			array($id)
-		);
-		$get = $this->page->db->query(
-			"SELECT name FROM domains WHERE id = ?",
-			array($id)
-		);
-		if ($get)
-		{
-			$row = $get->fetch();
-			$get->closeCursor();
-		}
-		if ($row)
-			$this->insertSOARecord($id, $row['name'], $soa);
-		return true;
-	}
-
-	public function updateDomainMX($id, $mx)
-	{
-		if ($this->page->user->getCurrentUser()->level != 'admin')
-			return false;
-		$this->page->db->query(
-			"DELETE FROM records WHERE domain_id = ? AND type = 'MX'",
-			array($id)
-		);
-		$get = $this->page->db->query(
-			"SELECT name FROM domains WHERE id = ?",
-			array($id)
-		);
-		if ($get)
-		{
-			$row = $get->fetch();
-			$get->closeCursor();
-		}
-		if ($row)
-			$this->insertMXRecord($id, $row['name'], $mx);
-		return true;
+		$get = $this->page->db->query("SELECT name FROM domains WHERE id = ?", $id);
+		if ($get && $row = $get->fetch())
+			return $row['name'];
 	}
 
 	public function getDomainsMini()
@@ -156,7 +163,11 @@ class DNSDomains {
 	{
 		if ($this->page->user->getCurrentUser()->level == 'nobody')
 			return false;
-		$this->page->db->query(
+		if (!in_array($type, array('A', 'AAAA', 'CNAME')))
+			return false;
+		if (strlen($name) == 0 || strlen($content) == 0 || !preg_match('/^\d+$/', $ttl))
+			return false;
+		$set = $this->page->db->query(
 			"INSERT INTO records (domain_id, name, type, content, ttl, change_date, password, user) VALUES
 			(?, ?, ?, ?, ?, UNIX_TIMESTAMP(), ?, ?)",
 			array(
@@ -164,7 +175,8 @@ class DNSDomains {
 				$this->page->user->getCurrentUser()->username
 			)
 		);
-		return TRUE;
+		if ($set->rowCount() > 0)
+			return $this->updateSOARecord($domain);
 	}
 
 	public function getMyRecords()
@@ -197,19 +209,19 @@ class DNSDomains {
 
 	public function deleteRecord($recordid)
 	{
+		$did = $this->getDomainForRecord($recordid);
 		$set = $this->page->db->query(
-			"DELETE records FROM records r
-				INNER JOIN dns_users u
-				ON r.user = u.username
+			"DELETE FROM records
 				WHERE id = ? AND
-					(? = 'admin' OR u.username = ?)",
+					(? = 'admin' OR user = ?)",
 			array(
 				$recordid,
 				$this->page->user->getCurrentUser()->level,
 				$this->page->user->getCurrentUser()->username
 			)
 		);
-		return ($set->rowCount() > 0);
+		if ($set->rowCount() > 0)
+			return $this->updateSOARecord($did);
 	}
 
 	public function updateRecord($recordid, $key, $value)
@@ -228,7 +240,8 @@ class DNSDomains {
 				$this->page->user->getCurrentUser()->username
 			)
 		);
-		return ($set->rowCount() > 0);
+		if ($set->rowCount() > 0)
+			return $this->updateSOARecord($this->getDomainForRecord($recordid));
 	}
 
 	public function recordUpdateIP($recordid, $password, $content)
@@ -236,11 +249,19 @@ class DNSDomains {
 		$check = $this->page->db->query(
 			"UPDATE records
 				SET content = ?, change_date = UNIX_TIMESTAMP()
-				WHERE id = ? AND password = ?",
+				WHERE id = ? AND password = ? AND LENGTH(password) > 0",
 			array(
 				$content, $recordid, $password
 			)
 		);
-		return ($set->rowCount() > 0);
+		if ($check->rowCount() > 0)
+			return $this->updateSOARecord($this->getDomainForRecord($recordid));
+	}
+
+	private function getDomainForRecord($recordid)
+	{
+		$get = $this->page->db->query("SELECT domain_id FROM records WHERE id = ?", $recordid);
+		if ($get && $row = $get->fetch())
+			return $row['domain_id'];
 	}
 }

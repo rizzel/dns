@@ -69,8 +69,7 @@
 			<th>Name</th>
 			<th>Type</th>
 			<th>Last Check</th>
-			<th>SOA</th>
-			<th>MX</th>
+			<th>Spezielle Records</th>
 			<th>Operation</th>
 		</tr>
 	</table>
@@ -82,18 +81,43 @@
 		<input type="button" id="domainsListNameSubmit" value="OK" />
 		<input type="button" class="popupAbort" value="Abbruch" />
 	</div>
-	<div id="domainsListSOAPopup" class="popup" style="display: none">
-		<label for="domainsListSOA">SOA-Eintrag:</label>
-		<input type="text" id="domainsListSOA" />
+	<div id="domainsListRecordPopup" class="popup" style="display: none">
+		<label for="domainsListRecordName">Name:</label>
+		<input type="text" id="domainsListRecordName" />
 		<br />
-		<input type="button" id="domainsListSOASubmit" value="OK" />
-		<input type="button" class="popupAbort" value="Abbruch" />
-	</div>
-	<div id="domainsListMXPopup" class="popup" style="display: none">
-		<label for="domainsListMX">Name:</label>
-		<input type="text" id="domainsListMX" />
+		<label for="domainsListRecordType">Type:</label>
+		<select id="domainsListRecordType">
+			<option>A</option>
+			<option>AAAA</option>
+			<option value="CERT">CERT (pdns2.9.21)</option>
+			<option>CNAME</option>
+			<option value="DNSKEY">DNSKEY (pdns2.9.21)</option>
+			<option value="DS">DS (pdns 2.9.21)</option>
+			<option>HINFO</option>
+			<option value="KEY">KEY (pdns 2.9.21)</option>
+			<option>LOC</option>
+			<option>MX</option>
+			<option>NAPTR</option>
+			<option>NS</option>
+			<option value="NSEC">NSEC (pdns 2.9.21)</option>
+			<option>PTR</option>
+			<option>RP</option>
+			<option value="RRSIG">RRSIG (pdns 2.9.21)</option>
+			<option>SOA</option>
+			<option>SPF</option>
+			<option>SSHFP</option>
+			<option>SRV</option>
+			<option>TXT</option>
+		</select>
+		<span>Siehe <a href="http://doc.powerdns.com/html/types.html" target="_blank">hier</a></span>
 		<br />
-		<input type="button" id="domainsListMXSubmit" value="OK" />
+		<label for="domainsListRecordContent">Content:</label>
+		<input type="text" id="domainsListRecordContent" size="32" />
+		<br />
+		<label for="domainsListRecordTTL">TTL:</label>
+		<input type="number" min="5" id="domainsListRecordTTL" />
+		<br />
+		<input type="button" id="domainsListRecordSubmit" value="OK" />
 		<input type="button" class="popupAbort" value="Abbruch" />
 	</div>
 </div>

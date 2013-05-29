@@ -5,7 +5,9 @@
 
 	$args = array_map('htmlspecialchars', array_map('urldecode', preg_split('/[;&]/', $_SERVER['QUERY_STRING'])));
 
-	$splitted = explode('/', $_SERVER['PATH_INFO']);
+	$splitted = array();	
+	if (array_key_exists('PATH_INFO', $_SERVER))
+		$splitted = explode('/', $_SERVER['PATH_INFO']);
 
 	if (array_key_exists('q', $_POST)) {
 		$page->queryParams = json_decode($_POST['q']);
@@ -21,7 +23,7 @@
 			});
 			$function = $splitted[0] . "_" . $splitted[1];
 			if (!isset($page->queryParams)) {
-				$page->queryParams = array();
+				$page->queryParams = $args;
 			}
 			if (array_search($function, $methods) !== FALSE) {
 				call_user_func_array(array($class, $function), $page->queryParams);
@@ -31,7 +33,7 @@
 		}
 	}
 
-	switch($_SERVER['PATH_INFO']) {
+	switch($_SERVER['SCRIPT_NAME']) {
 		case '/js':
 			header("Content-Type: text/javascript; charset=utf-8");
 			$js = $page->settings->defaultScripts;
@@ -46,11 +48,17 @@
 				include("../css/" . $c);
 			}
 			break;
+		case '/ip':
+			if ($page->domains->recordUpdateIP($args[0], $args[1], $args[2]))
+				exit(0);
+			else
+				$page->call404();
 		default:
 			header("Content-Type: text/plain");
 			echo "PI: [[" . $_SERVER['PATH_INFO'] . "]]\n";
 			echo "QS: [[" . $_SERVER['QUERY_STRING'] . "]]\n";
 			echo "POST: [["; print_r(array_keys($_POST)); echo "]]\n";
+			echo "SERVER: [["; print_r($_SERVER); echo "]]\n";
 			print_r($args);
 			break;
 	}

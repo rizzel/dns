@@ -131,7 +131,7 @@ function LoadRemote()
 	settings = {
 		insertAfterButton: $this
 	}
-	or:
+	or (default):
 	settings = {
 		insertInDiv: $('#loadProgresses')
 	}
@@ -210,7 +210,7 @@ function LoadRemote()
 	this.loadRemote = function(module, query, callback, settings)
     {
 		if (settings == undefined)
-            settings = {};
+            settings = {insertInDiv: $('#loadProgresses')};
 
 		settings.module = module;
 

@@ -505,15 +505,6 @@ abstract class DNSFeeds {
 				echo $this->result['data'];
 			} else {
 				$this->result['user'] = $this->page->user->getCurrentUser();
-				if (array_search('withLists', $this->page->queryParams) !== FALSE) {
-					$this->result['lists'] = (new Mangas($this->page))->getGlobalLists();
-				}
-				if (array_search('withUserLevels', $this->page->queryParams) !== FALSE) {
-					$this->result['userLevels'] = $this->page->user->getUserLevels();
-				}
-				if (array_search('withMangaCount', $this->page->queryParams) !== FALSE) {
-					$this->result['mangaCount'] = (new Mangas($this->page))->getMangaCount();
-				}
 				echo json_encode($this->result);
 			}
 		}
