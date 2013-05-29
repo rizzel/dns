@@ -113,9 +113,8 @@ $loggedIn = $page->user->isLoggedIn();
 	<p>
 		Es gibt 3 verschiedene Records die gesetzt werden können.
 		Jedes dieser Records muss einer Domain zugeordnet werden.
-		Derzeit gibt es nur ggdns.de, wenn andere Domains gewünscht und gesponsert werden kann
-		mir Bescheid gegeben werden. Die Domain sollte mit dem Ende des Namens des Records
-		übereinstimmen.
+		Derzeit gibt es nur ggdns.de, wenn andere Domains gewünscht (===gesponsert) werden
+		- einfach melden.
 	</p>
 	<p>
 		Regeln für Domain-Namen:
