@@ -83,6 +83,7 @@ $loggedIn = $page->user->isLoggedIn();
 		<input type="button" id="recordListTTLSubmit" value="OK" />
 		<input type="button" class="popupAbort" value="Abbruch" />
 	</div>
+
 	<h4>Aktualisierung eines Content-Feldes</h4>
 	<p>
 		Ein Content-Feld kann über eine Reihe von URLs aktualisiert werden.
@@ -99,6 +100,13 @@ $loggedIn = $page->user->isLoggedIn();
 		<blockquote>http://ggdns.de/ip?${DOMAINID};${PASSWORT};${CONTENT_FELD}</blockquote>
 		<blockquote>http://ggdns.de/ip4?${DOMAINNAME};${PASSWORT};${CONTENT_FELD}</blockquote>
 		<blockquote>http://ggdns.de/ip6?${DOMAINNAME};${PASSWORT};${CONTENT_FELD}</blockquote>
+	</p>
+
+	<h4>Client IP</h4>
+	<p>
+		Die IP des Clients aus Sicht des Webservers ggdns.de kann via
+		<blockquote>http://ggdns.de/myip</blockquote>
+		abgefragt werden.
 	</p>
 
 	<h4>Erzeugung von Records</h4>

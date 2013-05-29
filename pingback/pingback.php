@@ -66,6 +66,9 @@
 			else
 				$page->call404();
 			break;
+		case '/myip':
+			print implode("\n", $page->user->getIPs());
+			break;
 		default:
 			header("Content-Type: text/plain");
 			echo "PI: [[" . $_SERVER['PATH_INFO'] . "]]\n";
