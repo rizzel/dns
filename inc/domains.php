@@ -195,8 +195,8 @@ class DNSDomains {
 		return (
 			!preg_match('/^\./', $name) && // darf nicht mit einem punkt beginnen
 			!preg_match('/\.$/', $name) && // darf nicht mit einem punkt aufhören
-			!preg_match('/(^|\.)-', $name) && // darf kein - am anfang einer subdomain haben
-			!preg_match('/-(\.|$)', $name) && // darf kein - am ende einer subdomain haben
+			!preg_match('/(^|\.)-/', $name) && // darf kein - am anfang einer subdomain haben
+			!preg_match('/-(\.|$)/', $name) && // darf kein - am ende einer subdomain haben
 			preg_match('/^[0-9a-zA-Z.-]+$/', $name)); // darf nur diese zeichen beinhalten
 	}
 
