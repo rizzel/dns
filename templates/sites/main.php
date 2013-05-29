@@ -98,6 +98,7 @@ $loggedIn = $page->user->isLoggedIn();
 		<ul>
 			<li>SSL</li>
 			<li>kollisionsueberpruefung fuer Namen</li>
+			<li>Email-Nachfragen für Aktionen (Passwort-Änderung, Record hinzufügen / entfernen</li>
 		</ul>
 	</p>
 <?php
