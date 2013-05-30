@@ -160,8 +160,8 @@ $loggedIn = $page->user->isLoggedIn();
 	<p>
 		Geplante Features:
 		<ul>
-			<li>SSL</li>
-			<li>Email-Nachfragen für Aktionen (Passwort-Änderung, Record hinzufügen / entfernen</li>
+			<li class="fertig">SSL</li>
+			<li class="fertig">Email-Nachfragen für Aktionen (Passwort-Änderung, Record hinzufügen / entfernen)</li>
 		</ul>
 	</p>
 	<h4></h4>
