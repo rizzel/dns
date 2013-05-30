@@ -15,6 +15,8 @@ initPageSpecific = function ()
 			);
 		},
 		'list': function () {
+			if (dns.user.user.level == 'nobody')
+				return;
 			dns.loadRemote.loadRemote('domains/myRecords',
 				[],
 				function (data, success) {
@@ -341,7 +343,6 @@ initPageSpecific = function ()
 		var r = $('#recordListTTLPopup').attr('rid');
 		dns.record.updateTTL(r, $('#recordListTTL').val());
 	});
-
 
 	dns.record.list();
 };
