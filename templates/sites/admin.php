@@ -1,7 +1,7 @@
 <div id="admin">
 	<h3>Administration</h3>
-	<h4>Users</h4>
-	<input type="button" id="user_hinzu_button" value="User hinzufügen" />
+	<h4>Benutzer</h4>
+	<input type="button" id="user_hinzu_button" value="Benutzer hinzufügen" />
 	<div id="user_hinzu" class="hider">
 		<label for="user_hinzu_username">Name:</label>
 		<input type="text" id="user_hinzu_username" />
@@ -28,7 +28,7 @@
 	</div>
 	<table id="users" border="1">
 		<tr>
-			<th>Username</th>
+			<th>Benutzer</th>
 			<th>Level</th>
 			<th>Email</th>
 			<th>Records</th>
@@ -68,7 +68,7 @@
 		<tr>
 			<th>ID</th>
 			<th>Name</th>
-			<th>Type</th>
+			<th>Typ</th>
 			<th>Last Check</th>
 			<th>Spezielle Records</th>
 			<th>Operation</th>
@@ -86,7 +86,7 @@
 		<label for="domainsListRecordName">Name:</label>
 		<input type="text" id="domainsListRecordName" />
 		<br />
-		<label for="domainsListRecordType">Type:</label>
+		<label for="domainsListRecordType">Typ:</label>
 		<select id="domainsListRecordType">
 			<option>A</option>
 			<option>AAAA</option>

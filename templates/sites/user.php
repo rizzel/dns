@@ -6,10 +6,10 @@ $loggedIn = $page->user->isLoggedIn();
 
 ?>
 <div id="records">
-	<h3>User Verwaltung.</h3>
+	<h3>Benutzer Verwaltung.</h3>
 <?php if ($loggedIn) { ?>
 	<div>
-		<label for="password1">Neues Password:</label>
+		<label for="password1">Neues Passwort:</label>
 		<input type="password" id="password1" />
 		<input type="password" id="password2" />
 		<input type="button" id="password_submit" value="Aktualisieren" />

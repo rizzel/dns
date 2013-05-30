@@ -13,7 +13,7 @@ class DNSDomains {
 		if ($this->page->user->getCurrentUser()->level != 'admin')
 			return false;
 		$get = $this->page->db->query(
-			"SELECT * FROM domains d"
+			"SELECT * FROM domains d ORDER BY name"
 		);
 		$result = $get->fetchall();
 		foreach($result AS &$r)
@@ -21,7 +21,7 @@ class DNSDomains {
 			$get = $this->page->db->query(
 				"SELECT id, name, type,
 					IF(type = 'SOA', SUBSTRING_INDEX(content, ' ', 2), content) AS content, ttl FROM records
-					WHERE domain_id = ? AND (type NOT IN ('A', 'AAAA', 'CNAME') OR user = '')",
+					WHERE domain_id = ? AND (type NOT IN ('A', 'AAAA', 'CNAME') OR user = '') ORDER BY name, type, content",
 				$r['id']
 			);
 			$r['records'] = $get->fetchall();
@@ -154,7 +154,7 @@ class DNSDomains {
 		if ($this->page->user->getCurrentUser()->level == 'nobody')
 			return false;
 		$get = $this->page->db->query(
-			"SELECT id, name FROM domains"
+			"SELECT id, name FROM domains ORDER BY name"
 		);
 		return $get->fetchall();
 	}
@@ -245,7 +245,8 @@ class DNSDomains {
 				INNER JOIN domains d
 				ON r.domain_id = d.id
 				WHERE r.user=? AND
-				r.type IN ('A', 'AAAA', 'CNAME')",
+				r.type IN ('A', 'AAAA', 'CNAME')
+				ORDER BY domain_name, name, type, content",
 			array(
 				$this->page->user->getCurrentUser()->username
 			)
