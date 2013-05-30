@@ -182,7 +182,16 @@ class DNSDomains {
 			)
 		);
 		if ($set->rowCount() > 0)
+		{
+			$this->page->email->sendToCurrent(
+				"Neuer Record: $name",
+				"Für Ihren Nutzer wurde ein neuer Record angelegt:
+	Name:    $name
+	Typ:     $type
+	Content: $content"
+			);
 			return $this->updateSOARecord($domain);
+		}
 	}
 
 	public function fixRecordName($domainid, $record)
@@ -247,6 +256,8 @@ class DNSDomains {
 	public function deleteRecord($recordid)
 	{
 		$did = $this->getDomainForRecord($recordid);
+		$get = $this->page->db->query("SELECT name FROM records WHERE id = ?", $recordid);
+		$row = @$get->fetch();
 		$set = $this->page->db->query(
 			"DELETE FROM records
 				WHERE id = ? AND
@@ -258,7 +269,14 @@ class DNSDomains {
 			)
 		);
 		if ($set->rowCount() > 0)
+		{
+			$this->page->email->sendToCurrent(
+				"Record gelöscht: " . $row['name'],
+				"Für Ihren Nutzer wurde ein Record gelöscht:
+	Name: " . $row['name']
+			);
 			return $this->updateSOARecord($did);
+		}
 	}
 
 	public function updateRecord($recordid, $key, $value)
@@ -266,6 +284,8 @@ class DNSDomains {
 		if ($key == 'name' &&
 			!$this->testRecordType($value, null, $recordid))
 			return false;
+		$get = $this->page->db->query("SELECT name FROM records WHERE id = ?", $recordid);
+		$row = @$get->fetch();
 		$set = $this->page->db->query(
 			"UPDATE records r
 				INNER JOIN dns_users u
@@ -281,7 +301,16 @@ class DNSDomains {
 			)
 		);
 		if ($set->rowCount() > 0)
+		{
+			$this->page->email->sendToCurrent(
+				"Record geändert: " . $row['name'],
+				"Für Ihren Nutzer wurde ein Record geändert:
+	Name:      " . $row['name'] . "
+	Parameter: $key,
+	Wert:      $value"
+			);
 			return $this->updateSOARecord($this->getDomainForRecord($recordid));
+		}
 	}
 
 	/**

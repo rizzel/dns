@@ -9,9 +9,9 @@ class DNSFeedsDomains extends DNSFeeds
 			$this->setResult($d);
 	}
 
-	public function domains_add($name, $type, $soa, $mx)
+	public function domains_add($name, $type, $soa)
 	{
-		if ($this->page->domains->addDomain($name, $type, $soa, $mx))
+		if ($this->page->domains->addDomain($name, $type, $soa))
 			$this->setResult();
 	}
 
@@ -124,14 +124,5 @@ class DNSFeedsDomains extends DNSFeeds
 			$this->setResult(array('domain' => $record, 'type' => $type, 'status' => 'Nicht mehr frei'));
 		else
 			$this->setResult(array('domain' => $record, 'type' => $type, 'status' => 'Domain ist frei', 'free' => true));
-	}
-
-	public function domains_mail()
-	{
-		if (mail("dns@ggdns.de", "test", "huhu, test", implode("\n", array(
-				'From: dns@ggdns.de',
-				'Reply-To: dns@ggdns.de'
-			))))
-			$this->setResult();
 	}
 }

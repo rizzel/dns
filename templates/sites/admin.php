@@ -14,6 +14,9 @@
 		</span>
 		<span id="user_hinzu_nomatch" style="display: none">Verschieden</span>
 		<br />
+		<label for="user_hinzu_email">Email:</label>
+		<input type="text" id="user_hinzu_email" />
+		<br />
 		<label for="user_hinzu_level">Level:</label>
 		<select id="user_hinzu_level">
 			<option value="nobody">nobody</option>
@@ -27,6 +30,7 @@
 		<tr>
 			<th>Username</th>
 			<th>Level</th>
+			<th>Email</th>
 			<th>Records</th>
 			<th>Operation</th>
 		</tr>
@@ -57,9 +61,6 @@
 		<br />
 		<label for="domain_hinzu_soa">Soa Zeile bestehend aus '$MasterDNS $Email':</label>
 		<input type="text" id="domain_hinzu_soa" size="64" />
-		<br />
-		<label for="domain_hinzu_mx">MX Domain:</label>
-		<input type="text" id="domain_hinzu_mx" size="32" />
 		<br />
 		<input type="button" id="domain_hinzu_submit" value="Hinzufügen" />
 	</div>

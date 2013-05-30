@@ -43,6 +43,7 @@ initPageSpecific = function ()
 							$('#users').append('<tr uid="%s" level="%s"> \
 									<td>%s</td> \
 									<td>%s</td> \
+									<td>%s</td> \
 									<td> \
 										<span class="userListZeigen">%s</span> \
 										<span class="userListZeigen" style="display: none">%s</span> \
@@ -56,6 +57,8 @@ initPageSpecific = function ()
 								data.data[i].level,
 								data.data[i].username,
 								data.data[i].level,
+								data.data[i].email.length > 0 ? '<a href="mailto:%s">%s</a>'.format(
+									data.data[i].email, data.data[i].email) : 'unbekannt',
 								records.length,
 								records.join('<br />')
 							));
@@ -119,9 +122,9 @@ initPageSpecific = function ()
 		},
 
 		'domains': {
-			'add': function (name, type, soa, mx) {
+			'add': function (name, type, soa) {
 				dns.loadRemote.loadRemote('domains/add',
-					[name, type, soa, mx],
+					[name, type, soa],
 					function (data, success) {
 						dns.admin.domains.list();
 						if (success)
@@ -199,7 +202,7 @@ initPageSpecific = function ()
 								.show();
 							return false;
 						});
-						
+
 						$table.find('.domainListRecordAdd').on('click', function () {
 							var $this = $(this);
 							var pos = $this.offset();
@@ -215,7 +218,7 @@ initPageSpecific = function ()
 								.show();
 							return false;
 						});
-						
+
 						$table.find('.domainListRecordEdit').on('click', function () {
 							var $this = $(this);
 							var pos = $this.offset();
@@ -341,6 +344,7 @@ initPageSpecific = function ()
 
 	$('#user_hinzu_submit').on('click', function () {
 		var name = $('#user_hinzu_username');
+		var email = $('#user_hinzu_email');
 		var ok = true;
 		if (name.val().length == 0)
 		{
@@ -351,6 +355,11 @@ initPageSpecific = function ()
 		{
 			dns.fehler(p1);
 			dns.fehler(p2);
+			ok = false;
+		}
+		if (!email.val().match(/@/) || email.val().length <= 3)
+		{
+			dns.fehler(email);
 			ok = false;
 		}
 		if (!ok)
@@ -393,8 +402,7 @@ initPageSpecific = function ()
 		dns.admin.domains.add(
 			$('#domain_hinzu_name').val(),
 			$('#domain_hinzu_type').val(),
-			$('#domain_hinzu_soa').val(),
-			$('#domain_hinzu_mx').val()
+			$('#domain_hinzu_soa').val()
 		);
 	});
 

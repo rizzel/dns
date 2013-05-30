@@ -183,11 +183,105 @@ class DNSEmail
 	function __construct($page)
 	{
 		$this->page = $page;
+		$this->cleanUpTokens();
 	}
 
-	public function send($to, $subject, $message, $additional_headers = null, $additional_parameters = null)
+	public function cleanUpTokens()
 	{
-		return mail($to, $subject, $message, $additional_headers, $additional_parameters);
+		$this->page->db->query("DELETE FROM dns_users_update WHERE DATEDIFF(NOW(), requesttime) > 7");
+	}
+
+	public function sendToCurrent($subject, $body)
+	{
+		return $this->sendTo($this->page->user->getCurrentUser()->email, $subject, $body);
+	}
+
+	public function sendTo($to, $subject, $body)
+	{
+		if (strlen($to) == 0 || strpos($to, '@') === false)
+			return false;
+		$e = ini_get('error_reporting');
+		error_reporting(E_ALL ^ E_STRICT);
+		require_once("Mail.php");
+		$mail = &Mail::factory('smtp', array(
+			'host' => 'mail.underdog-projects.net',
+			'username' => 'listadmin@underdog-projects.net',
+			'password' => 'buttercup9'
+		));
+		$mail->send(
+			$to,
+			array(
+				'From' => 'dns@ggdns.de',
+				'To' => $to,
+				'Subject' => $subject,
+				'Content-type' => 'text/plain; charset=utf-8',
+				'Content-Transfer-Encoding' => '8bit'
+			),
+			$body
+		);
+		error_reporting($e);
+		return true;
+	}
+
+	public function createUpdate($subject, $text, $key, $value)
+	{
+		$user = $this->page->user->getCurrentUser();
+		if ($user->username == 'anonymous')
+			return false;
+
+		$token = '';
+		$possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+		for ($i = 0; $i < 32; $i++)
+			$token .= $possible[mt_rand(1, strlen($possible)) - 1];
+
+		$url = sprintf("%s://%s/u?u=%s&t=%s",
+			isset($_SERVER['HTTPS']) ? 'https' : 'http',
+			$_SERVER['SERVER_NAME'],
+			$user->username,
+			$token
+		);
+
+		$this->sendToCurrent(
+			$subject,
+			$text . "\n\nURL: $url\nODER\nToken: $token\n\nDas Token kann direkt auf der Einstellungen-Seite eingegeben werden."
+		);
+
+		$sql = "INSERT INTO dns_users_update VALUES (?, NOW(), ?, ?, ?)";
+		$this->page->db->query($sql, array(
+			$user->username,
+			$token,
+			$key,
+			$value
+		));
+		return true;
+	}
+
+	public function verifyUpdate($user, $token)
+	{
+		$get = $this->page->db->query("SELECT * FROM dns_users_update
+									WHERE username = ? AND token = ?", array(
+			$user, $token
+		));
+		if ($get && $row = $get->fetch())
+		{
+			$this->page->db->query("DELETE FROM dns_users_update
+										WHERE username = ? AND token = ?", array(
+				$user, $token
+			));
+			switch($row['key'])
+			{
+				case 'password':
+					if (!$this->page->user->confirmPasswordUpdate($user, $row['value']))
+						return false;
+					break;
+				case 'email':
+					if (!$this->page->user->confirmEmailUpdate($user, $row['value']))
+						return false;
+					break;
+			}
+			return $row;
+		}
+		return false;
 	}
 }
 
@@ -259,7 +353,7 @@ class DNSUser {
 	public function getUserList() {
 		if ($this->getCurrentUser()->level != 'admin')
 			return;
-		$q = $this->page->db->query("SELECT * FROM dns_users u");
+		$q = $this->page->db->query("SELECT * FROM dns_users u ORDER BY username");
 		$result = array();
 		while ($r = $q->fetch()) {
 			array_push($result, $this->getCleanUser($r));
@@ -294,42 +388,41 @@ class DNSUser {
 		return FALSE;
 	}
 
-	public function requestUpdate($name, $password, $level, $email)
+	public function requestPasswordUpdate($password)
 	{
-		$user = $this->getCurrentUser();
-		if (!isset($name))
-			$name = $user->username;
-		if ($name == 'anonymous') return false;
-		$u = $this->_getUserByName($name);
-		if (!isset($u)) return false;
-		if (($user->username == $name && $user->level != 'nobody') ||
-			$user->level == 'admin')
-		{
-			$sql = "INSERT INTO dns_user_update VALUES (?, NOW(), ?, ?, ?)";
-			$token = '';
-			$possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-			for ($i = 0; $i < 32; $i++)
-			{
-				$token .= $possible[mt_rand(1, length($possible)) - 1];
-			}
-			$change = array();
-			if (isset($password))
-				$change['password'] = $password;
-			if (isset($level))
-				$change['level'] = $level;
-			if (isset($email))
-				$change['email'] = $email;
-			$this->page->db->query($sql, array($name, $token, json_encode($change), $user->username));
+		return $this->page->email->createUpdate(
+			'Passwortänderung bestätigen',
+			"Bitte bestätigen Sie die Änderung ihres Passwortes für ihren Account " .
+			"ggdns.de für den User " . $this->getCurrentUser()->username . ".\n\n",
+			'password',
+			$password
+		);
+	}
 
-			$this->page->mail->send($user->email, 'Änderung von Parametern',
-				"Bitte bestätigen Sie die Änderung folgender Parameter:\r\n\t- " .
-				implode("\r\n\t- ", array_keys($change)) .
-				"\r\nvia folgender URL:\r\n" .
-				$_SERVER['SERVER_PROTOCOL'] . '://' . $_SERVER['SERVER_NAME'] . '/uu?' . $token,
-				null,
-				'-f dns@' . $_SERVER['SERVER_NAME']
-			);
-		}
+	public function confirmPasswordUpdate($user, $password)
+	{
+		$sql = "UPDATE dns_users SET password = ?, salt = ? WHERE username = ?";
+		$password = $this->createPassword($password);
+		$set = $this->page->db->query($sql, array($password->hashed, $password->salt, $user));
+		return ($set->rowCount() > 0);
+	}
+
+	public function requestEmailUpdate($email)
+	{
+		return $this->page->email->createUpdate(
+			'Emailänderung bestätigen',
+			"Bitte bestätigen Sie die Änderung ihres Passwortes für ihren Account bei\n" .
+			"ggdns.de für den User " . $this->getCurrentUser()->username . " mit folgendem Link:\n\n",
+			'email',
+			$email
+		);
+	}
+
+	public function confirmEmailUpdate($user, $email)
+	{
+		$sql = "UPDATE dns_users SET email = ? WHERE username = ?";
+		$set = $this->page->db->query($sql, array($email, $user));
+		return ($set->rowCount() > 0);
 	}
 
 	public function updateUser($name, $username, $password, $level) {
@@ -337,6 +430,8 @@ class DNSUser {
 			$name = $this->getCurrentUser()->username;
 		if ($name == 'anonymous') return FALSE;
 		$user = $this->getCurrentUser();
+		if ($user->level != 'admin')
+			return false;
 		$u = $this->_getUserByName($name);
 		if (!isset($u)) return FALSE;
 		if (($user->username == $name && $user->level != 'nobody') ||
@@ -344,7 +439,6 @@ class DNSUser {
 			$sql = "UPDATE dns_users SET ";
 			$toUpdate = array();
 			$toUpdateVal = array();
-			$salt = base_convert(rand(10e16, 10e20), 10, 36);
 			if (isset($username))
 			{
 				array_push($toUpdate, "username=?");
@@ -352,8 +446,8 @@ class DNSUser {
 			}
 			if (isset($password)) {
 				array_push($toUpdate, "password=?", "salt=?");
-				$password = sha1($password . $salt);
-				array_push($toUpdateVal, $password, $salt);
+				$password = $this->createPassword($password);
+				array_push($toUpdateVal, $password->hashed, $salt->salt);
 			}
 			if (isset($level) && $user->level == 'admin')
 			{
@@ -367,6 +461,15 @@ class DNSUser {
 			return ($q->rowCount() > 0);
 		}
 		return FALSE;
+	}
+
+	private function createPassword($password)
+	{
+		$salt = base_convert(rand(10e16, 10e20), 10, 36);
+		return to_object(array(
+			'hashed' => sha1($password . $salt),
+			'salt' => $salt
+		));
 	}
 
 	public function unregisterUser($name) {

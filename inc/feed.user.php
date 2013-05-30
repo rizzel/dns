@@ -28,6 +28,24 @@ class DNSFeedsUsers extends DNSFeeds
 		}
 	}
 
+	public function user_updatePassword($password)
+	{
+		if ($this->page->user->requestPasswordUpdate($password))
+			$this->setResult();
+	}
+
+	public function user_updateEmail($email)
+	{
+		if ($this->page->user->requestEmailUpdate($email))
+			$this->setResult();
+	}
+
+	public function user_verifyToken($token)
+	{
+		if ($this->page->email->verifyUpdate($this->page->user->getCurrentUser()->username, $token))
+			$this->setResult();
+	}
+
 	public function user_delete($id)
 	{
 		if (!isset($id))

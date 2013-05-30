@@ -252,10 +252,6 @@ function LoadRemote()
             {
 				var success = (data && data.status == 'ok');
 				self._displayComplete(xhr, success);
-				if (data.user)
-                {
-					dns.user.updateUser(data.user);
-				}
 				if (typeof(callback) == 'function')
 					callback(data, success);
 			},

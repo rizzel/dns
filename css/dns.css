@@ -96,3 +96,12 @@ blockquote {
 	background-color: #880000;
 	color: #AAAAAA;
 }
+
+#unverschluesselt {
+	font-size: 13;
+	border: dotted 1px #444444;
+	border-radius: 3px;
+	display: inline-block;
+	padding: 2px;
+	background-color: #222222;
+}
