@@ -98,7 +98,7 @@ class DNSDomains {
 				)
 			);
 			if ($in->rowCount() > 0)
-				$this->updateSOARecord($domainid);
+				return $this->updateSOARecord($domainid);
 		}
 	}
 
@@ -111,7 +111,7 @@ class DNSDomains {
 			array($name, $type, $content, $ttl, $recordid)
 		);
 		if ($set->rowCount() > 0)
-			$this->updateSOARecord($this->getDomainForRecord($recordid));
+			return $this->updateSOARecord($this->getDomainForRecord($recordid));
 	}
 
 	public function deleteDomain($id)
