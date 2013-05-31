@@ -110,6 +110,10 @@ blockquote {
 	text-decoration: line-through;
 }
 
+#login, #logout {
+	padding: 0 1px 0 3px;
+}
+
 #login > div {
 	text-align: right;
 }
