@@ -21,10 +21,15 @@ else
 {
 ?>
 <div id="login">
-    <label for="login_name">Login:</label>
-    <input type="text" id="login_name" />
-    <input type="password" id="login_password" />
-    <input type="button" id="login_submit" value="Login" />
+	<div>
+		<label for="login_name">Login:</label>
+		<input type="text" id="login_name" />
+		<input type="password" id="login_password" />
+		<input type="button" id="login_submit" value="Login" />
+	</div>
+	<div>
+		<a href="/vergessen.php" id="vergessen">Passwort Vergessen</a>
+	</div>
 </div>
 <?php
 }

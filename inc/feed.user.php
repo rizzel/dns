@@ -72,6 +72,18 @@ class DNSFeedsUsers extends DNSFeeds
 		$this->setResult($this->page->user->getCurrentUser());
 	}
 
+	public function user_vergessenRequest($name, $email)
+	{
+		$this->page->user->vergessenRequest($name, $email);
+		$this->setResult();
+	}
+
+	public function user_vergessenResponse($name, $token, $password)
+	{
+		if ($this->page->user->vergessenResponse($name, $token, $password))
+			$this->setResult();
+	}
+
 	public function user_ip()
 	{
 		$ips = $this->page->user->getIPs();

@@ -102,6 +102,11 @@ $loggedIn = $page->user->isLoggedIn();
 		<blockquote>http://ggdns.de/ip4?${DOMAINNAME};${PASSWORT};${CONTENT_FELD}</blockquote>
 		<blockquote>http://ggdns.de/ip6?${DOMAINNAME};${PASSWORT};${CONTENT_FELD}</blockquote>
 	</p>
+	<p>
+		Eine Liste von Update-Clients ist
+		<a href="http://freedns.afraid.org/scripts/freedns.clients.php" target="_blank">hier</a>
+		zu finden.
+	</p>
 
 	<h4>Client IP</h4>
 	<p>

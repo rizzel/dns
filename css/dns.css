@@ -109,3 +109,12 @@ blockquote {
 .fertig {
 	text-decoration: line-through;
 }
+
+#login > div {
+	text-align: right;
+}
+
+#login > div:last-child {
+	font-size: xx-small;
+	margin-right: 10px;
+}

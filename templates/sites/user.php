@@ -37,7 +37,7 @@ $loggedIn = $page->user->isLoggedIn();
 		direkt in das Feld <label for="token">"Zu verifizierendes Token"</label>
 		auf dieser Seite eingefügt werden.
 		<br />
-		Das Token ist mindestens 7 Tage gültig.
+		Das Token ist mindestens einen Tag gültig.
 	</p>
 <?php
 }

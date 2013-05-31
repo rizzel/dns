@@ -188,7 +188,7 @@ class DNSEmail
 
 	public function cleanUpTokens()
 	{
-		$this->page->db->query("DELETE FROM dns_users_update WHERE DATEDIFF(NOW(), requesttime) > 7");
+		$this->page->db->query("DELETE FROM dns_users_update WHERE DATEDIFF(NOW(), requesttime) > 2");
 	}
 
 	public function sendToCurrent($subject, $body)
@@ -223,9 +223,15 @@ class DNSEmail
 		return true;
 	}
 
-	public function createUpdate($subject, $text, $key, $value)
+	public function createUpdate($subject, $text, $key, $value, $username = null)
 	{
+		$withURL = true;
 		$user = $this->page->user->getCurrentUser();
+		if ($username != null)
+		{
+			$withURL = false;
+			$user = $this->page->user->getUserByName($username);
+		}
 		if ($user->username == 'anonymous')
 			return false;
 
@@ -241,9 +247,13 @@ class DNSEmail
 			$token
 		);
 
-		$this->sendToCurrent(
+		$this->sendTo(
+			$user->email,
 			$subject,
-			$text . "\n\nURL: $url\nODER\nToken: $token\n\nDas Token kann direkt auf der Einstellungen-Seite eingegeben werden."
+			$text . "\n" .
+				($withURL ? "\nURL: $url\nODER" : "") .
+				"\nToken: $token" .
+				($withURL ? "\n\nDas Token kann direkt auf der Einstellungen-Seite eingegeben werden." : "")
 		);
 
 		$sql = "INSERT INTO dns_users_update VALUES (?, NOW(), ?, ?, ?)";
@@ -422,7 +432,35 @@ class DNSUser {
 	{
 		$sql = "UPDATE dns_users SET email = ? WHERE username = ?";
 		$set = $this->page->db->query($sql, array($email, $user));
-		return ($set->rowCount() > 0);
+		if ($set->rowCount() > 0)
+		{
+			$this->page->email->sendTo(
+				$email,
+				"Passwort gesetzt",
+				"Das Passwort wurde erfolgreich geändert für den Benutzer $user."
+			);
+			return true;
+		}
+	}
+
+	public function vergessenRequest($name, $email)
+	{
+		$this->page->email->createUpdate(
+			"Passwort Zurücksetzung Token",
+			"Bitte Nutzen Sie folgendes Token zum Zurücksetzen des Passwortes.",
+			'vergessen',
+			$email,
+			$name
+		);
+	}
+
+	public function vergessenResponse($name, $token, $password)
+	{
+		if ($this->page->email->verifyUpdate($name, $token))
+		{
+			$this->confirmPasswordUpdate($name, $password);
+			return true;
+		}
 	}
 
 	public function updateUser($name, $username, $password, $level) {
