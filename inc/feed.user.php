@@ -88,7 +88,7 @@ class DNSFeedsUsers extends DNSFeeds
 	{
 		$ips = $this->page->user->getIPs();
 		$this->setSpecialHeader('Content-Type: text/plain; charset: utf-8');
-		$this->setResult(implode("\n", $ips), 'ok', true);
+		$this->setResult($ips[0], 'ok', true);
 	}
 
 	public function user_myip()

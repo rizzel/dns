@@ -7,9 +7,9 @@ initPageSpecific = function ()
 
 	dns.admin = {
 		'users': {
-			'add': function (name, password, level) {
+			'add': function (name, password, level, email) {
 				dns.loadRemote.loadRemote('user/add',
-					[name, password, level, 'unused'],
+					[name, password, level, email],
 					function (data, success) {
 						dns.admin.users.list();
 						if (success)
@@ -367,7 +367,8 @@ initPageSpecific = function ()
 		dns.admin.users.add(
 			$('#user_hinzu_username').val(),
 			p1.val(),
-			$('#user_hinzu_level').val()
+			$('#user_hinzu_level').val(),
+			email.val()
 		);
 	});
 
