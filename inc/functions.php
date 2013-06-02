@@ -201,14 +201,14 @@ class DNSEmail
 		if (strlen($to) == 0 || strpos($to, '@') === false)
 			return false;
 		$e = ini_get('error_reporting');
-		error_reporting(E_ALL ^ E_STRICT);
+		ini_set('error_reporting', 0);
 		require_once("Mail.php");
 		$mail = &Mail::factory('smtp', array(
 			'host' => 'mail.underdog-projects.net',
 			'username' => 'listadmin@underdog-projects.net',
 			'password' => 'buttercup9'
 		));
-		$mail->send(
+		$a = $mail->send(
 			$to,
 			array(
 				'From' => 'dns@ggdns.de',
@@ -219,7 +219,9 @@ class DNSEmail
 			),
 			$body
 		);
-		error_reporting($e);
+		//if ($a)
+		//	print_r($a->getMessage());
+		ini_set('error_reporting', $e);
 		return true;
 	}
 

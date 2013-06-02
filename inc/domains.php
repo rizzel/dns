@@ -183,13 +183,13 @@ class DNSDomains {
 		);
 		if ($set->rowCount() > 0)
 		{
-			$this->page->email->sendToCurrent(
-				"Neuer Record: $name",
-				"Für Ihren Nutzer wurde ein neuer Record angelegt:
-	Name:    $name
-	Typ:     $type
-	Content: $content"
-			);
+	//		$this->page->email->sendToCurrent(
+	//			"Neuer Record: $name",
+	//			"Für Ihren Nutzer wurde ein neuer Record angelegt:
+	//Name:    $name
+	//Typ:     $type
+	//Content: $content"
+	//		);
 			return $this->updateSOARecord($domain);
 		}
 	}
@@ -271,11 +271,11 @@ class DNSDomains {
 		);
 		if ($set->rowCount() > 0)
 		{
-			$this->page->email->sendToCurrent(
-				"Record gelöscht: " . $row['name'],
-				"Für Ihren Nutzer wurde ein Record gelöscht:
-	Name: " . $row['name']
-			);
+	//		$this->page->email->sendToCurrent(
+	//			"Record gelöscht: " . $row['name'],
+	//			"Für Ihren Nutzer wurde ein Record gelöscht:
+	//Name: " . $row['name']
+	//		);
 			return $this->updateSOARecord($did);
 		}
 	}
@@ -303,13 +303,13 @@ class DNSDomains {
 		);
 		if ($set->rowCount() > 0)
 		{
-			$this->page->email->sendToCurrent(
-				"Record geändert: " . $row['name'],
-				"Für Ihren Nutzer wurde ein Record geändert:
-	Name:      " . $row['name'] . "
-	Parameter: $key,
-	Wert:      $value"
-			);
+	//		$this->page->email->sendToCurrent(
+	//			"Record geändert: " . $row['name'],
+	//			"Für Ihren Nutzer wurde ein Record geändert:
+	//Name:      " . $row['name'] . "
+	//Parameter: $key,
+	//Wert:      $value"
+	//		);
 			return $this->updateSOARecord($this->getDomainForRecord($recordid));
 		}
 	}
@@ -330,7 +330,7 @@ class DNSDomains {
 			array($args[2], $args[0], $args[1])
 		);
 		if ($check->rowCount() > 0)
-			return $this->updateSOARecord($this->getDomainForRecord($recordid));
+			return $this->updateSOARecord($this->getDomainForRecord($args[0]));
 	}
 
 	/**
