@@ -1,15 +1,15 @@
 body {
-	background-color: #000000;
-	color: #FF0000;
+	background-color: #BBBBBB;
+	color: #000000;
 }
 
 a {
-	color: #FF0099;
+	color: #006600;
 	text-decoration: none;
 }
 
 a[target=_blank] {
-	color: #FF5500;
+	color: #009999;
 }
 
 a:hover {
@@ -28,10 +28,10 @@ a:hover {
 .popup {
 	display: inline-block;
 	position: absolute;
-	border: 2px #990000 solid;
+	border: 2px #006600 solid;
 	border-radius: 7px;
 	padding: 8px;
-	background-color: #000000;
+	background-color: #AAAAAA;
 	z-index: 1000;
 }
 
@@ -44,13 +44,13 @@ a:hover {
 
 #user {
 	float: right;
-	border: 1px #990000 solid;
+	border: 1px #006600 solid;
 	border-radius: 5px;
 }
 
 .hider {
 	display: none;
-	border: 2px solid #990000;
+	border: 2px solid #006600;
 	border-radius: 5px;
 }
 
@@ -74,8 +74,8 @@ a:hover {
 }
 
 blockquote {
-	border: dotted 1px #FF6666;
-	background-color: #222222;
+	border: dotted 1px #006600;
+	background-color: #AAAAAA;
 	padding: 5px 10px;
 }
 
@@ -85,25 +85,24 @@ blockquote {
 }
 
 #addRecordTest.frei {
-	color: #00FF00;
+	color: #00AA00;
 }
 
 #addRecordTest.belegt {
-	background-color: #660000;
+	color: #FF0000;
 }
 
 #addRecordTest.invalid {
-	background-color: #880000;
-	color: #AAAAAA;
+	color: #FF6666;
 }
 
 #unverschluesselt {
 	font-size: 13;
-	border: dotted 1px #444444;
+	border: dotted 1px #006600;
 	border-radius: 3px;
 	display: inline-block;
 	padding: 2px;
-	background-color: #222222;
+	background-color: #AAAAAA;
 }
 
 .fertig {
