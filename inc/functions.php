@@ -402,20 +402,27 @@ class DNSUser {
 
 	public function requestPasswordUpdate($password)
 	{
-		return $this->page->email->createUpdate(
-			'Passwortänderung bestätigen',
-			"Bitte bestätigen Sie die Änderung ihres Passwortes für ihren Account " .
-			"ggdns.de für den User " . $this->getCurrentUser()->username . ".\n\n",
-			'password',
-			$password
+		$get = $this->page->db->query(
+			"SELECT salt FROM dns_users WHERE username = ?",
+			$this->getCurrentUser()->username
 		);
+		if ($get && $row = $get->fetch())
+		{
+			$p = $this->createPassword($password, $row['salt']);
+			return $this->page->email->createUpdate(
+				'Passwortänderung bestätigen',
+				"Bitte bestätigen Sie die Änderung ihres Passwortes für ihren Account " .
+				"ggdns.de für den User " . $this->getCurrentUser()->username . ".\n\n",
+				'password',
+				$p->hashed
+			);
+		}
 	}
 
 	public function confirmPasswordUpdate($user, $password)
 	{
-		$sql = "UPDATE dns_users SET password = ?, salt = ? WHERE username = ?";
-		$password = $this->createPassword($password);
-		$set = $this->page->db->query($sql, array($password->hashed, $password->salt, $user));
+		$sql = "UPDATE dns_users SET password = ? WHERE username = ?";
+		$set = $this->page->db->query($sql, array($password, $user));
 		return ($set->rowCount() > 0);
 	}
 
@@ -503,9 +510,10 @@ class DNSUser {
 		return FALSE;
 	}
 
-	private function createPassword($password)
+	private function createPassword($password, $salt = null)
 	{
-		$salt = base_convert(rand(10e16, 10e20), 10, 36);
+		if ($salt == null)
+			$salt = base_convert(rand(10e16, 10e20), 10, 36);
 		return to_object(array(
 			'hashed' => sha1($password . $salt),
 			'salt' => $salt
