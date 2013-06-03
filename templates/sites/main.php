@@ -103,6 +103,12 @@ $loggedIn = $page->user->isLoggedIn();
 		<blockquote>http://ggdns.de/ip6?${DOMAINNAME};${PASSWORT};${CONTENT_FELD}</blockquote>
 	</p>
 	<p>
+		Werden andere URL-Schemata benötigt, so können diese noch hinzugefügt werden.
+		<br />
+		Eine Beispiel Crontab-Zeile für ein Update alle 5 Minuten sieht so aus:
+		<blockquote>*/5 * * * * root wget -O - 'http://ggdns.de/ip4?bsp.ggdns.de;daspasswort' >/dev/null 2 >&1</blockquote>
+	</p>
+	<p>
 		Eine Liste von Update-Clients ist
 		<a href="http://freedns.afraid.org/scripts/freedns.clients.php" target="_blank">hier</a>
 		zu finden.
