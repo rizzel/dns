@@ -101,12 +101,24 @@ $loggedIn = $page->user->isLoggedIn();
 		<blockquote>http://ggdns.de/ip?${DOMAINID};${PASSWORT};${CONTENT_FELD}</blockquote>
 		<blockquote>http://ggdns.de/ip4?${DOMAINNAME};${PASSWORT};${CONTENT_FELD}</blockquote>
 		<blockquote>http://ggdns.de/ip6?${DOMAINNAME};${PASSWORT};${CONTENT_FELD}</blockquote>
+		<blockquote>http://ggdns.de/inadyn4?${PASSWORT};${DOMAINNAME}</blockquote>
+		<blockquote>http://ggdns.de/inadyn6?${PASSWORT};${DOMAINNAME}</blockquote>
 	</p>
 	<p>
 		Werden andere URL-Schemata benötigt, so können diese noch hinzugefügt werden.
 		<br />
 		Eine Beispiel Crontab-Zeile für ein Update alle 5 Minuten sieht so aus:
-		<blockquote>*/5 * * * * root wget -O - 'http://ggdns.de/ip4?bsp.ggdns.de;daspasswort' >/dev/null 2 >&1</blockquote>
+		<blockquote>*/5 * * * * root wget -O - 'http://ggdns.de/ip4?bsp.ggdns.de;updatepasswort' >/dev/null 2 >&1</blockquote>
+	</p>
+	<p>
+		Eine Beispiel INADYN-Konfiguration sieht so aus:
+		<blockquote>
+			dyndns_system custom@http_svr_basic_auth<br />
+			ip_server_name ggdns.de /myip<br />
+			dyndns_server_name ggdns.de<br />
+			dyndns_server_url /inadyn4?UPDATE_PASSWORT;<br />
+			alias bsp.ggdns.de
+		</blockquote>
 	</p>
 	<p>
 		Eine Liste von Update-Clients ist

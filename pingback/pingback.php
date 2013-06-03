@@ -66,10 +66,29 @@
 			else
 				$page->call404();
 			break;
+		case '/inadyn4':
+			if (count($args) > 1)
+			{
+				$swap = $args[1];
+				$args[1] = $args[0];
+				$args[0] = $swap;
+			}
+			if ($page->domains->recordUpdateIP4($args))
+				exit(0);
+		case '/inadyn6':
+			if (count($args) > 1)
+			{
+				$swap = $args[1];
+				$args[1] = $args[0];
+				$args[0] = $swap;
+			}
+			if ($page->domains->recordUpdateIP6($args))
+				exit(0);
 		case '/myip':
 			print implode("\n", $page->user->getIPs());
 			break;
 		default:
+			$page->call404();
 			header("Content-Type: text/plain");
 			echo "PI: [[" . $_SERVER['PATH_INFO'] . "]]\n";
 			echo "QS: [[" . $_SERVER['QUERY_STRING'] . "]]\n";

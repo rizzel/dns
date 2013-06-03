@@ -321,8 +321,35 @@ class DNSDomains {
 	{
 		if (count($args) < 2 || count($args) > 3)
 			return false;
-		if (count($args) == 2)
-			array_push($args, $this->page->user->getIPs()[0]);
+		$get = $this->page->db->query("SELECT type FROM records WHERE id = ?", $args[0]);
+		if ($get && $row = $get->fetch())
+		{
+			if (count($args) == 2)
+				if (in_array($row['type'], array('A', 'AAAA')))
+					array_push($args, $this->page->user->getIPs()[0]);
+				else
+					return false;
+			switch($row['type']){
+				case 'A':
+					if (!filter_var($args[2], FILTER_VALIDATE_IP, array('flags' => FILTER_FLAG_IPV4)))
+						return false;
+					break;
+				case 'AAAA':
+					if (!filter_var($args[2], FILTER_VALIDATE_IP, array('flags' => FILTER_FLAG_IPV6)))
+						return false;
+					break;
+				case 'CNAME':
+					if (!$this->isValidDomainName($args[2]))
+						return false;
+					break;
+				default:
+					return false;
+			}
+		}
+		else
+		{
+			return false;
+		}
 		$check = $this->page->db->query(
 			"UPDATE records
 				SET content = ?, change_date = UNIX_TIMESTAMP()
@@ -352,7 +379,26 @@ class DNSDomains {
 	private function recordUpdateIPx($name, $passwort, $type, $content = null)
 	{
 		if ($content == null)
-			$content = $this->page->user->getIPs()[0];
+			if (in_array($type, array('A', 'AAAA')))
+				$content = $this->page->user->getIPs()[0];
+			else
+				return false;
+		switch($type){
+			case 'A':
+				if (!filter_var($content, FILTER_VALIDATE_IP, array('flags' => FILTER_FLAG_IPV4)))
+					return false;
+				break;
+			case 'AAAA':
+				if (!filter_var($content, FILTER_VALIDATE_IP, array('flags' => FILTER_FLAG_IPV6)))
+					return false;
+				break;
+			case 'CNAME':
+				if (!$this->isValidDomainName($content))
+					return false;
+				break;
+			default:
+				return false;
+		}
 		$check = $this->page->db->query(
 			"UPDATE records
 				SET content = ?, change_date = UNIX_TIMESTAMP()
