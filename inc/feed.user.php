@@ -98,6 +98,6 @@ class DNSFeedsUsers extends DNSFeeds
 
 	public function user_testmail()
 	{
-		#$this->page->email->sendTo("p.zimmer@directbox.com", 'test', 'testmail');
+		//$this->page->email->sendTo("rizzle@underdog-projects.net", 'göüäßg', 'testmail');
 	}
 }

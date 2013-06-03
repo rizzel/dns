@@ -207,22 +207,22 @@ class DNSEmail
 			'host' => 'mail.underdog-projects.net',
 			'username' => 'listadmin@underdog-projects.net',
 			'password' => 'buttercup9',
-			'auth' => 'PLAIN',
-			'port' => 25,
+			'auth' => 'LOGIN',
+			'port' => 25
 		));
 		$a = $mail->send(
 			$to,
 			array(
 				'From' => 'dns@ggdns.de',
 				'To' => $to,
-				'Subject' => $subject,
+				'Subject' => "=?UTF-8?B?" . base64_encode($subject) . "?=",
 				'Content-type' => 'text/plain; charset=utf-8',
 				'Content-Transfer-Encoding' => '8bit'
 			),
 			$body
 		);
-#		if ($a)
-#			print_r($a->getMessage());
+		//if ($a)
+		//	print_r($a->getMessage());
 		ini_set('error_reporting', $e);
 		return true;
 	}
