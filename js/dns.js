@@ -80,6 +80,11 @@ function initPage()
 	$('.popupAbort').on('click', function () {
 		$(this).parents('.popup').hide();
 	});
+
+	$('#login_name, #login_password').on('keyup', function (e) {
+		if (e.keyCode == 13)
+			$('#login_submit').trigger('click');
+	});
 }
 
 function createSpinner(options)

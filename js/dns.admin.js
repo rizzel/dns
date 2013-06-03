@@ -72,6 +72,7 @@ initPageSpecific = function ()
 						});
 
 						$table.find('.userListLevel').on('click', function () {
+							$('.popup').not(this).hide();
 							var $this = $(this);
 							var pos = $this.offset();
 							var u = $this.parents('tr').attr('uid');
@@ -191,6 +192,7 @@ initPageSpecific = function ()
 							return false;
 						});
 						$table.find('.domainListName').on('click', function () {
+							$('.popup').not(this).hide();
 							var $this = $(this);
 							var pos = $this.offset();
 							var d = $this.parents('tr').attr('did');
@@ -204,6 +206,7 @@ initPageSpecific = function ()
 						});
 
 						$table.find('.domainListRecordAdd').on('click', function () {
+							$('.popup').not(this).hide();
 							var $this = $(this);
 							var pos = $this.offset();
 							$('#domainsListRecordName').val($this.parents('tr').attr('dname'));
@@ -220,6 +223,7 @@ initPageSpecific = function ()
 						});
 
 						$table.find('.domainListRecordEdit').on('click', function () {
+							$('.popup').not(this).hide();
 							var $this = $(this);
 							var pos = $this.offset();
 							var r = $this.parents('tr').attr('rid');
@@ -244,6 +248,7 @@ initPageSpecific = function ()
 								rname, rtype, dname
 							)))
 								dns.admin.domains.recordDel(rid);
+							return false;
 						});
 					},
 					{

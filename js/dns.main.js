@@ -69,6 +69,7 @@ initPageSpecific = function ()
 					});
 
 					$table.find('.recordListName').on('click', function () {
+						$('.popup').not(this).hide();
 						var $this = $(this);
 						var pos = $this.offset();
 						var r = $this.parents('tr').attr('rid');
@@ -82,6 +83,7 @@ initPageSpecific = function ()
 					});
 
 					$table.find('.recordListContent').on('click', function () {
+						$('.popup').not(this).hide();
 						var $this = $(this);
 						var pos = $this.offset();
 						var r = $this.parents('tr').attr('rid');
@@ -95,6 +97,7 @@ initPageSpecific = function ()
 					});
 
 					$table.find('.recordListPassword').on('click', function () {
+						$('.popup').not(this).hide();
 						var $this = $(this);
 						var pos = $this.offset();
 						var r = $this.parents('tr').attr('rid');
@@ -108,6 +111,7 @@ initPageSpecific = function ()
 					});
 
 					$table.find('.recordListTTL').on('click', function () {
+						$('.popup').not(this).hide();
 						var $this = $(this);
 						var pos = $this.offset();
 						var r = $this.parents('tr').attr('rid');
