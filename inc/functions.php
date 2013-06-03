@@ -206,7 +206,9 @@ class DNSEmail
 		$mail = &Mail::factory('smtp', array(
 			'host' => 'mail.underdog-projects.net',
 			'username' => 'listadmin@underdog-projects.net',
-			'password' => 'buttercup9'
+			'password' => 'buttercup9',
+			'auth' => 'PLAIN',
+			'port' => 25,
 		));
 		$a = $mail->send(
 			$to,
@@ -219,8 +221,8 @@ class DNSEmail
 			),
 			$body
 		);
-		//if ($a)
-		//	print_r($a->getMessage());
+#		if ($a)
+#			print_r($a->getMessage());
 		ini_set('error_reporting', $e);
 		return true;
 	}

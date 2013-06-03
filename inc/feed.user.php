@@ -95,4 +95,9 @@ class DNSFeedsUsers extends DNSFeeds
 	{
 		$this->setResult($this->page->user->getIPs());
 	}
+
+	public function user_testmail()
+	{
+		#$this->page->email->sendTo("p.zimmer@directbox.com", 'test', 'testmail');
+	}
 }
