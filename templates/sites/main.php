@@ -98,11 +98,11 @@ $loggedIn = $page->user->isLoggedIn();
 	</p>
 	<p>
 		Möglichkeiten:
-		<blockquote>http://ggdns.de/ip?${DOMAINID};${PASSWORT};${CONTENT_FELD}</blockquote>
-		<blockquote>http://ggdns.de/ip4?${DOMAINNAME};${PASSWORT};${CONTENT_FELD}</blockquote>
-		<blockquote>http://ggdns.de/ip6?${DOMAINNAME};${PASSWORT};${CONTENT_FELD}</blockquote>
-		<blockquote>http://ggdns.de/inadyn4?${PASSWORT};${DOMAINNAME}</blockquote>
-		<blockquote>http://ggdns.de/inadyn6?${PASSWORT};${DOMAINNAME}</blockquote>
+		<blockquote>http://ggdns.de/ip?${RECORDID};${PASSWORT};${CONTENT_FELD}</blockquote>
+		<blockquote>http://ggdns.de/ip4?${RECORDNAME};${PASSWORT};${CONTENT_FELD}</blockquote>
+		<blockquote>http://ggdns.de/ip6?${RECORDNAME};${PASSWORT};${CONTENT_FELD}</blockquote>
+		<blockquote>http://ggdns.de/inadyn4?${PASSWORT};${RECORDNAME}</blockquote>
+		<blockquote>http://ggdns.de/inadyn6?${PASSWORT};${RECORDNAME}</blockquote>
 	</p>
 	<p>
 		Werden andere URL-Schemata benötigt, so können diese noch hinzugefügt werden.
