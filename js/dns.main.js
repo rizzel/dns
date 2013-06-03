@@ -38,7 +38,7 @@ initPageSpecific = function ()
 									<td> \
 										<a href="#" class="recordListDel">Entf.</a> \
 										<a href="#" class="recordListName">Name</a> \
-										<a href="#" class="recordListPassword">Password</a> \
+										<a href="#" class="recordListPassword">Passwort</a> \
 										<a href="#" class="recordListContent">Content</a> \
 										<a href="#" class="recordListTTL">TTL</a> \
 									</td> \
