@@ -13,9 +13,9 @@ $loggedIn = $page->user->isLoggedIn();
 		<div>
 			<label for="addRecordType">Typ:</label>
 			<select id="addRecordType">
-				<option value="A">A</option>
-				<option value="AAAA">AAAA</option>
-				<option value="CNAME">CNAME</option>
+				<option value="A">A (IPv4)</option>
+				<option value="AAAA">AAAA (IPv6)</option>
+				<option value="CNAME">CNAME (Alias)</option>
 			</select>
 		</div>
 		<div>
