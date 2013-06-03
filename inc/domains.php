@@ -208,8 +208,13 @@ class DNSDomains {
 
 	public function isFreeDomain($name, $type)
 	{
-		$dom = $this->page->db->query("SELECT COUNT(*) AS c FROM records WHERE name = ? AND type = ?",
-									  array($name, $type)
+		$dom = $this->page->db->query("SELECT COUNT(*) AS c FROM records
+										WHERE
+											(name = ? AND user != ?) OR
+											(name = ? AND type = ?) OR
+											(name = ? AND type = 'CNAME' AND ? IN ('A', 'AAAA')) OR
+											(name = ? AND type IN ('A', 'AAAA') AND ? = 'CNAME')",
+									  array($name, $this->page->user->getCurrentUser()->username, $name, $type, $name, $type, $name, $type)
 		);
 		if ($dom && $row = $dom->fetch())
 			return ($row['c'] == 0);

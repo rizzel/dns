@@ -255,6 +255,7 @@ initPageSpecific = function ()
 				ttl.val(86400);
 				break;
 		}
+		$('#addRecordName').trigger('keyup');
 	});
 
 	$('#addRecordName').on('keyup', function () {
