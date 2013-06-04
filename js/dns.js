@@ -311,6 +311,10 @@ function User()
 				if (success) {
 					window.location.reload();
 				}
+				else
+				{
+					dns.fehler($('#login_password'));
+				}
             }, {
                 insertInDiv: $('#loadProgresses')
             }
