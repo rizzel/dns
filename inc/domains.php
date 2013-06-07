@@ -357,12 +357,29 @@ class DNSDomains {
 		}
 		$check = $this->page->db->query(
 			"UPDATE records
-				SET content = ?, change_date = UNIX_TIMESTAMP()
+				SET content = ?
 				WHERE id = ? AND password = ? AND LENGTH(password) > 0",
 			array($args[2], $args[0], $args[1])
 		);
 		if ($check->rowCount() > 0)
+		{
+			$this->page->db->query(
+				"UPDATE records
+					SET change_date = UNIX_TIMESTAMP()
+					WHERE id = ? AND password = ? AND LENGTH(password) > 0",
+				array($args[0], $args[1])
+			);
 			return $this->updateSOARecord($this->getDomainForRecord($args[0]));
+		}
+		else
+		{
+			$get = $this->page->db->query(
+				"SELECT COUNT(*) AS c FROM records WHERE id = ? AND password = ? AND LENGTH(password) > 0",
+				array( $args[0], $args[1])
+			);
+			if ($get && $row = $get->fetch())
+				return ($row['c'] == 1);
+		}
 	}
 
 	/**
@@ -406,18 +423,33 @@ class DNSDomains {
 		}
 		$check = $this->page->db->query(
 			"UPDATE records
-				SET content = ?, change_date = UNIX_TIMESTAMP()
+				SET content = ?
 				WHERE name = ? AND password = ? AND LENGTH(password) > 0 AND type = ?",
 			array($content, $name, $passwort, $type)
 		);
 		if ($check->rowCount() > 0)
 		{
+			$this->page->db->query(
+				"UPDATE records
+					SET change_date = UNIX_TIMESTAMP()
+					WHERE name = ? AND password = ? AND LENGTH(password) > 0 AND type = ?",
+				array($name, $passwort, $type)
+			);
 			$get = $this->page->db->query(
 				"SELECT domain_id FROM records WHERE name = ? AND password = ? AND LENGTH(password) > 0 AND type = ?",
 				array($name, $passwort, $type)
 			);
 			if ($get && $row = $get->fetch())
 				return $this->updateSOARecord($row['domain_id']);
+		}
+		else
+		{
+			$get = $this->page->db->query(
+				"SELECT COUNT(*) AS c FROM records WHERE name = ? AND password = ? AND LENGTH(password) > 0 AND type = ?",
+				array($name, $passwort, $type)
+			);
+			if ($get && $row = $get->fetch())
+				return ($row['c'] == 1);
 		}
 	}
 
