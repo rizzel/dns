@@ -119,11 +119,16 @@ $loggedIn = $page->user->isLoggedIn();
 			dyndns_server_url /inadyn4?UPDATE_PASSWORT;<br />
 			alias bsp.ggdns.de
 		</blockquote>
+		Um inadyn unter Windows nutzen zu können wird noch folgendes benötigt:
+		<ul>
+			<li><a href="/download/srvany.rar">SRVANY</a> um inadyn als Service laufen zu lassen</li>
+			<li><a href="/download/configure_inadyn_service_ggdns.reg">Registry-Eintrag</a> zur Konfiguration des Dienstes. In dieser Datein müssen die Pfade noch angepasst werden.</li>
+		</ul>
 	</p>
 	<p>
 		Eine Liste von Update-Clients ist
 		<a href="http://freedns.afraid.org/scripts/freedns.clients.php" target="_blank">hier</a>
-		zu finden.
+		zu finden. Es funktionieren jedoch nicht alle mit ggdns.
 	</p>
 
 	<h4>Client IP</h4>
