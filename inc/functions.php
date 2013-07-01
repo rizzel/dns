@@ -116,6 +116,12 @@ class DNSPage {
 		exit(0);
 	}
 
+	public function redirectIndex() {
+		header("HTTP/1.0 302");
+		header("Location : http://ggdns.de");
+		exit(0);
+	}
+
 	public function setTitle($title) {
 		$this->title = $title;
 	}

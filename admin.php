@@ -5,7 +5,7 @@ require_once("inc/functions.php");
 $page = new DNSPage();
 
 if ($page->user->getCurrentUser()->level != 'admin')
-	$page->call404();
+	$page->redirectIndex();
 
 $page->setTitle('DNS administration');
 
