@@ -429,8 +429,9 @@ class DNSUser {
 
 	public function confirmPasswordUpdate($user, $password)
 	{
-		$sql = "UPDATE dns_users SET password = ? WHERE username = ?";
-		$set = $this->page->db->query($sql, array($password, $user));
+		$sql = "UPDATE dns_users SET password = ?, salt = ? WHERE username = ?";
+		$p = $this->createPassword($password);
+		$set = $this->page->db->query($sql, array($p->hashed, $p->salt, $user));
 		return ($set->rowCount() > 0);
 	}
 
