@@ -1,0 +1,25 @@
+	ServerName ggdns.de
+	ServerAlias www.ggdns.de
+
+	ServerAdmin webmaster@ggdns.de
+	
+	DocumentRoot "/var/www/dns"
+
+	Alias /pingback /var/www/dns/pingback/pingback.php
+	Alias /ip /var/www/dns/pingback/pingback.php
+	Alias /ip4 /var/www/dns/pingback/pingback.php
+	Alias /ip6 /var/www/dns/pingback/pingback.php
+	Alias /myip /var/www/dns/pingback/pingback.php
+	Alias /inadyn4 /var/www/dns/pingback/pingback.php
+	Alias /inadyn6 /var/www/dns/pingback/pingback.php
+
+	RewriteEngine on
+	RewriteRule ^/u/?$ /u.php
+
+	<Directory "/var/www/dns">
+		Options Indexes FollowSymLinks
+		AllowOverride All
+		Order allow,deny
+		Allow from all
+	</Directory>
+	AddType application/x-x509-ca-cert .crt
