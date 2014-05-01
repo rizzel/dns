@@ -117,8 +117,8 @@ class DNSPage {
 	}
 
 	public function redirectIndex() {
-		header("HTTP/1.0 302");
-		header("Location : http://ggdns.de");
+		header("HTTP/1.0 302 Back to home");
+		header("Location: /");
 		exit(0);
 	}
 
