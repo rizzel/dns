@@ -22,4 +22,9 @@
 		Order allow,deny
 		Allow from all
 	</Directory>
+	<Directory "/var/www/dns/.git">
+		AllowOverride None
+		Order allow,deny
+		Deny from all
+	</Directory>
 	AddType application/x-x509-ca-cert .crt
