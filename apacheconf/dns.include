@@ -17,7 +17,7 @@
 	RewriteRule ^/u/?$ /u.php
 
 	<Directory "/var/www/dns">
-		Options Indexes FollowSymLinks
+		Options FollowSymLinks
 		AllowOverride All
 		Order allow,deny
 		Allow from all
