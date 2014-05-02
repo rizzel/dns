@@ -330,8 +330,10 @@ class DNSDomains {
 		if ($get && $row = $get->fetch())
 		{
 			if (count($args) == 2)
-				if (in_array($row['type'], array('A', 'AAAA')))
-					array_push($args, $this->page->user->getIPs()[0]);
+				if (in_array($row['type'], array('A', 'AAAA'))) {
+					$ips = $this->page->user->getIPs();
+					array_push($args, $ips[0]);
+				}
 				else
 					return false;
 			switch($row['type']){
@@ -401,8 +403,10 @@ class DNSDomains {
 	private function recordUpdateIPx($name, $passwort, $type, $content = null)
 	{
 		if ($content == null)
-			if (in_array($type, array('A', 'AAAA')))
-				$content = $this->page->user->getIPs()[0];
+			if (in_array($type, array('A', 'AAAA'))) {
+				$ips = $this->page->user->getIPs();
+				$content = $ips[0];
+			}
 			else
 				return false;
 		switch($type){
