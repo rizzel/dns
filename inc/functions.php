@@ -219,7 +219,7 @@ class DNSEmail
 		$a = $mail->send(
 			$to,
 			array(
-				'From' => 'dns@ggdns.de',
+				'From' => sprintf('dns@%s', $_SERVER['HTTP_HOST']),
 				'To' => $to,
 				'Subject' => "=?UTF-8?B?" . base64_encode($subject) . "?=",
 				'Content-type' => 'text/plain; charset=utf-8',

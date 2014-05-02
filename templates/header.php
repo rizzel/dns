@@ -22,7 +22,7 @@
 if (!isset($_SERVER['HTTPS']))
 {
 ?>
-		<div id="unverschluesselt">Diese Seite ist derzeit unverschlüsselt -> <a href="https://ggdns.de<?php echo $_SERVER['REQUEST_URI']; ?>">SSL</a></div>
+		<div id="unverschluesselt">Diese Seite ist derzeit unverschlüsselt -> <a href="https://<?php echo $_SERVER['HTTP_HOST']; ?><?php echo $_SERVER['REQUEST_URI']; ?>">SSL</a></div>
 <?php
 }
 ?>
