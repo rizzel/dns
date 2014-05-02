@@ -116,14 +116,27 @@ $loggedIn = $page->user->isLoggedIn();
 			dyndns_system custom@http_svr_basic_auth<br />
 			ip_server_name ggdns.de /myip<br />
 			dyndns_server_name ggdns.de<br />
-			dyndns_server_url /inadyn4?UPDATE_PASSWORT;<br />
-			alias bsp.ggdns.de
+			dyndns_server_url /inadyn4?${PASSWORT};<br />
+			alias ${RECORDNAME}
 		</blockquote>
 		Um inadyn unter Windows nutzen zu können wird noch folgendes benötigt:
 		<ul>
 			<li><a href="/download/srvany.rar">SRVANY</a> um inadyn als Service laufen zu lassen</li>
 			<li><a href="/download/configure_inadyn_service_ggdns.reg">Registry-Eintrag</a> zur Konfiguration des Dienstes. In dieser Datein müssen die Pfade noch angepasst werden.</li>
 		</ul>
+	</p>
+	<p>
+		Im DD-WRT Frontend muss man Folgendes unter Setup->DDNS eintragen um
+		obige inadyn-Konfiguration zu erreichen:
+		<table border="1">
+			<tr><th>Feld</th><th>Inhalt</th></tr>
+			<tr><td>DDNS Service</td><td>Custom</td></tr>
+			<tr><td>DYNDNS Server</td><td>ggdns.de</td></tr>
+			<tr><td>User Name</td><td>${EGAL}</td></tr>
+			<tr><td>Password</td><td>${EGAL}</td></tr>
+			<tr><td>Host Name</td><td>${RECORDNAME}</td></tr>
+			<tr><td>URL</td><td>/inadyn4?${PASSWORT};</td></tr>
+		</table>
 	</p>
 	<p>
 		Eine Liste von Update-Clients ist
