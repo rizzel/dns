@@ -148,9 +148,9 @@ $loggedIn = $page->user->isLoggedIn();
 	<p>
 		Die IP des Clients aus Sicht des Webservers ggdns.de kann via
 		<blockquote>http://ggdns.de/myip</blockquote>
-		abgefragt werden (nur IPv4).
-		Wird IPv6 benoetigt, muss derzeit diese URL genommen werden:
-		<blockquote>http://rizzle.ggdns.de/myip.php</blockquote>
+		abgefragt werden<!-- (nur IPv4)-->.
+<!--		Wird IPv6 benoetigt, muss derzeit diese URL genommen werden:
+		<blockquote>http://rizzle.ggdns.de/myip.php</blockquote>-->
 	</p>
 
 	<h4>Erzeugung von Records</h4>
