@@ -98,17 +98,17 @@ $loggedIn = $page->user->isLoggedIn();
 	</p>
 	<p>
 		Möglichkeiten:
-		<blockquote>http://ggdns.de/ip?${RECORDID};${PASSWORT};${CONTENT_FELD}</blockquote>
-		<blockquote>http://ggdns.de/ip4?${RECORDNAME};${PASSWORT};${CONTENT_FELD}</blockquote>
-		<blockquote>http://ggdns.de/ip6?${RECORDNAME};${PASSWORT};${CONTENT_FELD}</blockquote>
-		<blockquote>http://ggdns.de/inadyn4?${PASSWORT};${RECORDNAME}</blockquote>
-		<blockquote>http://ggdns.de/inadyn6?${PASSWORT};${RECORDNAME}</blockquote>
+		<blockquote>http://ggdns.de/ip?<var>RECORDID</var>;<var>PASSWORT</var>;<var>CONTENT_FELD</var></blockquote>
+		<blockquote>http://ggdns.de/ip4?<var>RECORDNAME</var>;<var>PASSWORT</var>;<var>CONTENT_FELD</var></blockquote>
+		<blockquote>http://ggdns.de/ip6?<var>RECORDNAME</var>;<var>PASSWORT</var>;<var>CONTENT_FELD</var></blockquote>
+		<blockquote>http://ggdns.de/inadyn4?<var>PASSWORT</var>;<var>RECORDNAME</var></blockquote>
+		<blockquote>http://ggdns.de/inadyn6?<var>PASSWORT</var>;<var>RECORDNAME</var></blockquote>
 	</p>
 	<p>
 		Werden andere URL-Schemata benötigt, so können diese noch hinzugefügt werden.
 		<br />
 		Eine Beispiel Crontab-Zeile für ein Update alle 5 Minuten sieht so aus:
-		<blockquote>*/5 * * * * root wget -O - 'http://ggdns.de/ip4?bsp.ggdns.de;updatepasswort' >/dev/null 2 >&1</blockquote>
+		<blockquote>*/5 * * * * root wget -qO /dev/null 'http://ggdns.de/ip4?<var>RECORDNAME</var>;<var>PASSWORT</var>'</blockquote>
 	</p>
 	<p>
 		Eine Beispiel INADYN-Konfiguration sieht so aus:
@@ -116,8 +116,8 @@ $loggedIn = $page->user->isLoggedIn();
 			dyndns_system custom@http_svr_basic_auth<br />
 			ip_server_name ggdns.de /myip<br />
 			dyndns_server_name ggdns.de<br />
-			dyndns_server_url /inadyn4?${PASSWORT};<br />
-			alias ${RECORDNAME}
+			dyndns_server_url /inadyn4?<var>PASSWORT</var>;<br />
+			alias <var>RECORDNAME</var>
 		</blockquote>
 		Um inadyn unter Windows nutzen zu können wird noch folgendes benötigt:
 		<ul>
@@ -126,16 +126,16 @@ $loggedIn = $page->user->isLoggedIn();
 		</ul>
 	</p>
 	<p>
-		Im DD-WRT Frontend muss man Folgendes unter Setup->DDNS eintragen um
+		Im DD-WRT Frontend muss man Folgendes unter Setup&rarr;DDNS eintragen um
 		obige inadyn-Konfiguration zu erreichen:
 		<table border="1">
 			<tr><th>Feld</th><th>Inhalt</th></tr>
 			<tr><td>DDNS Service</td><td>Custom</td></tr>
 			<tr><td>DYNDNS Server</td><td>ggdns.de</td></tr>
-			<tr><td>User Name</td><td>${EGAL}</td></tr>
-			<tr><td>Password</td><td>${EGAL}</td></tr>
-			<tr><td>Host Name</td><td>${RECORDNAME}</td></tr>
-			<tr><td>URL</td><td>/inadyn4?${PASSWORT};</td></tr>
+			<tr><td>User Name</td><td><var>EGAL</var></td></tr>
+			<tr><td>Password</td><td><var>EGAL</var></td></tr>
+			<tr><td>Host Name</td><td><var>RECORDNAME</var></td></tr>
+			<tr><td>URL</td><td>/inadyn4?<var>PASSWORT</var>;</td></tr>
 		</table>
 	</p>
 	<p>
@@ -144,8 +144,8 @@ $loggedIn = $page->user->isLoggedIn();
 			<tr><th>Feld</th><th>Inhalt</th></tr>
 			<tr><td>Service</td><td>-- custom --</td></tr>
 			<tr><td>Custom update-URL</td><td>http://ggdns.de/ip4?[DOMAIN];[PASSWORD]</td></tr>
-			<tr><td>Hostname</td><td>${RECORDNAME}</td></tr>
-			<tr><td>Password</td><td>${PASSWORT}</td></tr>
+			<tr><td>Hostname</td><td><var>RECORDNAME</var></td></tr>
+			<tr><td>Password</td><td><var>PASSWORT</var></td></tr>
 		</table>
 		Für <em>Source of IP address</em> kann die URL <a href="http://ggdns.de/myip" target="_blank">http://ggdns.de/myip</a> verwendet werden.
 	</p>

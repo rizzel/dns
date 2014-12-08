@@ -122,3 +122,13 @@ blockquote {
 	font-size: xx-small;
 	margin-right: 10px;
 }
+
+var::before,
+var::after {
+	content: "%";
+}
+
+var {
+	color: #000077;
+}
+
