@@ -139,6 +139,17 @@ $loggedIn = $page->user->isLoggedIn();
 		</table>
 	</p>
 	<p>
+		Für openwrt kann folgende Konfiguration mit dem Paket <em>luci-app-ddns</em> verwendet werden:
+		<table border="1">
+			<tr><th>Feld</th><th>Inhalt</th></tr>
+			<tr><td>Service</td><td>-- custom --</td></tr>
+			<tr><td>Custom update-URL</td><td>http://ggdns.de/ip4?[DOMAIN];[PASSWORD]</td></tr>
+			<tr><td>Hostname</td><td>${RECORDNAME}</td></tr>
+			<tr><td>Password</td><td>${PASSWORT}</td></tr>
+		</table>
+		Für <em>Source of IP address</em> kann die URL <a href="http://ggdns.de/myip" target="_blank">http://ggdns.de/myip</a> verwendet werden.
+	</p>
+	<p>
 		Eine Liste von Update-Clients ist
 		<a href="http://freedns.afraid.org/scripts/freedns.clients.php" target="_blank">hier</a>
 		zu finden. Es funktionieren jedoch nicht alle mit ggdns.
