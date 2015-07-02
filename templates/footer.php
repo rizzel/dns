@@ -1,7 +1,21 @@
+<?php
+	$d = opendir($_SERVER['DOCUMENT_ROOT']);
+	$certs = array();
+	$hasCrt = $hasDer = FALSE;
+	while ($f = readdir($d)) {
+		$path = $_SERVER['DOCUMENT_ROOT'] . "/$f";
+		if (!$hasDer && is_file($path) && preg_match('/\.der$/i', $f)) {
+			$hasDer = TRUE;
+			$certs[] = sprintf('<a href="/%s">DER</a>', $f);
+		} elseif (!$hasCrt && is_file($path) && preg_match('/\.crt$/i', $f)) {
+			$hasCrt = TRUE;
+			$certs[] = sprintf('<a href="/%s">CRT</a>', $f);
+		}
+	}
+?>
 		<div id="footer">
 			<div>
-				CA-CRT für diese Domain: <a href="/ggdns.de.ca.crt">http://<?php echo $_SERVER['HTTP_HOST']; ?>/ggdns.de.ca.crt</a>,
-				als DER: <a href="/ggdns.de.ca.der.crt">http://<?php echo $_SERVER['HTTP_HOST']; ?>/ggdns.de.ca.der.crt</a>
+				Zertifikate für diese Domain: <?php echo implode(", ", $certs); ?>
 			</div>
 		</div>
 	</body>
