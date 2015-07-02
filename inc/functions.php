@@ -78,7 +78,6 @@ class DNSPage {
 	public $db;
 	public $settings;
 	public $user;
-	public $configuration;
 	public $domains;
 	public $email;
 	public $feeds = array();
@@ -92,7 +91,6 @@ class DNSPage {
 		require_once('settings.php');
 		$this->settings = new DNSSettings($this);
 		$this->db = new DNSDB($this);
-		$this->configuration = new DNSConfiguration($this);
 		$this->user = new DNSUser($this);
 		$this->email = new DNSEmail($this);
 		require_once('domains.php');
@@ -100,9 +98,6 @@ class DNSPage {
 
 		require_once('feed.user.php');
 		$this->feeds['user'] = new DNSFeedsUsers($this);
-
-		require_once('feed.konfiguration.php');
-		$this->feeds['konfiguration'] = new DNSFeedsKonfiguration($this);
 
 		require_once('feed.domains.php');
 		$this->feeds['domains'] = new DNSFeedsDomains($this);
@@ -576,68 +571,6 @@ class DNSUser {
 		if (array_key_exists('HTTP_X_FORWARDED_FOR', $_SERVER))
 			array_unshift($ret, $_SERVER['HTTP_X_FORWARDED_FOR']);
 		return $ret;
-	}
-}
-
-class DNSConfiguration {
-	private $page;
-
-	function __construct($page) {
-		$this->page = $page;
-	}
-
-	public function setConfig($name, $value) {
-		$this->page->db->query(
-			"INSERT INTO dns_config
-				(name, value) VALUES
-				(:name, :value1)
-				ON DUPLICATE KEY UPDATE value=:value2",
-			array("name" => $name, "value1" => $value, "value2" => $value)
-		);
-	}
-
-	public function getConfig($name) {
-		$get = $this->page->db->query(
-			"SELECT value FROM dns_config WHERE name=:name",
-			array("name" => $name)
-		);
-		$row = $get->fetch();
-		if ($row !== FALSE && array_key_exists('value', $row)) {
-			return $row['value'];
-		} else {
-			return NULL;
-		}
-	}
-
-	public function updateConfig($oldname, $name, $value) {
-		$q = $this->page->db->query(
-			"UPDATE dns_config SET name=:name, value=:value WHERE name=:oldname",
-			array(
-				"name" => $name,
-				"value" => $value,
-				"oldname" => $oldname
-			)
-		);
-		return ($q->rowCount() == 1);
-	}
-
-	public function getPublicConfig() {
-		$get = $this->page->db->query(
-			"SELECT * FROM dns_config
-				WHERE name IN ('mangaupdatesManga', 'mangaupdatesPeople', 'mangaupdatesPublisher')
-				ORDER BY name ASC"
-		);
-		$ret = array();
-		while($r = $get->fetch()) {
-			$ret[$r['name']] = $r['value'];
-		}
-		return $ret;
-	}
-
-	public function getAllConfig() {
-		$get = $this->page->db->query("SELECT * FROM dns_config ORDER BY name ASC");
-		$get->execute();
-		return $get->fetchall();
 	}
 }
 
