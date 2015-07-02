@@ -3,12 +3,13 @@
 class DNSSettings {
 	private $page;
 
+	// TODO: change database settings!
 	public $db = array(
 		'dbHost' => "localhost",
 		'dbPort' => 3306,
-		'dbUser' => "pdns",
-		'dbPass' => "dnspass",
-		'dbName' => "dns"
+		'dbUser' => "",
+		'dbPass' => "",
+		'dbName' => ""
 	);
 
 	public $templateNamespaces = array(
