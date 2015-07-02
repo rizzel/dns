@@ -1,2 +1,2 @@
-/*.crt
-/*.der
+/htdocs/*.crt
+/htdocs/*.der
