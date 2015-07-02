@@ -326,61 +326,14 @@ class DNSDomains {
 	{
 		if (count($args) < 2 || count($args) > 3)
 			return false;
-		$get = $this->page->db->query("SELECT type FROM records WHERE id = ?", $args[0]);
+		$get = $this->page->db->query("SELECT name, type FROM records WHERE id = ?", $args[0]);
 		if ($get && $row = $get->fetch())
 		{
-			if (count($args) == 2)
-				if (in_array($row['type'], array('A', 'AAAA'))) {
-					$ips = $this->page->user->getIPs();
-					array_push($args, $ips[0]);
-				}
-				else
-					return false;
-			switch($row['type']){
-				case 'A':
-					if (!filter_var($args[2], FILTER_VALIDATE_IP, array('flags' => FILTER_FLAG_IPV4)))
-						return false;
-					break;
-				case 'AAAA':
-					if (!filter_var($args[2], FILTER_VALIDATE_IP, array('flags' => FILTER_FLAG_IPV6)))
-						return false;
-					break;
-				case 'CNAME':
-					if (!$this->isValidDomainName($args[2]))
-						return false;
-					break;
-				default:
-					return false;
-			}
+			return $this->recordUpdateIPx($row['name'], $args[1], $row['type'], $args[2]);
 		}
 		else
 		{
 			return false;
-		}
-		$check = $this->page->db->query(
-			"UPDATE records
-				SET content = ?
-				WHERE id = ? AND password = ? AND LENGTH(password) > 0",
-			array($args[2], $args[0], $args[1])
-		);
-		if ($check->rowCount() > 0)
-		{
-			$this->page->db->query(
-				"UPDATE records
-					SET change_date = UNIX_TIMESTAMP()
-					WHERE id = ? AND password = ? AND LENGTH(password) > 0",
-				array($args[0], $args[1])
-			);
-			return $this->updateSOARecord($this->getDomainForRecord($args[0]));
-		}
-		else
-		{
-			$get = $this->page->db->query(
-				"SELECT COUNT(*) AS c FROM records WHERE id = ? AND password = ? AND LENGTH(password) > 0",
-				array( $args[0], $args[1])
-			);
-			if ($get && $row = $get->fetch())
-				return ($row['c'] == 1);
 		}
 	}
 
@@ -411,12 +364,22 @@ class DNSDomains {
 				return false;
 		switch($type){
 			case 'A':
-				if (!filter_var($content, FILTER_VALIDATE_IP, array('flags' => FILTER_FLAG_IPV4)))
-					return false;
+				if (function_exists("filter_var")) {
+					if (!filter_var($content, FILTER_VALIDATE_IP, array('flags' => FILTER_FLAG_IPV4)))
+						return false;
+				} else {
+					if (inet_pton($content) === FALSE || strchr($content, ":") !== FALSE)
+						return false;
+				}
 				break;
 			case 'AAAA':
-				if (!filter_var($content, FILTER_VALIDATE_IP, array('flags' => FILTER_FLAG_IPV6)))
-					return false;
+				if (function_exists("filter_var")) {
+					if (!filter_var($content, FILTER_VALIDATE_IP, array('flags' => FILTER_FLAG_IPV6)))
+						return false;
+				} else {
+					if (inet_pton($content) === FALSE || strchr($content, ':') === FALSE)
+						return false;
+				}
 				break;
 			case 'CNAME':
 				if (!$this->isValidDomainName($content))
@@ -427,18 +390,12 @@ class DNSDomains {
 		}
 		$check = $this->page->db->query(
 			"UPDATE records
-				SET content = ?
+				SET content = ?, change_date = UNIX_TIMESTAMP()
 				WHERE name = ? AND password = ? AND LENGTH(password) > 0 AND type = ?",
 			array($content, $name, $passwort, $type)
 		);
 		if ($check->rowCount() > 0)
 		{
-			$this->page->db->query(
-				"UPDATE records
-					SET change_date = UNIX_TIMESTAMP()
-					WHERE name = ? AND password = ? AND LENGTH(password) > 0 AND type = ?",
-				array($name, $passwort, $type)
-			);
 			$get = $this->page->db->query(
 				"SELECT domain_id FROM records WHERE name = ? AND password = ? AND LENGTH(password) > 0 AND type = ?",
 				array($name, $passwort, $type)
