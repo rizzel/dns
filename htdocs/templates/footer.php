@@ -6,10 +6,10 @@
 		$path = $_SERVER['DOCUMENT_ROOT'] . "/$f";
 		if (!$hasDer && is_file($path) && preg_match('/\.der$/i', $f)) {
 			$hasDer = TRUE;
-			$certs[] = sprintf('<a href="/%s">DER</a>', $f);
+			$certs[] = sprintf('<a href="http://%s/%s">DER</a>', $_SERVER['HTTP_HOST'], $f);
 		} elseif (!$hasCrt && is_file($path) && preg_match('/\.crt$/i', $f)) {
 			$hasCrt = TRUE;
-			$certs[] = sprintf('<a href="/%s">CRT</a>', $f);
+			$certs[] = sprintf('<a href="http://%s/%s">CRT</a>', $_SERVER['HTTP_HOST'], $f);
 		}
 	}
 ?>
