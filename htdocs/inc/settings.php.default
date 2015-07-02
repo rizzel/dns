@@ -1,0 +1,35 @@
+<?php
+
+class DNSSettings {
+	private $page;
+
+	public $db = array(
+		'dbHost' => "localhost",
+		'dbPort' => 3306,
+		'dbUser' => "pdns",
+		'dbPass' => "dnspass",
+		'dbName' => "dns"
+	);
+
+	public $templateNamespaces = array(
+		'site' => 'templates/sites'
+	);
+
+	public $defaultScripts = array(
+		'js/jquery-2.0.0.min.js',
+		'js/spin.min.js',
+		'js/string.js',
+		'js/md5.js',
+		'js/dns.js'
+	);
+
+	public $defaultStyles = array(
+		'css/dns.css'
+	);
+
+	public function __construct($page) {
+		$this->page = $page;
+	}
+}
+
+?>
