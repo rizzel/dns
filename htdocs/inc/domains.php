@@ -517,6 +517,6 @@ class DNSDomains {
 			}
 			return $ok;
 		}
-		return $false;
+		return FALSE;
 	}
 }
