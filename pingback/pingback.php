@@ -3,6 +3,7 @@
 
 	$page = new DNSPage();
 
+	$name = explode('?', $_SERVER['REQUEST_URI'])[0];
 	$args = array_map('htmlspecialchars', array_map('urldecode', preg_split('/[;&]/', $_SERVER['QUERY_STRING'])));
 
 	$splitted = array();
@@ -33,7 +34,7 @@
 		}
 	}
 
-	switch($_SERVER['SCRIPT_NAME']) {
+	switch($name) {
 		case '/js':
 			header("Content-Type: text/javascript; charset=utf-8");
 			$js = $page->settings->defaultScripts;

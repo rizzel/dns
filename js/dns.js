@@ -20,21 +20,6 @@ function initPage()
     dns = {};
     dns.loadRemote = new LoadRemote();
 
-    dns.loadRemote.loadRemote(
-        'konfiguration/getPublicParameters',
-        [],
-        function (data, success)
-        {
-            if (success)
-            {
-                dns.konfiguration = data.data;
-            }
-        },
-        {
-            insertInDiv: $('#loadProgresses')
-        }
-    );
-
 	$('body').bind('initReady', function() {
 		if (typeof(initPageSpecific) == 'function')
 			initPageSpecific();
@@ -243,7 +228,7 @@ function LoadRemote()
 		//}
 		//realQuery = realQuery.join('&');
 
-		var xhr = $.ajax('pingback/' + module, {
+		var xhr = $.ajax('pingback/pingback.php/' + module, {
 			cache: settings.cache,
 			data: {q: JSON.stringify(query)},
 			type: 'post',
