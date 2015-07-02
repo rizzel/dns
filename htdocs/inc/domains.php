@@ -12,16 +12,17 @@ class DNSDomains {
 	{
 		if ($this->page->user->getCurrentUser()->level != 'admin')
 			return false;
-		$get = $this->page->db->query(
-			"SELECT * FROM domains d ORDER BY name"
-		);
+		$get = $this->page->db->query("
+			SELECT * FROM domains d ORDER BY name
+		");
 		$result = $get->fetchall();
 		foreach($result AS &$r)
 		{
 			$get = $this->page->db->query(
 				"SELECT id, name, type,
 					IF(type = 'SOA', SUBSTRING_INDEX(content, ' ', 2), content) AS content, ttl FROM records
-					WHERE domain_id = ? AND (type NOT IN ('A', 'AAAA', 'CNAME') OR user = '') ORDER BY name, type, content",
+				WHERE domain_id = ? AND (type NOT IN ('A', 'AAAA', 'CNAME') OR user = '')
+				ORDER BY name, type, content",
 				$r['id']
 			);
 			$r['records'] = $get->fetchall();
@@ -88,7 +89,7 @@ class DNSDomains {
 			$in = $this->page->db->query(
 				sprintf("INSERT INTO records (domain_id, name, type, content, ttl, change_date)
 				VALUES (?, ?, ?, %s, ?, UNIX_TIMESTAMP())",
-				$type == 'SOA' ? 'CONCAT(?, UNIX_TIMESTAMP())' : '?'),
+				$type == 'SOA' ? 'CONCAT(?, " ", UNIX_TIMESTAMP())' : '?'),
 				array(
 					$domainid,
 					$name,
@@ -153,10 +154,55 @@ class DNSDomains {
 	{
 		if ($this->page->user->getCurrentUser()->level == 'nobody')
 			return false;
-		$get = $this->page->db->query(
-			"SELECT id, name FROM domains ORDER BY name"
-		);
+		$get = $this->page->db->query("
+			SELECT id, name FROM domains WHERE name NOT LIKE '%.arpa' ORDER BY name
+		");
 		return $get->fetchall();
+	}
+
+	private function getPTRName($type = 'A', $address)
+	{
+		switch ($type)
+		{
+		case 'A':
+			return sprintf('%s.in-addr.arpa',
+						   implode('.', array_reverse(explode('.', $address))));
+
+		case 'AAAA':
+			$address = bin2hex(inet_pton($address));
+			return sprintf('%s.ip6.arpa',
+						   implode('.', array_reverse(str_split($address))));
+		}
+
+		return NULL;
+	}
+
+	private function getPTRDomainID($type = 'A')
+	{
+		$name = NULL;
+
+		switch ($type)
+		{
+		case 'A':
+			$name = '%in-addr.arpa';
+			break;
+
+		case 'AAAA':
+			$name = '%ip6.arpa';
+			break;
+		}
+
+		if (!isset($name))
+			return NULL;
+
+		$id = $this->page->db->query('
+			SELECT id FROM domains WHERE type = "NATIVE" AND name LIKE ? LIMIT 1
+		', array($name));
+
+		if ($id && $row = $id->fetch())
+			return $row['id'];
+
+		return NULL;
 	}
 
 	public function addRecord($domain, $type, $name, $content, $password, $ttl)
@@ -183,6 +229,16 @@ class DNSDomains {
 		);
 		if ($set->rowCount() > 0)
 		{
+			$pid = $this->getPTRDomainID($type);
+			$ptr = $this->getPTRName($type, $content);
+
+			if (isset($pid) && isset($ptr))
+				$set = $this->page->db->query(
+					"INSERT INTO records (domain_id, name, type, content, ttl, change_date)
+					VALUES (?, ?, ?, ?, ?, UNIX_TIMESTAMP())",
+					array($pid, $ptr, 'PTR', $name, $ttl)
+				);
+
 	//		$this->page->email->sendToCurrent(
 	//			"Neuer Record: $name",
 	//			"Für Ihren Nutzer wurde ein neuer Record angelegt:
@@ -276,6 +332,11 @@ class DNSDomains {
 		);
 		if ($set->rowCount() > 0)
 		{
+			$this->page->db->query(
+				"DELETE FROM records WHERE type = 'PTR' AND content = ?",
+				array($row['name'])
+			);
+
 	//		$this->page->email->sendToCurrent(
 	//			"Record gelöscht: " . $row['name'],
 	//			"Für Ihren Nutzer wurde ein Record gelöscht:
@@ -396,6 +457,15 @@ class DNSDomains {
 		);
 		if ($check->rowCount() > 0)
 		{
+			$ptr = $this->getPTRName($type, $content);
+
+			if (isset($ptr))
+				$this->page->db->query("
+					UPDATE records
+						SET name = ?, change_date = UNIX_TIMESTAMP()
+						WHERE type = 'PTR' AND content = ?
+				", array($ptr, $name));
+
 			$get = $this->page->db->query(
 				"SELECT domain_id FROM records WHERE name = ? AND password = ? AND LENGTH(password) > 0 AND type = ?",
 				array($name, $passwort, $type)

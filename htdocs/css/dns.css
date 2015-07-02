@@ -132,3 +132,6 @@ var {
 	color: #000077;
 }
 
+#domains tr[rtype="PTR"] {
+	color: #777777;
+}
