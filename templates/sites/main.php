@@ -211,14 +211,6 @@ $loggedIn = $page->user->isLoggedIn();
 	<p>
 		Bugs und Feature-Request an <a href="mailto:rizzle@underdog-projects.net">rizzle@underdog-projects.net</a>.
 	</p>
-	<p>
-		Geplante Features:
-		<ul>
-			<li class="fertig">SSL</li>
-			<li class="fertig">Email-Nachfragen für Aktionen (Passwort-Änderung, Record hinzufügen / entfernen)</li>
-		</ul>
-	</p>
-	<h4></h4>
 <?php
 }
 else
