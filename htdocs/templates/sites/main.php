@@ -6,8 +6,9 @@ $loggedIn = $page->user->isLoggedIn();
 
 ?>
 <div id="records">
-	<h3>Record Verwaltung.</h3>
-<?php if ($loggedIn) { ?>
+    <h3>Record Verwaltung.</h3>
+    <?php IF ($loggedIn): ?>
+
     <h4>Meine Records</h4>
 	<input type="button" id="addRecord_button" value="Record hinzufügen" />
     <div id="addRecord" class="hider">
@@ -211,15 +212,9 @@ $loggedIn = $page->user->isLoggedIn();
 	<p>
 		Bugs und Feature-Request an <a href="mailto:rizzle@underdog-projects.net">rizzle@underdog-projects.net</a>.
 	</p>
-<?php
-}
-else
-{
-?>
-	<p>
-		Bitte Einloggen.
-	</p>
-<?php
-}
-?>
+    <?php ELSE: ?>
+        <p>
+            Bitte Einloggen.
+        </p>
+    <?php ENDIF ?>
 </div>

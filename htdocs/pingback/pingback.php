@@ -1,28 +1,28 @@
 <?php
-	include "../inc/functions.php";
+	require_once(__DIR__ . '/../inc/page.php');
 
-	$page = new DNSPage();
+	$page = new Page();
 
 	$name = explode('?', $_SERVER['REQUEST_URI'])[0];
 	$args = array_map('htmlspecialchars', array_map('urldecode', preg_split('/[;&]/', $_SERVER['QUERY_STRING'])));
 
-	$splitted = array();
+	$split = array();
 	if (array_key_exists('PATH_INFO', $_SERVER))
-		$splitted = explode('/', $_SERVER['PATH_INFO']);
+		$split = explode('/', $_SERVER['PATH_INFO']);
 
 	if (array_key_exists('q', $_POST)) {
 		$page->queryParams = json_decode($_POST['q']);
 	}
 
-	if (count($splitted) == 3) {
-		array_shift($splitted);
-		if (array_key_exists($splitted[0], $page->feeds)) {
-			$class = $page->feeds[$splitted[0]];
+	if (count($split) == 3) {
+		array_shift($split);
+		if (array_key_exists($split[0], $page->feeds)) {
+			$class = $page->feeds[$split[0]];
 			$methods = get_class_methods($class);
-			$methods = array_filter($methods, function ($item) use ($splitted) {
-				return strstr($item, $splitted[0] . "_");
+			$methods = array_filter($methods, function ($item) use ($split) {
+				return strstr($item, $split[0] . "_");
 			});
-			$function = $splitted[0] . "_" . $splitted[1];
+			$function = $split[0] . "_" . $split[1];
 			if (!isset($page->queryParams)) {
 				$page->queryParams = $args;
 			}

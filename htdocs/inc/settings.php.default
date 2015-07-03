@@ -1,9 +1,9 @@
 <?php
 
-class DNSSettings {
-	private $page;
-
-	// TODO: change database settings!
+class Settings {
+    /**
+     * @var array The used database connection.
+     */
 	public $db = array(
 		'dbHost' => "localhost",
 		'dbPort' => 3306,
@@ -12,10 +12,9 @@ class DNSSettings {
 		'dbName' => ""
 	);
 
-	public $templateNamespaces = array(
-		'site' => 'templates/sites'
-	);
-
+    /**
+     * @var array The default javascript files to include.
+     */
 	public $defaultScripts = array(
 		'js/jquery-2.0.0.min.js',
 		'js/spin.min.js',
@@ -24,13 +23,32 @@ class DNSSettings {
 		'js/dns.js'
 	);
 
+    /**
+     * @var array The default CSS styles to include.
+     */
 	public $defaultStyles = array(
 		'css/dns.css'
 	);
 
-	public function __construct($page) {
-		$this->page = $page;
-	}
-}
+    // default value when not set: sprintf('dns@%s', $_SERVER['HTTP_HOST'])
+    public $mailFrom = 'dns@example.com';
 
-?>
+    /**
+     * @var bool Whether to use PEAR::Mail to send emails.
+     */
+    public $usePearMail = FALSE;
+
+    /**
+     * @var string|null The PEAR::Mail backend to use or NULL.
+     */
+    public $pearBackend = NULL;
+
+    // A Mail configuration for PEAR::Mail::factory has to be set
+    public $mailConfig = array(
+        'host' => 'mail.example.com',
+        'username' => 'mail@mail.example.com',
+        'password' => 'mail password',
+        'auth' => 'LOGIN',
+        'port' => 25
+    );
+}

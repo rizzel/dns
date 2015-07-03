@@ -1,6 +1,13 @@
 <?php
 
-class DNSFeedsDomains extends DNSFeeds
+require_once(__DIR__ . '/feeds.php');
+
+/**
+ * Class FeedsDomains
+ *
+ * The domain related RPC feeds.
+ */
+class FeedsDomains extends Feeds
 {
 	public function domains_get()
 	{

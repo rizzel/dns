@@ -1,6 +1,13 @@
 <?php
 
-class DNSFeedsUsers extends DNSFeeds
+require_once(__DIR__ . '/feeds.php');
+
+/**
+ * Class FeedsUsers
+ *
+ * The user related RPC feeds.
+ */
+class FeedsUsers extends Feeds
 {
 	public function user_get()
 	{

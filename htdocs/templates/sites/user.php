@@ -7,7 +7,7 @@ $loggedIn = $page->user->isLoggedIn();
 ?>
 <div id="records">
 	<h3>Benutzer Verwaltung.</h3>
-<?php if ($loggedIn) { ?>
+<?php IF ($loggedIn): ?>
 	<div>
 		<label for="password1">Neues Passwort:</label>
 		<input type="password" id="password1" />
@@ -39,15 +39,9 @@ $loggedIn = $page->user->isLoggedIn();
 		<br />
 		Das Token ist mindestens einen Tag gültig.
 	</p>
-<?php
-}
-else
-{
-?>
+<?php ELSE: ?>
 	<p>
 		Bitte Einloggen.
 	</p>
-<?php
-}
-?>
+<?php ENDIF ?>
 </div>

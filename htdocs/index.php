@@ -1,8 +1,8 @@
 <?php
 // powerdns hat db backend
 // tinydns
-require_once("inc/functions.php");
-$page = new DNSPage();
+require_once(__DIR__ . "/inc/page.php");
+$page = new Page();
 
 $page->setTitle('DNS');
 
