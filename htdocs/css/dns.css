@@ -91,7 +91,7 @@ blockquote {
 }
 
 #unverschluesselt {
-	font-size: 13;
+	font-size: 13px;
 	border: dotted 1px #006600;
 	border-radius: 3px;
 	display: inline-block;
@@ -159,7 +159,7 @@ td a,
 input[type="button"] {
 	border: 1px outset #ccc;
 	border-radius: 5px;
-	margin: 0px;
+	margin: 0;
 	padding: 0 3px;
 	display: inline-block;
 	background: #ccc;
