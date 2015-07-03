@@ -1,6 +1,6 @@
 CREATE TABLE dns_users (
   username VARCHAR(45) NOT NULL PRIMARY KEY,
-  level ENUM('admin', 'user') DEFAULT 'user' NOT NULL,
+  level ENUM('admin', 'user', 'nobody') DEFAULT 'user' NOT NULL,
   password VARCHAR(45) NOT NULL,
   salt VARCHAR(20) NOT NULL,
   sessionid VARCHAR(100),
