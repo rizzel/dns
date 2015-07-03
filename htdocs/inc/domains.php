@@ -22,7 +22,7 @@ class DNSDomains {
 				"SELECT id, name, type,
 					IF(type = 'SOA', SUBSTRING_INDEX(content, ' ', 2), content) AS content, ttl FROM records
 				WHERE domain_id = ? AND (type NOT IN ('A', 'AAAA', 'CNAME') OR user = '')
-				ORDER BY name, type, content",
+				ORDER BY type, name, content",
 				$r['id']
 			);
 			$r['records'] = $get->fetchall();
@@ -177,30 +177,33 @@ class DNSDomains {
 		return NULL;
 	}
 
-	private function getPTRDomainID($type = 'A')
+	private function getPTRDomainID($ptr)
 	{
-		$name = NULL;
-
-		switch ($type)
-		{
-		case 'A':
-			$name = '%in-addr.arpa';
-			break;
-
-		case 'AAAA':
-			$name = '%ip6.arpa';
-			break;
-		}
-
-		if (!isset($name))
+		if (!isset($ptr))
 			return NULL;
 
-		$id = $this->page->db->query('
-			SELECT id FROM domains WHERE type = "NATIVE" AND name LIKE ? LIMIT 1
-		', array($name));
+		$q = $this->page->db->query('
+			SELECT id, name FROM domains
+			WHERE type = "NATIVE" AND name LIKE "%.arpa"
+		');
 
-		if ($id && $row = $id->fetch())
-			return $row['id'];
+		$domains = array();
+
+		while ($q && $domain = $q->fetch())
+			$domains[$domain['name']] = $domain['id'];
+
+		$parts = explode('.', $ptr);
+		$count = count($parts);
+
+		while ($count-- > 1)
+		{
+			$cmp = implode('.', $parts);
+
+			if (isset($domains[$cmp]))
+				return $domains[$cmp];
+
+			array_shift($parts);
+		}
 
 		return NULL;
 	}
@@ -229,8 +232,8 @@ class DNSDomains {
 		);
 		if ($set->rowCount() > 0)
 		{
-			$pid = $this->getPTRDomainID($type);
 			$ptr = $this->getPTRName($type, $content);
+			$pid = $this->getPTRDomainID($ptr);
 
 			if (isset($pid) && isset($ptr))
 				$set = $this->page->db->query(
@@ -307,7 +310,7 @@ class DNSDomains {
 				ON r.domain_id = d.id
 				WHERE r.user=? AND
 				r.type IN ('A', 'AAAA', 'CNAME')
-				ORDER BY domain_name, name, type, content",
+				ORDER BY domain_name, type, name, content",
 			array(
 				$this->page->user->getCurrentUser()->username
 			)
