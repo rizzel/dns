@@ -145,7 +145,7 @@ class DNSDomains {
 
 	private function getDomainName($domainid)
 	{
-		$get = $this->page->db->query("SELECT name FROM domains WHERE id = ?", $id);
+		$get = $this->page->db->query("SELECT name FROM domains WHERE id = ?", $domainid);
 		if ($get && $row = $get->fetch())
 			return $row['name'];
 	}
