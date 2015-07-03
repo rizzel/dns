@@ -35,7 +35,7 @@ class Page {
     /**
      * @var User The User instance.
      */
-	public $user;
+	public $users;
     /**
      * @var Domains The Domains instance.
      */
@@ -49,6 +49,11 @@ class Page {
      */
 	public $feeds = array();
 	public $queryParams;
+
+    /**
+     * @var User The currently logged in user.
+     */
+    public $currentUser;
 
     /**
      * @var array The variables to render the header.
@@ -71,7 +76,10 @@ class Page {
 		$this->db = new DB($this);
 
         require_once(__DIR__ . '/user.php');
-		$this->user = new User($this);
+        $this->currentUser = new User($this);
+
+        require_once(__DIR__ . '/users.php');
+		$this->user = new Users($this);
 
         require_once(__DIR__ . '/email.php');
 		$this->email = new Email($this);

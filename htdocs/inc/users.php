@@ -1,48 +1,15 @@
 <?PHP
 
-class User
+class Users
 {
     /**
      * @var Page The base page instance
      */
     private $page;
 
-    /**
-     * @var array The user data from the databse.
-     */
-    private $user;
-
-    /**
-     * @var string The name of the user.
-     */
-    private $username;
-
-    /**
-     * @var string The level of the user.
-     */
-    private $level;
-
-    /**
-     * @var string|NULL The name of the user or NULL for session-loading.
-     */
-    private $email;
-
-    function __construct($page, $userToLoad)
+    function __construct($page)
     {
         $this->page = $page;
-
-    }
-
-    public static function getCurrentUser($page)
-    {
-        $user = new User($page, NULL);
-        $user->startSession();
-        return $user;
-    }
-
-    public static function getAnonymousUser($page)
-    {
-        $user = new User($page, 'anonymous');
     }
 
     /**
@@ -52,7 +19,7 @@ class User
      */
     public function isLoggedIn()
     {
-        return $this->level != 'nobody';
+        return $this->getCurrentUser()->level != 'nobody';
     }
 
     /**
@@ -103,7 +70,7 @@ class User
     /**
      * Starts the user session.
      */
-    public function startSession()
+    private function startSession()
     {
         session_start();
         if (array_key_exists('username', $_SESSION) && isset($_SESSION['username'])) {
