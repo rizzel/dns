@@ -37,7 +37,7 @@ $loggedIn = $page->user->isLoggedIn();
 			<input type="text" id="addRecordPassword" size="64" />
 		</div>
 		<div>
-			<label>TTL (s):</label>
+			<label for="addRecordTTL">TTL (s):</label>
 			<input type="number" id="addRecordTTL" min="5" />
 		</div>
         <input type="button" id="addRecordSubmit" value="Hinzufügen" />
