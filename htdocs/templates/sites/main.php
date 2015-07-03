@@ -8,6 +8,7 @@ $loggedIn = $page->user->isLoggedIn();
 <div id="records">
 	<h3>Record Verwaltung.</h3>
 <?php if ($loggedIn) { ?>
+    <h4>Meine Records</h4>
 	<input type="button" id="addRecord_button" value="Record hinzufügen" />
     <div id="addRecord" class="hider">
 		<div>
@@ -41,7 +42,6 @@ $loggedIn = $page->user->isLoggedIn();
 		</div>
         <input type="button" id="addRecordSubmit" value="Hinzufügen" />
     </div>
-    <div>Meine Records:</div>
     <table id="recordList" border="1">
         <tr>
 			<td>ID</td>
