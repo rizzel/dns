@@ -2,9 +2,10 @@ CREATE TABLE dns_users (
   username VARCHAR(45) NOT NULL PRIMARY KEY,
   level ENUM('admin', 'user', 'nobody') DEFAULT 'user' NOT NULL,
   password VARCHAR(45) NOT NULL,
-  salt VARCHAR(20) NOT NULL,
+  salt VARCHAR(12) NOT NULL,
   sessionid VARCHAR(100),
-  email VARCHAR(100) NOT NULL
+  email VARCHAR(100) NOT NULL,
+  UNIQUE email (email)
 ) DEFAULT CHARSET "utf8";
 
 CREATE TABLE dns_users_update (
@@ -22,3 +23,5 @@ CREATE TABLE dns_records_users (
   password VARCHAR(128),
   user VARCHAR(45) NOT NULL
 ) CHARSET "utf8";
+
+INSERT INTO dns_users VALUES ('anonymous', 'nobody', '', '', NULL, '');
