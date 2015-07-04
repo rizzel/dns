@@ -8,11 +8,6 @@ class User
     private $page;
 
     /**
-     * @var array The user data from the databse.
-     */
-    private $user;
-
-    /**
      * @var string The name of the user.
      */
     private $username;
@@ -30,145 +25,108 @@ class User
     function __construct($page, $userToLoad)
     {
         $this->page = $page;
-
+        $this->loadUser($userToLoad);
     }
 
-    public static function getCurrentUser($page)
+    public function getUserName()
     {
-        $user = new User($page, NULL);
-        $user->startSession();
-        return $user;
+        return $this->username;
     }
 
-    public static function getAnonymousUser($page)
+    public function getLevel()
     {
-        $user = new User($page, 'anonymous');
+        return $this->level;
     }
 
-    /**
-     * Returns whether this user is logged in (!nobody).
-     *
-     * @return bool Whether this user is logged in (!nobody).
-     */
+    public function getEmail()
+    {
+        return $this->email;
+    }
+
+    public function getDebug()
+    {
+        return TRUE;
+        return array_key_exists('debug', $_SESSION) ? $_SESSION['debug'] : FALSE;
+    }
+
+    public function isAnonymous()
+    {
+        return $this->username == 'anonymous';
+    }
+
+    private function loadUser($userToLoad)
+    {
+        if ($userToLoad === NULL)
+            $this->startSession();
+        else
+            if (!$this->loadUserByName($userToLoad))
+                if (!$this->loadUserByEmail($userToLoad))
+                    $this->loadUserByName('anonymous');
+    }
+
+    private function loadUserByName($username)
+    {
+        $load = $this->page->db->query('SELECT level, email FROM dns_users WHERE username = ?', $username);
+        if ($load && $row = $load->fetch()) {
+            $this->username = $username;
+            $this->level = $row['level'];
+            $this->email = $row['email'];
+            return TRUE;
+        }
+        $this->username = $this->level = $this->email = NULL;
+        return FALSE;
+    }
+
+    private function loadUserByEmail($useremail)
+    {
+        $load = $this->page->db->query('SELECT username, level FROM dns_users WHERE email = ?', $useremail);
+        if ($load && $row = $load->fetch()) {
+            $this->username = $row['username'];
+            $this->level = $row['level'];
+            $this->email = $row['email'];
+            return TRUE;
+        }
+        $this->username = $this->level = $this->email = NULL;
+        return FALSE;
+    }
+
+
+    public function checkLogin($password)
+    {
+        $load = $this->page->db->query('SELECT password, salt FROM dns_users WHERE username = ?', $this->username);
+        if ($load && $row = $load->fetch()) {
+            if (
+                isset($row['password']) && isset($row['salt']) && strlen($row['password']) > 1 &&
+                sha1($password . $row['salt']) == $row['password']
+            ) {
+                return TRUE;
+            }
+        }
+        return FALSE;
+    }
+
+
     public function isLoggedIn()
     {
-        return $this->level != 'nobody';
+        return in_array($this->level, array('user', 'admin'));
     }
 
-    /**
-     * Returns the anonymous user data.
-     *
-     * @return array The anonymous user.
-     */
-    private function getAnonymousUser()
+    public function getPrintableUser($withRecords = FALSE)
     {
-        return array(
-            'level' => 'nobody',
-            'username' => 'anonymous',
-            'email' => ''
+        $user = array(
+            'username' => $this->username,
+            'level' => $this->level,
+            'email' => $this->email
         );
-    }
 
-    /**
-     * Returns the current user.
-     *
-     * @return object The current user.
-     */
-    public function getCurrentUser()
-    {
-        if (isset($this->user) && isset($this->user['username'])) {
-            return $this->getCleanUser($this->user);
-        }
-        return $this->getCleanUser($this->getAnonymousUser());
-    }
-
-    /**
-     * Cleans up a specific user and returns the object.
-     *
-     * @param array $user The user to clean.
-     * @return object Returns a specific user.
-     */
-    private function getCleanUser($user)
-    {
-        $ret = (object)(array(
-            'username' => $user['username'],
-            'level' => $user['level'],
-//'debug' => (array_key_exists('debug', $_SESSION) ? $_SESSION['debug'] : false)
-            'debug' => TRUE,
-            'email' => $user['email']
-        ));
-        return $ret;
-    }
-
-    /**
-     * Starts the user session.
-     */
-    public function startSession()
-    {
-        session_start();
-        if (array_key_exists('username', $_SESSION) && isset($_SESSION['username'])) {
-            $q = $this->page->db->query("
-                SELECT *
-                FROM dns_users u
-                WHERE u.sessionid=? AND u.username=?
-            ",
-                session_id(),
-                $_SESSION['username']
-            );
-            $this->user = $q->fetch();
-            $this->user = $this->user === FALSE ? NULL : $this->user;
-        }
-
-        if (array_key_exists('debug', $_GET))
-            $_SESSION['debug'] = $_GET['debug'];
-    }
-
-    /**
-     * Returns a user by his name.
-     *
-     * @param string $name The name of the user.
-     * @return object The user.
-     */
-    public function getUserByName($name)
-    {
-        return $this->getCleanUser($this->_getUserByName($name));
-    }
-
-    /**
-     * Returns a user by his name.
-     *
-     * @param string $name The name of the user.
-     * @return mixed|null
-     */
-    private function _getUserByName($name)
-    {
-        $q = $this->page->db->query("SELECT * FROM dns_users WHERE username=?", $name);
-        $f = $q->fetch();
-        return $f === FALSE ? NULL : $f;
-    }
-
-    /**
-     * Returns the list of all users.
-     *
-     * @return array|null The list of all user, or NULL on error.
-     */
-    public function getUserList()
-    {
-        if ($this->getCurrentUser()->level != 'admin')
-            return NULL;
-        $q = $this->page->db->query("SELECT * FROM dns_users u ORDER BY username");
-        $result = array();
-        while ($r = $q->fetch()) {
-            array_push($result, $this->getCleanUser($r));
-        }
-        foreach ($result AS &$user) {
+        if ($withRecords) {
             $q = $this->page->db->query("
                 SELECT
-                  r.name,
-                  r.type,
-                  d.name AS domain_name
+                    r.name,
+                    r.type,
+                    d.name AS domain_name
                 FROM records r
-                INNER JOIN domains d
+                LEFT JOIN domains d
                   ON r.domain_id = d.id
                 LEFT JOIN dns_records_users dru
                   ON r.id = dru.records_id
@@ -176,116 +134,81 @@ class User
                   dru.user = ? AND
                   r.type IN ('A', 'AAAA', 'CNAME')
             ",
-                $user->username
+                $this->username
             );
-            $user->records = $q->fetchall();
+            $user['records'] = $q->fetchAll();
         }
-        return $result;
+
+        return $user;
     }
 
-    /**
-     * Registers an user.
-     *
-     * @param string $username The username of the user.
-     * @param string $password The password of the user.
-     * @param string $level The level of the user.
-     * @param string $email The email of the user.
-     * @return bool Whether successful.
-     */
-    public function registerUser($username, $password, $level, $email)
+    public function startSession()
     {
-        if ($this->getCurrentUser()->level == 'admin') {
-            $salt = base_convert(rand(10e16, 10e20), 10, 36);
+        session_start();
+        if (array_key_exists('username', $_SESSION) && isset($_SESSION['username'])) {
             $q = $this->page->db->query("
-                INSERT INTO dns_users
-                  (username, password, salt, level, email)
-                VALUES
-                  (?, ?, ?, ?, ?)
+                SELECT username, email, level
+                FROM dns_users
+                WHERE sessionid=? AND username=?
             ",
-                $username,
-                sha1($password . $salt),
-                $salt,
-                $level,
-                $email
+                session_id(),
+                $_SESSION['username']
             );
-            return ($q->errorCode() === '00000');
+            if ($q && $row = $q->fetch()) {
+                $this->loadUserByName($_SESSION['username']);
+            } else {
+                $this->loadUserByName('anonymous');
+            }
         }
-        return FALSE;
+
+        if (array_key_exists('debug', $_GET))
+            $_SESSION['debug'] = $_GET['debug'];
     }
 
-    /**
-     * Request an update for an user password.
-     *
-     * @param string $password The password for the user.
-     * @return bool Whether successful.
-     */
     public function requestPasswordUpdate($password)
     {
         $get = $this->page->db->query(
             "SELECT salt FROM dns_users WHERE username = ?",
-            $this->getCurrentUser()->username
+            $this->page->currentUser->getUserName()
         );
         if ($get && $row = $get->fetch()) {
-            $p = $this->createPassword($password, $row['salt']);
+            $p = Users::createPassword($password, $row['salt']);
             return $this->page->email->createUpdate(
                 'Passwortänderung bestätigen',
                 "Bitte bestätigen Sie die Änderung ihres Passwortes für ihren Account " .
-                "ggdns.de für den User " . $this->getCurrentUser()->username . ".\n\n",
+                "ggdns.de für den User " . $this->page->currentUser->getUserName() . ".\n\n",
                 'password',
-                $p->hashed
+                $p['hashed']
             );
         }
         return FALSE;
     }
 
-    /**
-     * Update a password for an user after confirming the token.
-     *
-     * @param string $user The username of the user.
-     * @param string $password The new password for the user.
-     * @return bool Whether successful.
-     */
     public function confirmPasswordUpdate($user, $password)
     {
-        $p = $this->createPassword($password);
         $set = $this->page->db->query("
             UPDATE dns_users
             SET
-              password = ?,
-              salt = ?
+              password = ?
             WHERE username = ?
         ",
-            $p->hashed,
-            $p->salt,
+            $password,
             $user
         );
         return ($set->rowCount() > 0);
     }
 
-    /**
-     * Request an update for an user email.
-     *
-     * @param string $email The email to update.
-     * @return bool Whether successful.
-     */
     public function requestEmailUpdate($email)
     {
         return $this->page->email->createUpdate(
             'Emailänderung bestätigen',
             "Bitte bestätigen Sie die Änderung ihres Passwortes für ihren Account bei\n" .
-            "ggdns.de für den User " . $this->getCurrentUser()->username . " mit folgendem Link:\n\n",
+            "ggdns.de für den User " . $this->page->currentUser->getUserName() . " mit folgendem Link:\n\n",
             'email',
             $email
         );
     }
 
-    /**
-     * Update an email for a user after confirming the token.
-     *
-     * @param string $user The username of the user.
-     * @param string $email The new email for the user.
-     * @return bool Whether successful.
-     */
     public function confirmEmailUpdate($user, $email)
     {
         $set = $this->page->db->query("UPDATE dns_users SET email = ? WHERE username = ?", $email, $user);
@@ -300,16 +223,10 @@ class User
         return FALSE;
     }
 
-    /**
-     * Request a password reset token.
-     *
-     * @param string $name The name of the user.
-     * @param string $email The email to send the token to.
-     */
-    public function vergessenRequest($name, $email)
+    public function forgottenRequest($name, $email)
     {
-        $user = $this->page->user->getUserByName($name);
-        if ($user->email == $email) {
+        $user = $this->page->users->getUserByName($name);
+        if ($user->getEmail() == $email) {
             $this->page->email->createUpdate(
                 "Passwort Zurücksetzung Token",
                 "Bitte Nutzen Sie folgendes Token zum Zurücksetzen des Passwortes.",
@@ -320,15 +237,7 @@ class User
         }
     }
 
-    /**
-     * Set a new password after the password reset token.
-     *
-     * @param string $name The name of the user.
-     * @param string $token The token.
-     * @param string $password The new password to set.
-     * @return bool Whether successful.
-     */
-    public function vergessenResponse($name, $token, $password)
+    public function forgottenResponse($name, $token, $password)
     {
         if ($this->page->email->verifyUpdate($name, $token)) {
             $this->confirmPasswordUpdate($name, $password);
@@ -337,116 +246,62 @@ class User
         return FALSE;
     }
 
-    /**
-     * Updates data for an user.
-     *
-     * @param string $name The original name of the user.
-     * @param string $username The new name of the user.
-     * @param string $password The password of the user.
-     * @param string $level The level of the user.
-     * @return bool Whether succesful.
-     */
-    public function updateUser($name, $username, $password, $level)
+    public function update($key, $value)
     {
-        if (!isset($name))
-            $name = $this->getCurrentUser()->username;
-        if ($name == 'anonymous') return FALSE;
-        $user = $this->getCurrentUser();
-        if ($user->level != 'admin')
+        if ($this->isAnonymous())
             return FALSE;
-        $u = $this->_getUserByName($name);
-        if (!isset($u)) return FALSE;
-        if (($user->username == $name && $user->level != 'nobody') ||
-            $user->level == 'admin'
+
+        if (!in_array($key, array('username', 'level', 'password', 'email')))
+            return FALSE;
+
+        if (
+            (
+                $this->page->currentUser->getUserName() == $this->getUserName() &&
+                $this->page->currentUser->getLevel() == 'user' &&
+                in_array($key, array('username', 'password', 'email'))
+            ) ||
+            (
+                $this->page->currentUser->getLevel() == 'admin'
+            )
         ) {
-            $sql = "UPDATE dns_users SET ";
-            $toUpdate = array();
-            $toUpdateVal = array();
-            if (isset($username)) {
-                array_push($toUpdate, "username=?");
-                array_push($toUpdateVal, $username);
+            $set = NULL;
+            switch ($key) {
+                case 'username':
+                case 'level':
+                case 'email':
+                    $set = $this->page->db->query("
+                        UPDATE dns_users
+                        SET $key = ?
+                        WHERE username = ?
+                    ", $value, $this->getUserName());
+                    break;
+                case 'password':
+                    $password = Users::createPassword($value);
+                    $set = $this->page->db->query("
+                        UPDATE dns_users
+                        SET password = ?, salt = ?
+                        WHERE username = ?
+                    ", $password['password'], $password['hash'], $this->getUserName());
+                    break;
             }
-            if (isset($password)) {
-                array_push($toUpdate, "password=?", "salt=?");
-                $password = $this->createPassword($password);
-                array_push($toUpdateVal, $password->hashed, $password->salt);
-            }
-            if (isset($level) && $user->level == 'admin') {
-                array_push($toUpdate, "level=?");
-                array_push($toUpdateVal, $level);
-            }
-            $sql .= implode(", ", $toUpdate);
-            $sql .= " WHERE username=?";
-            array_push($toUpdateVal, $name);
-            $q = $this->page->db->query($sql, $toUpdateVal);
-            return ($q->rowCount() > 0);
+
+            return ($set && $set->rowCount() == 1);
         }
         return FALSE;
     }
 
-    /**
-     * Hash a password and return the hash and the salt.
-     *
-     * @param string $password The password to hash.
-     * @param string|null $salt The salt to use (NULL to create it).
-     * @return object The password object.
-     */
-    private function createPassword($password, $salt = NULL)
-    {
-        if ($salt == NULL)
-            $salt = base_convert(rand(10e16, 10e20), 10, 36);
-        return $this->page->toObject(array(
-            'hashed' => sha1($password . $salt),
-            'salt' => $salt
-        ));
-    }
-
-    /**
-     * Remove a user (but keep his domains).
-     *
-     * @param string $name The name of the user.
-     * @return bool Whether successful.
-     */
-    public function unRegisterUser($name)
-    {
-        if ($name == 'anonymous') return FALSE;
-        $user = $this->getCurrentUser();
-        if (($user->username == $name && $user->level != 'nobody') ||
-            $user->level == 'admin'
-        ) {
-            $this->page->db->query("DELETE FROM dns_users WHERE username=?", $name);
-            return TRUE;
-        }
-        return FALSE;
-    }
-
-    /**
-     * Try to log in a user.
-     *
-     * @param string $username The username.
-     * @param string $password The password of the user.
-     * @return bool Whether successful.
-     */
     public function login($username, $password)
     {
-        $u = $this->_getUserByName($username);
-        if (
-            isset($u) &&
-            array_key_exists('salt', $u) &&
-            array_key_exists('password', $u) &&
-            sha1($password . $u['salt']) == $u['password']
-        ) {
-            $this->page->db->query("UPDATE dns_users SET sessionid=? WHERE username=?", session_id(), $u['username']);
-            $_SESSION['username'] = $u['username'];
-            $this->user = $u;
+        $u = $this->page->users->getUserByName($username);
+        if ($u->checkLogin($password)) {
+            $this->loadUserByName($username);
+            $this->page->db->query("UPDATE dns_users SET sessionid = ? WHERE username = ?", session_id(), $u->getUserName());
+            $_SESSION['username'] = $u->getUserName();
             return TRUE;
         }
         return FALSE;
     }
 
-    /**
-     * Try to logout.
-     */
     public function logout()
     {
         $this->page->db->query("UPDATE dns_users SET sessionid = NULL WHERE sessionid=?", session_id());
@@ -456,14 +311,9 @@ class User
         }
         $_SESSION = array();
         session_destroy();
-        $this->user = $this->getAnonymousUser();
+        $this->loadUserByName('anonymous');
     }
 
-    /**
-     * Returns a list of IPs the client connected from.
-     *
-     * @return array The list of IPs.
-     */
     public function getIPs()
     {
         $ret = array($_SERVER['REMOTE_ADDR']);
@@ -472,4 +322,3 @@ class User
         return $ret;
     }
 }
-

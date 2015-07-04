@@ -46,7 +46,7 @@ class Email
      */
     public function sendToCurrent($subject, $body)
     {
-        return $this->sendTo($this->page->user->getCurrentUser()->email, $subject, $body);
+        return $this->sendTo($this->page->currentUser->getEmail(), $subject, $body);
     }
 
     /**
@@ -114,12 +114,11 @@ class Email
     public function createUpdate($subject, $text, $key, $value, $username = null)
     {
         $withURL = TRUE;
-        $user = $this->page->user->getCurrentUser();
         if ($username != null) {
             $withURL = FALSE;
-            $user = $this->page->user->getUserByName($username);
+            $user = $this->page->users->getUserByName($username);
         }
-        if ($user->username == 'anonymous')
+        if ($user->getUserName() == 'anonymous')
             return FALSE;
 
         $token = '';
@@ -130,12 +129,12 @@ class Email
         $url = sprintf("%s://%s/u?u=%s&t=%s",
             isset($_SERVER['HTTPS']) ? 'https' : 'http',
             $_SERVER['SERVER_NAME'],
-            $user->username,
+            $user->getUserName(),
             $token
         );
 
         $this->sendTo(
-            $user->email,
+            $user->getEmail(),
             $subject,
             $text . "\n" .
             ($withURL ? "\nURL: $url\nODER" : "") .
@@ -146,7 +145,7 @@ class Email
         $this->page->db->query("
             INSERT INTO dns_users_update VALUES (?, NOW(), ?, ?, ?)
         ",
-            $user->username,
+            $user->getUserName(),
             $token,
             $key,
             $value

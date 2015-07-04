@@ -230,7 +230,7 @@ initPageSpecific = function ()
 				p.show();
 				l_content.text('IPv4:');
 				ttl.val(60);
-				dns.loadRemote.loadRemote('user/myip',
+				dns.loadRemote.loadRemote('user/myIP',
 					[],
 					function (data, success) {
 						if (!success)

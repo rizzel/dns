@@ -22,7 +22,7 @@ class Domains
      */
     public function getDomains()
     {
-        if ($this->page->user->getCurrentUser()->level != 'admin')
+        if ($this->page->currentUser->getLevel() != 'admin')
             return FALSE;
         $get = $this->page->db->query("
 			SELECT * FROM domains d ORDER BY name
@@ -73,7 +73,7 @@ class Domains
      */
     public function addDomain($name, $domainType, $soa)
     {
-        if ($this->page->user->getCurrentUser()->level != 'admin')
+        if ($this->page->currentUser->getLevel() != 'admin')
             return FALSE;
         $set = $this->page->db->query("INSERT INTO domains (name, type) VALUES (?, ?)", $name, $domainType);
         if ($set->rowCount() > 0) {
@@ -89,7 +89,7 @@ class Domains
      */
     public function deleteSpecialRecord($recordId)
     {
-        if ($this->page->user->getCurrentUser()->level != 'admin')
+        if ($this->page->currentUser->getLevel() != 'admin')
             return FALSE;
         $domainId = $this->getDomainIDForRecord($recordId);
         $del = $this->page->db->query("DELETE FROM records WHERE id = ?", $recordId);
@@ -107,7 +107,7 @@ class Domains
      */
     public function deleteSpecialRecords($domainId, $recordType)
     {
-        if ($this->page->user->getCurrentUser()->level != 'admin')
+        if ($this->page->currentUser->getLevel() != 'admin')
             return FALSE;
         $del = $this->page->db->query("DELETE FROM records WHERE domain_id = ? AND type = ?", $domainId, $recordType);
         if ($del->rowCount() > 0)
@@ -146,7 +146,7 @@ class Domains
      */
     public function insertSpecialRecord($domainId, $name, $recordType, $content, $ttl = 86400)
     {
-        if ($this->page->user->getCurrentUser()->level != 'admin')
+        if ($this->page->currentUser->getLevel() != 'admin')
             return FALSE;
         if ($content && strlen($content) > 0) {
             if ($name === NULL)
@@ -184,7 +184,7 @@ class Domains
      */
     public function updateSpecialRecord($recordId, $name, $recordType, $content, $ttl)
     {
-        if ($this->page->user->getCurrentUser()->level != 'admin')
+        if ($this->page->currentUser->getLevel() != 'admin')
             return FALSE;
         $set = $this->page->db->query("
             UPDATE records
@@ -206,7 +206,7 @@ class Domains
      */
     public function deleteDomain($domainId)
     {
-        if ($this->page->user->getCurrentUser()->level != 'admin')
+        if ($this->page->currentUser->getLevel() != 'admin')
             return FALSE;
         $this->page->db->query("
             DELETE d, r, ptr
@@ -231,7 +231,7 @@ class Domains
      */
     public function updateDomainName($domainId, $domainName)
     {
-        if ($this->page->user->getCurrentUser()->level != 'admin' ||
+        if ($this->page->currentUser->getLevel() != 'admin' ||
             strlen($domainName) < 1 || strlen($domainName) > 255
         )
             return FALSE;
@@ -268,7 +268,7 @@ class Domains
      */
     public function getDomainsMini()
     {
-        if ($this->page->user->getCurrentUser()->level == 'nobody')
+        if ($this->page->currentUser->getLevel() == 'nobody')
             return FALSE;
         $get = $this->page->db->query("
 			SELECT id, name
@@ -351,7 +351,7 @@ class Domains
      */
     public function addRecord($domainId, $recordType, $name, $content, $password, $ttl)
     {
-        if ($this->page->user->getCurrentUser()->level == 'nobody')
+        if ($this->page->currentUser->getLevel() == 'nobody')
             return FALSE;
         if (!in_array($recordType, array('A', 'AAAA', 'CNAME')))
             return FALSE;
@@ -378,7 +378,7 @@ class Domains
                 VALUES
                 (?, ?, ?)
             ",
-                $recordId, $password, $this->page->user->getCurrentUser()->username
+                $recordId, $password, $this->page->currentUser->getUserName()
             );
             $ptr = $this->getPTRName($recordType, $content);
             $pid = $this->getPTRDomainID($ptr);
@@ -446,7 +446,14 @@ class Domains
               (r.name = ? AND r.type = 'CNAME' AND ? IN ('A', 'AAAA')) OR
               (r.name = ? AND r.type IN ('A', 'AAAA') AND ? = 'CNAME')
         ",
-            $recordName, $this->page->user->getCurrentUser()->username, $recordName, $recordType, $recordName, $recordType, $recordName, $recordType
+            $recordName,
+            $this->page->currentUser->getUserName(),
+            $recordName,
+            $recordType,
+            $recordName,
+            $recordType,
+            $recordName,
+            $recordType
         );
         if ($dom && $row = $dom->fetch())
             return ($row['c'] == 0);
@@ -531,7 +538,7 @@ class Domains
      */
     public function getMyRecords()
     {
-        if ($this->page->user->getCurrentUser()->level == 'nobody')
+        if ($this->page->currentUser->getLevel() == 'nobody')
             return FALSE;
         $get = $this->page->db->query("
             SELECT
@@ -555,7 +562,7 @@ class Domains
               r.type IN ('A', 'AAAA', 'CNAME')
             ORDER BY d.name, r.type, r.name, r.content
         ",
-            $this->page->user->getCurrentUser()->username
+            $this->page->currentUser->getUserName()
         );
         return $get->fetchall();
     }
@@ -580,8 +587,8 @@ class Domains
               (? = 'admin' OR user = ?)
         ",
             $recordId,
-            $this->page->user->getCurrentUser()->level,
-            $this->page->user->getCurrentUser()->username
+            $this->page->currentUser->getLevel(),
+            $this->page->currentUser->getUserName()
         );
         if ($set->rowCount() > 0) {
             return $this->updateSOARecord($did);
@@ -633,8 +640,8 @@ class Domains
         ",
             $value,
             $recordId,
-            $this->page->user->getCurrentUser()->level,
-            $this->page->user->getCurrentUser()->username
+            $this->page->currentUser->getLevel(),
+            $this->page->currentUser->getUserName()
         );
 
         if ($set->rowCount() > 0)

@@ -4,7 +4,7 @@ $page = new Page();
 
 $page->setTitle('DNS - Passwort vergessen');
 
-$page->addScript('js/dns.vergessen.js');
+$page->addScript('js/dns.forgotten.js');
 
 $page->renderHeader();
 

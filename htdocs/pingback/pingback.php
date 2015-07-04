@@ -39,14 +39,14 @@
 			header("Content-Type: text/javascript; charset=utf-8");
 			$js = $page->settings->defaultScripts;
 			foreach ($js AS $j) {
-				include("../js/" . $j);
+				readfile(__DIR__ . "/../js/" . $j);
 			}
 			break;
 		case '/css':
 			header("Content-Type: text/css; charset=utf-8");
 			$css = $page->settings->defaultStyles;
 			foreach($css AS $c) {
-				include("../css/" . $c);
+				readfile(__DIR__ . "/../css/" . $c);
 			}
 			break;
 		case '/ip':
@@ -86,7 +86,7 @@
 			if ($page->domains->recordUpdateIP6($args))
 				exit(0);
 		case '/myip':
-			print implode("\n", $page->user->getIPs());
+			print implode("\n", $page->currentUser->getIPs());
 			break;
 		default:
 			$page->call404();

@@ -75,11 +75,11 @@ class Page {
         require_once(__DIR__ . '/db.php');
 		$this->db = new DB($this);
 
-        require_once(__DIR__ . '/user.php');
-        $this->currentUser = new User($this);
-
         require_once(__DIR__ . '/users.php');
-		$this->user = new Users($this);
+		$this->users = new Users($this);
+
+        require_once(__DIR__ . '/user.php');
+        $this->currentUser = $this->users->getUserByName();
 
         require_once(__DIR__ . '/email.php');
 		$this->email = new Email($this);
@@ -163,7 +163,7 @@ class Page {
 			'metadata' => $this->metadata,
 			'scripts' => $this->getIncludeScripts(),
 			'styles' => $this->getIncludeStyles(),
-			'user' => get_object_vars($this->user->getCurrentUser())
+			'user' => $this->currentUser->getPrintableUser()
 		), $extras);
 		include(__DIR__ . '/../templates/header.php');
 	}
@@ -184,7 +184,7 @@ class Page {
      * @return array The javascript to include.
      */
 	public function getIncludeScripts() {
-		if ($this->user->getCurrentUser()->debug) {
+		if ($this->currentUser->getDebug()) {
 			return $this->scripts;
 		}
 		return array("pingback/js");
@@ -196,7 +196,7 @@ class Page {
      * @return array The CSS styles to include.
      */
 	public function getIncludeStyles() {
-		if ($this->user->getCurrentUser()->debug) {
+		if ($this->currentUser->getDebug()) {
 			return $this->styles;
 		}
 		return array("pingback/css");
@@ -210,7 +210,7 @@ class Page {
      */
 	public function renderTemplate($template, $vars = array()) {
 		$this->t = array_merge(array(
-			'user' => get_object_vars($this->user->getCurrentUser())
+			'user' => $this->currentUser->getPrintableUser()
 		), $vars);
 		include(__DIR__ . "/../templates/$template");
 	}

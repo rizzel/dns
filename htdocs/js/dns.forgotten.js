@@ -9,7 +9,7 @@ initPageSpecific = function ()
 
 	dns.user = {
 		requestToken: function (name, email) {
-			dns.loadRemote.loadRemote('user/vergessenRequest',
+			dns.loadRemote.loadRemote('user/forgottenRequest',
 				[name, email],
 				function (data, success)
 				{
@@ -23,7 +23,7 @@ initPageSpecific = function ()
 				alert("Bitte erneut versuchen");
 				return;
 			}
-			dns.loadRemote.loadRemote('user/vergessenResponse',
+			dns.loadRemote.loadRemote('user/forgottenResponse',
 				[dns.user.name, token, password],
 				function (data, success)
 				{

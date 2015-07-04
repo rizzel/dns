@@ -2,12 +2,10 @@
 
 global $page;
 
-$loggedIn = $page->user->isLoggedIn();
-
 ?>
 <div id="records">
 	<h3>Benutzer Verwaltung.</h3>
-<?php IF ($loggedIn): ?>
+<?php IF ($page->currentUser->isLoggedIn()): ?>
 	<div>
 		<label for="password1">Neues Passwort:</label>
 		<input type="password" id="password1" />
@@ -17,7 +15,7 @@ $loggedIn = $page->user->isLoggedIn();
 	</div>
 	<div>
 		<label for="email">Neue Email:</label>
-		<input type="text" id="email" value="<?php echo $page->user->getCurrentUser()->email ?>" size="64" />
+		<input type="text" id="email" value="<?php echo $page->currentUser->getEmail() ?>" size="64" />
 		<input type="button" id="email_submit" value="Aktualisieren" />
 	</div>
 	<div>

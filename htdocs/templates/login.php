@@ -1,16 +1,15 @@
 <?php
 
 global $page;
-$user = $page->user->getCurrentUser();
-$loggedIn = $page->user->isLoggedIn();
+$user = $page->currentUser;
 
-IF ($loggedIn): ?>
+IF ($user->isLoggedIn()): ?>
     <div id="logout">
-        <span>Hallo <span id="usertext"><?php echo $user->username ?></span> (<span
-                id="userlevel"><?php echo $user->level; ?></span>)</span>
+        <span>Hallo <span id="usertext"><?php echo $user->getUserName(); ?></span> (<span
+                id="userlevel"><?php echo $user->getLevel(); ?></span>)</span>
         <a href="index.php">Start</a>
         <a href="user.php">Einstellungen</a>
-        <?php IF ($user->level == 'admin'): ?>
+        <?php IF ($user->getLevel() == 'admin'): ?>
             <a href="admin.php">Admin</a>
         <?php ENDIF ?>
         <input type="button" id="logout_submit" value="Logout"/>

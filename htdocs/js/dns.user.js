@@ -8,7 +8,7 @@ initPageSpecific = function ()
 
 	dns.user = {
 		updatePassword: function (password) {
-			dns.loadRemote.loadRemote('user/updatePassword',
+			dns.loadRemote.loadRemote('user/updatePasswordSelf',
 				[password],
 				function (data, success)
 				{
@@ -18,7 +18,7 @@ initPageSpecific = function ()
 			);
 		},
 		updateEmail: function (email) {
-			dns.loadRemote.loadRemote('user/updateEmail',
+			dns.loadRemote.loadRemote('user/updateEmailSelf',
 				[email],
 				function (data, success)
 				{

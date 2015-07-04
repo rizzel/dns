@@ -46,7 +46,7 @@ abstract class Feeds {
             if ($this->rawResult) {
                 echo $this->result['data'];
             } else {
-                $this->result['user'] = $this->page->user->getCurrentUser();
+                $this->result['user'] = $this->page->currentUser->getPrintableUser();
                 echo json_encode($this->result);
             }
         }

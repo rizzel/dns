@@ -94,10 +94,10 @@ initPageSpecific = function ()
 					}
 				);
 			},
-			'del': function (uid) {
+			'del': function (userName) {
 				dns.loadRemote.loadRemote('user/delete',
-					[uid],
-					function (data, success) {
+					[userName],
+					function () {
 						dns.admin.users.list();
 					},
 					{
@@ -105,10 +105,10 @@ initPageSpecific = function ()
 					}
 				);
 			},
-			'changeLevel': function (uid, level) {
+			'changeLevel': function (userName, level) {
 				dns.loadRemote.loadRemote('user/update',
 					[
-						uid, null, null, level
+						userName, level
 					],
 					function (data, success) {
 						if (success)

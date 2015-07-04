@@ -2,12 +2,10 @@
 
 global $page;
 
-$loggedIn = $page->user->isLoggedIn();
-
 ?>
 <div id="records">
     <h3>Record Verwaltung.</h3>
-    <?php IF ($loggedIn): ?>
+    <?php IF ($page->currentUser->isLoggedIn()): ?>
 
     <h4>Meine Records</h4>
 	<input type="button" id="addRecord_button" value="Record hinzufügen" />
