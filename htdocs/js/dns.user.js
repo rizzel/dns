@@ -1,8 +1,8 @@
 initPageSpecific = function ()
 {
-	var p = $('#password1, #password2');
-	var p1 = $('#password1');
-	var p2 = $('#password2');
+	var $p = $('#password1, #password2');
+	var $p1 = $('#password1');
+	var $p2 = $('#password2');
 	var $email = $('#email');
 	var $token = $('#token');
 
@@ -46,8 +46,8 @@ initPageSpecific = function ()
 		}
 	}
 
-	p.on('keyup', function () {
-		if (p1.val() != p2.val())
+	$p.on('keyup', function () {
+		if ($p1.val() != $p2.val())
 		{
 			$('#user_hinzu_nomatch').show();
 		}
@@ -59,14 +59,14 @@ initPageSpecific = function ()
 
 	$('#password_submit').on('click', function () {
 		var ok = true;
-		if (p1.val() != p2.val())
+		if ($p1.val() != $p2.val())
 		{
-			dns.fehler(p1);
-			dns.fehler(p2);
+			dns.fehler($p1);
+			dns.fehler($p2);
 			ok = false;
 		}
 		if (ok)
-			dns.user.updatePassword(p1.val());
+			dns.user.updatePassword($p1.val());
 	});
 
 	$('#email_submit').on('click', function () {

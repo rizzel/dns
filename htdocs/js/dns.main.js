@@ -26,7 +26,8 @@ initPageSpecific = function ()
 					var $table = $('#recordList');
 					for (var i in data.data)
 					{
-						$table.append('<tr rid="%d" rname="%s" rcontent="%s" rttl="%d"> \
+                        if (!data.data.hasOwnProperty(i)) continue;
+						$table.append('<tr data-rid="%d" data-rName="%s" data-rContent="%s" data-rTtl="%d"> \
 									<td>%d</td> \
 									<td>%s</td> \
 									<td>%s</td> \
@@ -53,16 +54,16 @@ initPageSpecific = function ()
 							data.data[i].type,
 							data.data[i].content,
 							data.data[i].ttl,
-							'<span class="table_password" p="%s">Klick</span>'.format(data.data[i].password),
+							'<span class="table_password" data-p="%s">Klick</span>'.format(data.data[i].password),
 							dns.alsZeit(data.data[i].change_date)
 						));
 					}
 					$table.find('.table_password').one('click', function () {
-						this.innerHTML = this.getAttribute('p');
+						this.innerHTML = this.getAttribute('data-p');
 					});
 
 					$table.find('.recordListDel').on('click', function () {
-						var r = $(this).parents('tr').attr('rid');
+						var r = $(this).parents('tr').attr('data-rid');
 						if (confirm("Record %d wirklich löschen?".format(r)))
 							dns.record.del(r);
 						return false;
@@ -72,10 +73,10 @@ initPageSpecific = function ()
 						$('.popup').not(this).hide();
 						var $this = $(this);
 						var pos = $this.offset();
-						var r = $this.parents('tr').attr('rid');
-						$('#recordListName').val($this.parents('tr').attr('rname'));
+						var r = $this.parents('tr').attr('data-rid');
+						$('#recordListName').val($this.parents('tr').attr('data-rName'));
 						$('#recordListNamePopup')
-							.attr('rid', r)
+							.attr('data-rid', r)
 							.css('left', pos.left - 60)
 							.css('top', pos.top + 20)
 							.show();
@@ -86,10 +87,10 @@ initPageSpecific = function ()
 						$('.popup').not(this).hide();
 						var $this = $(this);
 						var pos = $this.offset();
-						var r = $this.parents('tr').attr('rid');
-						$('#recordListContent').val($this.parents('tr').attr('rcontent'));
+						var r = $this.parents('tr').attr('data-rid');
+						$('#recordListContent').val($this.parents('tr').attr('data-rContent'));
 						$('#recordListContentPopup')
-							.attr('rid', r)
+							.attr('data-rid', r)
 							.css('left', pos.left - 60)
 							.css('top', pos.top + 20)
 							.show();
@@ -100,10 +101,10 @@ initPageSpecific = function ()
 						$('.popup').not(this).hide();
 						var $this = $(this);
 						var pos = $this.offset();
-						var r = $this.parents('tr').attr('rid');
+						var r = $this.parents('tr').attr('data-rid');
 						$('#recordListPassword').val(dns.createRandomString(32));
 						$('#recordListPasswordPopup')
-							.attr('rid', r)
+							.attr('data-rid', r)
 							.css('left', pos.left - 60)
 							.css('top', pos.top + 20)
 							.show();
@@ -114,10 +115,10 @@ initPageSpecific = function ()
 						$('.popup').not(this).hide();
 						var $this = $(this);
 						var pos = $this.offset();
-						var r = $this.parents('tr').attr('rid');
-						$('#recordListTTL').val($this.parents('tr').attr('rttl'));
+						var r = $this.parents('tr').attr('data-rid');
+						$('#recordListTTL').val($this.parents('tr').attr('data-rTtl'));
 						$('#recordListTTLPopup')
-							.attr('rid', r)
+							.attr('data-rid', r)
 							.css('left', pos.left - 60)
 							.css('top', pos.top + 20)
 							.show();
@@ -187,7 +188,7 @@ initPageSpecific = function ()
 	};
 
 	dns.domainOptionList = function ($select) {
-		dns.loadRemote.loadRemote('domains/minilist',
+		dns.loadRemote.loadRemote('domains/miniList',
 			[],
 			function (data, success) {
 				if (!success)
@@ -195,6 +196,7 @@ initPageSpecific = function ()
 				$select.empty();
 				for (var i in data.data)
 				{
+                    if (!data.data.hasOwnProperty(i)) continue;
 					$select.append('<option value="%d">%s</option>'.format(
 						data.data[i].id,
 						data.data[i].name
@@ -205,7 +207,7 @@ initPageSpecific = function ()
 				insertInDiv: $('#loadProgresses')
 			}
 		);
-	}
+	};
 
 	$('#addRecord_button').on('click', function () {
 		var div = $('#addRecord');
@@ -330,22 +332,22 @@ initPageSpecific = function ()
 	$('#recordListReload').on('click', dns.record.list);
 
 	$('#recordListNameSubmit').on('click', function () {
-		var r = $('#recordListNamePopup').attr('rid');
+		var r = $('#recordListNamePopup').attr('data-rid');
 		dns.record.updateName(r, $('#recordListName').val());
 	});
 
 	$('#recordListContentSubmit').on('click', function () {
-		var r = $('#recordListContentPopup').attr('rid');
+		var r = $('#recordListContentPopup').attr('data-rid');
 		dns.record.updateContent(r, $('#recordListContent').val());
 	});
 
 	$('#recordListPasswordSubmit').on('click', function () {
-		var r = $('#recordListPasswordPopup').attr('rid');
+		var r = $('#recordListPasswordPopup').attr('data-rid');
 		dns.record.updatePassword(r, $('#recordListPassword').val());
 	});
 
 	$('#recordListTTLSubmit').on('click', function () {
-		var r = $('#recordListTTLPopup').attr('rid');
+		var r = $('#recordListTTLPopup').attr('data-rid');
 		dns.record.updateTTL(r, $('#recordListTTL').val());
 	});
 

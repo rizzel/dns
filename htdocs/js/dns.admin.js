@@ -1,9 +1,9 @@
 initPageSpecific = function ()
 {
-	var ps = $('#user_hinzu_password1, #user_hinzu_password2');
-	var p1 = $('#user_hinzu_password1');
-	var p2 = $('#user_hinzu_password2');
-	var pdef = $('#user_hinzu_password_default');
+	var $ps = $('#user_hinzu_password1, #user_hinzu_password2');
+	var $p1 = $('#user_hinzu_password1');
+	var $p2 = $('#user_hinzu_password2');
+	var $pDef = $('#user_hinzu_password_default');
 
 	dns.admin = {
 		'users': {
@@ -26,13 +26,15 @@ initPageSpecific = function ()
 					function (data, success) {
 						if (!success)
 							return;
-						$('#users tr:not(:first)').detach();
-						var $table = $('#users');
+                        var $table = $('#users');
+						$table.find('tr:not(:first)').detach();
 						for (var i in data.data)
 						{
+                            if (!data.data.hasOwnProperty(i)) continue;
 							var records = [];
 							for (var ri in data.data[i].records)
 							{
+                                if (!data.data[i].records.hasOwnProperty(ri)) continue;
 								var r = data.data[i].records[ri];
 								records.push("%s: %s (%s)".format(
 									r.type,
@@ -40,7 +42,7 @@ initPageSpecific = function ()
 									r.domain_name
 								));
 							}
-							$('#users').append('<tr uid="%s" level="%s"> \
+							$table.append('<tr data-uid="%s" data-level="%s"> \
 									<td>%s</td> \
 									<td>%s</td> \
 									<td>%s</td> \
@@ -65,7 +67,7 @@ initPageSpecific = function ()
 						}
 
 						$table.find('.userListDel').on('click', function () {
-							var u = $(this).parents('tr').attr('uid');
+							var u = $(this).parents('tr').attr('data-uid');
 							if (confirm("User %s wirklich loeschen?".format(u)))
 								dns.admin.users.del(u);
 							return false;
@@ -75,10 +77,10 @@ initPageSpecific = function ()
 							$('.popup').not(this).hide();
 							var $this = $(this);
 							var pos = $this.offset();
-							var u = $this.parents('tr').attr('uid');
-							$('#userListLevel').val($this.parents('tr').attr('level'));
+							var u = $this.parents('tr').attr('data-uid');
+							$('#userListLevel').val($this.parents('tr').attr('data-level'));
 							$('#userListLevelPopup')
-								.attr('uid', u)
+								.attr('data-uid', u)
 								.css('left', pos.left - 60)
 								.css('top', pos.top + 20)
 								.show();
@@ -139,12 +141,13 @@ initPageSpecific = function ()
 			'list': function () {
 				dns.loadRemote.loadRemote('domains/get',
 					[],
-					function (data, success) {
-						$('#domains tr:not(:first)').detach();
-						var $table = $('#domains');
+					function (data) {
+                        var $table = $('#domains');
+						$table.find('tr:not(:first)').detach();
 						for (var i in data.data)
 						{
-							var $row = $('<tr did="%d" dname="%s"> \
+                            if (!data.data.hasOwnProperty(i)) continue;
+							var $row = $('<tr data-did="%d" data-dname="%s"> \
 									<td>%d</td> \
 									<td>%s</td> \
 									<td>%s</td> \
@@ -168,8 +171,9 @@ initPageSpecific = function ()
 							);
 							for (var j in data.data[i].records)
 							{
+                                if (!data.data[i].records.hasOwnProperty(j)) continue;
 								var r = data.data[i].records[j];
-								$special.find('table').append('<tr rid="%d" rname="%s" rtype="%s" rcontent="%s" rttl="%s"> \
+								$special.find('table').append('<tr data-rid="%d" data-rName="%s" data-rType="%s" data-rContent="%s" data-rTtl="%s"> \
 															  <td>%d</td><td>%s</td><td>%s</td><td>%s</td><td>%d</td> \
 															  <td> \
 															  <a href="#" title="Editieren" class="domainListRecordEdit">#</a> \
@@ -181,13 +185,13 @@ initPageSpecific = function ()
 								));
 							}
 							$row.find('.specialRecords').append('</table>');
-							$('#domains').append($row);
+							$table.append($row);
 						}
 
 						$table.find('.domainListDel').on('click', function () {
-							var did = $(this).parents('tr').attr('did');
-							var dname = $(this).parents('tr').attr('dname');
-							if (confirm("Domain %s wirklich loeschen?".format(dname)))
+							var did = $(this).parents('tr').attr('data-did');
+							var dName = $(this).parents('tr').attr('data-dName');
+							if (confirm("Domain %s wirklich loeschen?".format(dName)))
 								dns.admin.domains.del(did);
 							return false;
 						});
@@ -195,10 +199,10 @@ initPageSpecific = function ()
 							$('.popup').not(this).hide();
 							var $this = $(this);
 							var pos = $this.offset();
-							var d = $this.parents('tr').attr('did');
-							$('#domainsListName').val($this.parents('tr').attr('dname'));
+							var d = $this.parents('tr').attr('data-did');
+							$('#domainsListName').val($this.parents('tr').attr('data-dName'));
 							$('#domainsListNamePopup')
-								.attr('did', d)
+								.attr('data-did', d)
 								.css('left', pos.left - 60)
 								.css('top', pos.top + 20)
 								.show();
@@ -209,13 +213,13 @@ initPageSpecific = function ()
 							$('.popup').not(this).hide();
 							var $this = $(this);
 							var pos = $this.offset();
-							$('#domainsListRecordName').val($this.parents('tr').attr('dname'));
+							$('#domainsListRecordName').val($this.parents('tr').attr('data-dName'));
 							$('#domainsListRecordType')[0].selectedIndex = 0;
 							$('#domainsListRecordContent').val('');
 							$('#domainsListRecordTTL').val('86400');
 							$('#domainsListRecordPopup')
-								.removeAttr('rid')
-								.attr('did', $(this).parents('tr[did]').attr('did'))
+								.removeAttr('data-rid')
+								.attr('data-did', $(this).parents('tr[data-did]').attr('data-did'))
 								.css('left', pos.left - 60)
 								.css('top', pos.top + 20)
 								.show();
@@ -226,26 +230,26 @@ initPageSpecific = function ()
 							$('.popup').not(this).hide();
 							var $this = $(this);
 							var pos = $this.offset();
-							var r = $this.parents('tr').attr('rid');
+							var r = $this.parents('tr').attr('data-rid');
 							var $tr = $this.parents('tr');
-							$('#domainsListRecordName').val($tr.attr('rname'));
-							$('#domainsListRecordType').val($tr.attr('rtype'));
-							$('#domainsListRecordContent').val($tr.attr('rcontent'));
-							$('#domainsListRecordTTL').val($tr.attr('rttl'));
+							$('#domainsListRecordName').val($tr.attr('data-rName'));
+							$('#domainsListRecordType').val($tr.attr('data-rType'));
+							$('#domainsListRecordContent').val($tr.attr('data-rContent'));
+							$('#domainsListRecordTTL').val($tr.attr('data-rTtl'));
 							$('#domainsListRecordPopup')
-								.attr('rid', r)
+								.attr('data-rid', r)
 								.css('left', pos.left - 60)
 								.css('top', pos.top + 20)
 								.show();
 							return false;
 						});
 						$table.find('.domainListRecordDelete').on('click', function () {
-							var rid = $(this).parents('tr').attr('rid');
-							var rname = $(this).parents('tr').attr('rname');
-							var rtype = $(this).parents('tr').attr('rtype');
-							var dname = $(this).parents('tr').parents('tr').attr('dname');
+							var rid = $(this).parents('tr').attr('data-rid');
+							var rName = $(this).parents('tr').attr('data-rName');
+							var rType = $(this).parents('tr').attr('data-rType');
+							var dName = $(this).parents('tr').parents('tr').attr('data-dName');
 							if (confirm("Record %s (%s) von Domain %s wirklich loeschen?".format(
-								rname, rtype, dname
+								rName, rType, dName
 							)))
 								dns.admin.domains.recordDel(rid);
 							return false;
@@ -259,7 +263,7 @@ initPageSpecific = function ()
 			'del': function (did) {
 				dns.loadRemote.loadRemote('domains/delete',
 					[did],
-					function (data, success) {
+					function () {
 						dns.admin.domains.list();
 					},
 					{
@@ -270,7 +274,7 @@ initPageSpecific = function ()
 			'recordDel': function (rid) {
 				dns.loadRemote.loadRemote('domains/deleteDomainRecord',
 					[rid],
-					function (data, success) {
+					function () {
 						dns.admin.domains.list();
 					}
 				);
@@ -286,9 +290,9 @@ initPageSpecific = function ()
 					{insertInDiv: $('#loadProgresses')}
 				);
 			},
-			'recordAdd': function (did, rname, rtype, rcontent, rttl) {
+			'recordAdd': function (did, rName, rType, rContent, rTtl) {
 				dns.loadRemote.loadRemote('domains/addDomainRecord',
-					[did, rname, rtype, rcontent, rttl],
+					[did, rName, rType, rContent, rTtl],
 					function (data, success) {
 						if (success)
 							$('#domainsListRecordPopup').hide();
@@ -296,9 +300,9 @@ initPageSpecific = function ()
 					}
 				);
 			},
-			'recordUpdate': function (rid, rname, rtype, rcontent, rttl) {
+			'recordUpdate': function (rid, rName, rType, rContent, rTtl) {
 				dns.loadRemote.loadRemote('domains/updateDomainRecord',
-					[rid, rname, rtype, rcontent, rttl],
+					[rid, rName, rType, rContent, rTtl],
 					function (data, success) {
 						if (success)
 							$('#domainsListRecordPopup').hide();
@@ -310,34 +314,34 @@ initPageSpecific = function ()
 	};
 
 	$('#user_hinzu_button').on('click', function () {
-		var div = $('#user_hinzu');
-		div.toggleClass('active');
-		if (div.hasClass('active'))
+		var $div = $('#user_hinzu');
+		$div.toggleClass('active');
+		if ($div.hasClass('active'))
 		{
 			$('#user_hinzu_username').val('');
 			var r = dns.createRandomString(12);
-			ps.val(r);
-			pdef.text(r);
+			$ps.val(r);
+			$pDef.text(r);
 			$('#user_hinzu_default').show();
 			$('#user_hinzu_level').val('user');
 		}
 	});
 
-	ps.on('focus', function () {
-		if (p1.val() == pdef.text())
-			p1.val('');
-		if (p2.val() == pdef.text())
-			p2.val('');
+	$ps.on('focus', function () {
+		if ($p1.val() == $pDef.text())
+			$p1.val('');
+		if ($p2.val() == $pDef.text())
+			$p2.val('');
 		$('#user_hinzu_default').hide();
 	}).on('blur', function () {
-		if (p1.val().length == 0 && p2.val().length == 0)
+		if ($p1.val().length == 0 && $p2.val().length == 0)
 		{
-			ps.val(pdef.text());
+			$ps.val($pDef.text());
 			$('#user_hinzu_default').show();
 			$('#user_hinzu_nomatch').hide();
 		}
 	}).on('keyup', function () {
-		if (p1.val() != p2.val())
+		if ($p1.val() != $p2.val())
 		{
 			$('#user_hinzu_nomatch').show();
 		}
@@ -348,37 +352,37 @@ initPageSpecific = function ()
 	});
 
 	$('#user_hinzu_submit').on('click', function () {
-		var name = $('#user_hinzu_username');
-		var email = $('#user_hinzu_email');
+		var $name = $('#user_hinzu_username');
+		var $email = $('#user_hinzu_email');
 		var ok = true;
-		if (name.val().length == 0)
+		if ($name.val().length == 0)
 		{
-			dns.fehler(name);
+			dns.fehler($name);
 			ok = false;
 		}
-		if (p1.val() != p2.val())
+		if ($p1.val() != $p2.val())
 		{
-			dns.fehler(p1);
-			dns.fehler(p2);
+			dns.fehler($p1);
+			dns.fehler($p2);
 			ok = false;
 		}
-		if (!email.val().match(/@/) || email.val().length <= 3)
+		if (!$email.val().match(/@/) || $email.val().length <= 3)
 		{
-			dns.fehler(email);
+			dns.fehler($email);
 			ok = false;
 		}
 		if (!ok)
 			return;
 		dns.admin.users.add(
-			$('#user_hinzu_username').val(),
-			p1.val(),
+			$name.val(),
+			$p1.val(),
 			$('#user_hinzu_level').val(),
-			email.val()
+			$email.val()
 		);
 	});
 
 	$('#userListLevelSubmit').on('click', function () {
-		var u = $('#userListLevelPopup').attr('uid');
+		var u = $('#userListLevelPopup').attr('data-uid');
 		dns.admin.users.changeLevel(u, $('#userListLevel').val());
 	});
 
@@ -386,9 +390,9 @@ initPageSpecific = function ()
 
 
 	$('#domain_hinzu_button').on('click', function () {
-		var div = $('#domain_hinzu');
-		div.toggleClass('active');
-		if (div.hasClass('active'))
+		var $div = $('#domain_hinzu');
+		$div.toggleClass('active');
+		if ($div.hasClass('active'))
 		{
 			$('#domain_hinzu_name').val('');
 			$('#domain_hinzu_type').val('NATIVE');
@@ -396,17 +400,17 @@ initPageSpecific = function ()
 	});
 
 	$('#domain_hinzu_submit').on('click', function () {
-		var name = $('#domain_hinzu_name');
+		var $name = $('#domain_hinzu_name');
 		var ok = true;
-		if (name.val().length == 0)
+		if ($name.val().length == 0)
 		{
-			dns.fehler(name);
+			dns.fehler($name);
 			ok = false;
 		}
 		if (!ok)
 			return;
 		dns.admin.domains.add(
-			$('#domain_hinzu_name').val(),
+			$name.val(),
 			$('#domain_hinzu_type').val(),
 			$('#domain_hinzu_soa').val()
 		);
@@ -415,27 +419,28 @@ initPageSpecific = function ()
 	$('#domainListReload').on('click', dns.admin.domains.list);
 
 	$('#domainsListNameSubmit').on('click', function () {
-		var d = $('#domainsListNamePopup').attr('did');
+		var d = $('#domainsListNamePopup').attr('data-did');
 		dns.admin.domains.updateName(d, $('#domainsListName').val());
 	});
 
 	$('#domainsListRecordSubmit').on('click', function () {
-		var d = $('#domainsListRecordPopup').attr('did');
-		var r = $('#domainsListRecordPopup').attr('rid');
-		var rname = $('#domainsListRecordName').val();
-		var rtype = $('#domainsListRecordType').val();
-		var rcontent = $('#domainsListRecordContent').val();
-		var rttl = $('#domainsListRecordTTL').val();
+        var $domainsListRecordPopup = $('#domainsListRecordPopup');
+		var d = $domainsListRecordPopup.attr('data-did');
+		var r = $domainsListRecordPopup.attr('data-rid');
+		var rName = $('#domainsListRecordName').val();
+		var rType = $('#domainsListRecordType').val();
+		var rContent = $('#domainsListRecordContent').val();
+		var rTtl = $('#domainsListRecordTTL').val();
 		if (typeof(r) == 'undefined')
 		{ // neuer record
-			dns.admin.domains.recordAdd(d, rname, rtype, rcontent, rttl);
+			dns.admin.domains.recordAdd(d, rName, rType, rContent, rTtl);
 		}
 		else
 		{
-			dns.admin.domains.recordUpdate(r, rname, rtype, rcontent, rttl);
+			dns.admin.domains.recordUpdate(r, rName, rType, rContent, rTtl);
 		}
 	});
 
 	dns.admin.users.list();
 	dns.admin.domains.list();
-}
+};

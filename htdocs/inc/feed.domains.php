@@ -66,7 +66,7 @@ class FeedsDomains extends Feeds
 			$this->setResult();
 	}
 
-	public function domains_minilist()
+	public function domains_miniList()
 	{
 		$d = $this->page->domains->getDomainsMini();
 		if (isset($d) && $d !== FALSE)
