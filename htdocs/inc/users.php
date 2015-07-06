@@ -27,7 +27,8 @@ class Users
         $result = array();
         while ($r = $q->fetch()) {
             $u = $this->getUserByName($r['username']);
-            $result[] = $u->getPrintableUser(TRUE);
+            if (!$u->isAnonymous())
+                $result[] = $u->getPrintableUser(TRUE);
         }
         return $result;
     }
