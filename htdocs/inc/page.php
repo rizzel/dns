@@ -184,10 +184,10 @@ class Page {
      * @return array The javascript to include.
      */
 	public function getIncludeScripts() {
-		if ($this->currentUser->getDebug()) {
+//		if ($this->currentUser->getDebug()) {
 			return $this->scripts;
-		}
-		return array("pingback/js");
+//		}
+//		return array("/rpc.php/js");
 	}
 
     /**
@@ -196,10 +196,10 @@ class Page {
      * @return array The CSS styles to include.
      */
 	public function getIncludeStyles() {
-		if ($this->currentUser->getDebug()) {
+//		if ($this->currentUser->getDebug()) {
 			return $this->styles;
-		}
-		return array("pingback/css");
+//		}
+//		return array("/rpc.php/css");
 	}
 
     /**

@@ -1,4 +1,4 @@
-initPageSpecific = function ()
+window.initPageSpecific = function ()
 {
 	var $ps = $('#user_hinzu_password1, #user_hinzu_password2');
 	var $p1 = $('#user_hinzu_password1');

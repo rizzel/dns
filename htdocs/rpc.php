@@ -1,5 +1,5 @@
 <?php
-	require_once(__DIR__ . '/../inc/page.php');
+	require_once(__DIR__ . '/inc/page.php');
 
 	$page = new Page();
 
@@ -10,11 +10,10 @@
 	if (array_key_exists('PATH_INFO', $_SERVER))
 		$split = explode('/', $_SERVER['PATH_INFO']);
 
-	if (array_key_exists('q', $_POST)) {
+	if (array_key_exists('q', $_POST))
 		$page->queryParams = json_decode($_POST['q']);
-	}
 
-	if (count($split) == 3) {
+	if (count($split) == 3 && strlen($split[2]) > 0) {
 		array_shift($split);
 		if (array_key_exists($split[0], $page->feeds)) {
 			$class = $page->feeds[$split[0]];
@@ -22,10 +21,11 @@
 			$methods = array_filter($methods, function ($item) use ($split) {
 				return strstr($item, $split[0] . "_");
 			});
+
 			$function = $split[0] . "_" . $split[1];
-			if (!isset($page->queryParams)) {
+			if (!isset($page->queryParams))
 				$page->queryParams = $args;
-			}
+
 			if (array_search($function, $methods) !== FALSE) {
 				call_user_func_array(array($class, $function), $page->queryParams);
 				$class->printResult();
@@ -35,39 +35,39 @@
 	}
 
 	switch($name) {
-		case '/js':
-			header("Content-Type: text/javascript; charset=utf-8");
-			$js = $page->settings->defaultScripts;
-			foreach ($js AS $j) {
-				readfile(__DIR__ . "/../js/" . $j);
-			}
-			break;
-		case '/css':
-			header("Content-Type: text/css; charset=utf-8");
-			$css = $page->settings->defaultStyles;
-			foreach($css AS $c) {
-				readfile(__DIR__ . "/../css/" . $c);
-			}
-			break;
-		case '/ip':
+//		case '/rpc.php/js':
+//			header("Content-Type: text/javascript; charset=utf-8");
+//			$js = $page->settings->defaultScripts;
+//			foreach ($js AS $j) {
+//                readfile(__DIR__ . "/" . $j);
+//                echo ";";
+//            }
+//			break;
+//		case '/rpc.php/css':
+//			header("Content-Type: text/css; charset=utf-8");
+//			$css = $page->settings->defaultStyles;
+//			foreach($css AS $c)
+//				readfile(__DIR__ . "/" . $c);
+//			break;
+		case '/rpc.php/ip':
 			if ($page->domains->recordUpdateIP($args))
 				exit(0);
 			else
 				$page->call404();
 			break;
-		case '/ip4':
+		case '/rpc.php/ip4':
 			if ($page->domains->recordUpdateIP4($args))
 				exit(0);
 			else
 				$page->call404();
 			break;
-		case '/ip6':
+		case '/rpc.php/ip6':
 			if ($page->domains->recordUpdateIP6($args))
 				exit(0);
 			else
 				$page->call404();
 			break;
-		case '/inadyn4':
+		case '/rpc.php/inadyn4':
 			if (count($args) > 1)
 			{
 				$swap = $args[1];
@@ -76,7 +76,8 @@
 			}
 			if ($page->domains->recordUpdateIP4($args))
 				exit(0);
-		case '/inadyn6':
+            break;
+		case '/rpc.php/inadyn6':
 			if (count($args) > 1)
 			{
 				$swap = $args[1];
@@ -85,7 +86,8 @@
 			}
 			if ($page->domains->recordUpdateIP6($args))
 				exit(0);
-		case '/myip':
+            break;
+		case '/rpc.php/myip':
 			print implode("\n", $page->currentUser->getIPs());
 			break;
 		default:

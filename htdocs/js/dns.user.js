@@ -1,4 +1,4 @@
-initPageSpecific = function ()
+window.initPageSpecific = function ()
 {
 	var $p = $('#password1, #password2');
 	var $p1 = $('#password1');

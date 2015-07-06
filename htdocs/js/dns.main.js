@@ -1,4 +1,4 @@
-initPageSpecific = function ()
+window.initPageSpecific = function ()
 {
 	dns.record = {
 		'add': function (domain, type, name, content, password, ttl) {

@@ -21,8 +21,8 @@ function initPage()
     dns.loadRemote = new LoadRemote();
 
 	$('body').bind('initReady', function() {
-		if (typeof(initPageSpecific) == 'function')
-			initPageSpecific();
+		if (typeof(window.initPageSpecific) == 'function')
+			window.initPageSpecific();
 	});
 
     dns.user = new User();
@@ -60,7 +60,7 @@ function initPage()
 			d.getFullYear(), d.getMonth() + 1, d.getDate(),
 			d.getHours(), d.getMinutes(), d.getSeconds()
 		);
-	}
+	};
 
 	$('.popupAbort').on('click', function () {
 		$(this).parents('.popup').hide();
@@ -228,7 +228,7 @@ function LoadRemote()
 		//}
 		//realQuery = realQuery.join('&');
 
-		var xhr = $.ajax('pingback/pingback.php/' + module, {
+		var xhr = $.ajax('rpc.php/' + module, {
 			cache: settings.cache,
 			data: {q: JSON.stringify(query)},
 			type: 'post',
@@ -308,13 +308,10 @@ function User()
 
     this.doLogout = function ()
     {
-        var b = $('#logout_submit');
         dns.loadRemote.loadRemote(
             'user/logout',
             [],
-            function (data, success)
-            {
-                //self.updateUser(data.user);
+            function () {
 				window.location.reload();
             }, {
                 insertInDiv: $('#loadProgresses')
@@ -331,7 +328,6 @@ function User()
     this.__init__ = function ()
     {
         $('#currentUserChangeShow').bind('click', function () {
-            var $this = $(this);
             $('#login_change').toggle();
         });
         $('#login_submit').bind('click', function () {

@@ -6,7 +6,7 @@
 
         RewriteEngine on
         RewriteRule ^/u/?$ /u.php
-        RewriteRule ^/(ip4|ip6|ip|myip|inadyn4|inadyn6)\b(.*)$ /pingback/pingback.php/$1$2 [QSA]
+        RewriteRule ^/(ip4|ip6|ip|myip|inadyn4|inadyn6)\b(.*)$ /rpc.php/$1$2 [QSA]
 
         <Directory "/var/www/example.com/htdocs">
                 Options FollowSymLinks

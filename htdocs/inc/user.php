@@ -45,7 +45,7 @@ class User
 
     public function getDebug()
     {
-        return TRUE;
+//        return TRUE;
         return array_key_exists('debug', $_SESSION) ? $_SESSION['debug'] : FALSE;
     }
 
