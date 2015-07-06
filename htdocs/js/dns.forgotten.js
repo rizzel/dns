@@ -11,7 +11,7 @@ window.initPageSpecific = function ()
 		requestToken: function (name, email) {
 			dns.loadRemote.loadRemote('user/forgottenRequest',
 				[name, email],
-				function (data, success)
+				function ()
 				{
 					$('#vergessen2').show();
 				}
@@ -40,7 +40,7 @@ window.initPageSpecific = function ()
 				}
 			);
 		}
-	}
+	};
 
 	$p.on('keyup', function () {
 		if ($p1.val() != $p2.val())
