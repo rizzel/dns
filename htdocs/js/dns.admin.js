@@ -1,9 +1,9 @@
 window.initPageSpecific = function ()
 {
-	var $ps = $('#user_hinzu_password1, #user_hinzu_password2');
-	var $p1 = $('#user_hinzu_password1');
-	var $p2 = $('#user_hinzu_password2');
-	var $pDef = $('#user_hinzu_password_default');
+	var $ps = $('#user_add_password1, #user_add_password2');
+	var $p1 = $('#user_add_password1');
+	var $p2 = $('#user_add_password2');
+	var $pDef = $('#user_add_password_default');
 
 	dns.admin = {
 		'users': {
@@ -13,7 +13,7 @@ window.initPageSpecific = function ()
 					function (data, success) {
 						dns.admin.users.list();
 						if (success)
-							$('#user_hinzu_button').trigger('click');
+							$('#user_add_button').trigger('click');
 					},
 					{
 						insertInDiv: $('#loadProgresses')
@@ -131,7 +131,7 @@ window.initPageSpecific = function ()
 					function (data, success) {
 						dns.admin.domains.list();
 						if (success)
-							$('#domain_hinzu_button').trigger('click');
+							$('#domain_add_button').trigger('click');
 					},
 					{
 						insertInDiv: $('#loadProgresses')
@@ -313,17 +313,17 @@ window.initPageSpecific = function ()
 		}
 	};
 
-	$('#user_hinzu_button').on('click', function () {
-		var $div = $('#user_hinzu');
+	$('#user_add_button').on('click', function () {
+		var $div = $('#user_add');
 		$div.toggleClass('active');
 		if ($div.hasClass('active'))
 		{
-			$('#user_hinzu_username').val('');
+			$('#user_add_username').val('');
 			var r = dns.createRandomString(12);
 			$ps.val(r);
 			$pDef.text(r);
-			$('#user_hinzu_default').show();
-			$('#user_hinzu_level').val('user');
+			$('#user_add_default').show();
+			$('#user_add_level').val('user');
 		}
 	});
 
@@ -332,28 +332,28 @@ window.initPageSpecific = function ()
 			$p1.val('');
 		if ($p2.val() == $pDef.text())
 			$p2.val('');
-		$('#user_hinzu_default').hide();
+		$('#user_add_default').hide();
 	}).on('blur', function () {
 		if ($p1.val().length == 0 && $p2.val().length == 0)
 		{
 			$ps.val($pDef.text());
-			$('#user_hinzu_default').show();
-			$('#user_hinzu_nomatch').hide();
+			$('#user_add_default').show();
+			$('#user_add_nomatch').hide();
 		}
 	}).on('keyup', function () {
 		if ($p1.val() != $p2.val())
 		{
-			$('#user_hinzu_nomatch').show();
+			$('#user_add_nomatch').show();
 		}
 		else
 		{
-			$('#user_hinzu_nomatch').hide();
+			$('#user_add_nomatch').hide();
 		}
 	});
 
-	$('#user_hinzu_submit').on('click', function () {
-		var $name = $('#user_hinzu_username');
-		var $email = $('#user_hinzu_email');
+	$('#user_add_submit').on('click', function () {
+		var $name = $('#user_add_username');
+		var $email = $('#user_add_email');
 		var ok = true;
 		if ($name.val().length == 0)
 		{
@@ -376,7 +376,7 @@ window.initPageSpecific = function ()
 		dns.admin.users.add(
 			$name.val(),
 			$p1.val(),
-			$('#user_hinzu_level').val(),
+			$('#user_add_level').val(),
 			$email.val()
 		);
 	});
@@ -389,18 +389,18 @@ window.initPageSpecific = function ()
 	$('#userListReload').on('click', dns.admin.users.list);
 
 
-	$('#domain_hinzu_button').on('click', function () {
-		var $div = $('#domain_hinzu');
+	$('#domain_add_button').on('click', function () {
+		var $div = $('#domain_add');
 		$div.toggleClass('active');
 		if ($div.hasClass('active'))
 		{
-			$('#domain_hinzu_name').val('');
-			$('#domain_hinzu_type').val('NATIVE');
+			$('#domain_add_name').val('');
+			$('#domain_add_type').val('NATIVE');
 		}
 	});
 
-	$('#domain_hinzu_submit').on('click', function () {
-		var $name = $('#domain_hinzu_name');
+	$('#domain_add_submit').on('click', function () {
+		var $name = $('#domain_add_name');
 		var ok = true;
 		if ($name.val().length == 0)
 		{
@@ -411,8 +411,8 @@ window.initPageSpecific = function ()
 			return;
 		dns.admin.domains.add(
 			$name.val(),
-			$('#domain_hinzu_type').val(),
-			$('#domain_hinzu_soa').val()
+			$('#domain_add_type').val(),
+			$('#domain_add_soa').val()
 		);
 	});
 

@@ -1,31 +1,31 @@
 <div id="admin">
     <h3>Administration</h3>
     <h4>Benutzer</h4>
-    <input type="button" id="user_hinzu_button" value="Benutzer hinzufügen"/>
+    <input type="button" id="user_add_button" value="Benutzer hinzufügen"/>
 
-    <div id="user_hinzu" class="hider">
-        <label for="user_hinzu_username">Name:</label>
-        <input type="text" id="user_hinzu_username"/>
+    <div id="user_add" class="hider">
+        <label for="user_add_username">Name:</label>
+        <input type="text" id="user_add_username"/>
         <br/>
-        <label for="user_hinzu_password1">Password:</label>
-        <input type="password" id="user_hinzu_password1"/>
-        <input type="password" id="user_hinzu_password2"/>
-		<span id="user_hinzu_default">
-			Default: "<span id="user_hinzu_password_default"></span>"
+        <label for="user_add_password1">Password:</label>
+        <input type="password" id="user_add_password1"/>
+        <input type="password" id="user_add_password2"/>
+		<span id="user_add_default">
+			Default: "<span id="user_add_password_default"></span>"
 		</span>
-        <span id="user_hinzu_nomatch" style="display: none">Verschieden</span>
+        <span id="user_add_nomatch" style="display: none">Verschieden</span>
         <br/>
-        <label for="user_hinzu_email">Email:</label>
-        <input type="text" id="user_hinzu_email"/>
+        <label for="user_add_email">Email:</label>
+        <input type="text" id="user_add_email"/>
         <br/>
-        <label for="user_hinzu_level">Level:</label>
-        <select id="user_hinzu_level">
+        <label for="user_add_level">Level:</label>
+        <select id="user_add_level">
             <option value="nobody">nobody</option>
             <option value="user">user</option>
             <option value="admin">admin</option>
         </select>
         <br/>
-        <input type="button" id="user_hinzu_submit" value="Hinzufügen"/>
+        <input type="button" id="user_add_submit" value="Hinzufügen"/>
     </div>
     <table id="users" border="1">
         <tr>
@@ -51,21 +51,21 @@
     </div>
 
     <h4>Domains</h4>
-    <input type="button" id="domain_hinzu_button" value="Domain hinzufügen"/>
+    <input type="button" id="domain_add_button" value="Domain hinzufügen"/>
 
-    <div id="domain_hinzu" class="hider">
-        <label for="domain_hinzu_name">Name:</label>
-        <input type="text" id="domain_hinzu_name"/>
+    <div id="domain_add" class="hider">
+        <label for="domain_add_name">Name:</label>
+        <input type="text" id="domain_add_name"/>
         <br/>
-        <label for="domain_hinzu_type">Typ:</label>
-        <select id="domain_hinzu_type">
+        <label for="domain_add_type">Typ:</label>
+        <select id="domain_add_type">
             <option>NATIVE</option>
         </select>
         <br/>
-        <label for="domain_hinzu_soa">Soa Zeile bestehend aus '$MasterDNS $Email':</label>
-        <input type="text" id="domain_hinzu_soa" size="64"/>
+        <label for="domain_add_soa">Soa Zeile bestehend aus '$MasterDNS $Email':</label>
+        <input type="text" id="domain_add_soa" size="64"/>
         <br/>
-        <input type="button" id="domain_hinzu_submit" value="Hinzufügen"/>
+        <input type="button" id="domain_add_submit" value="Hinzufügen"/>
     </div>
     <table id="domains" border="1">
         <tr>

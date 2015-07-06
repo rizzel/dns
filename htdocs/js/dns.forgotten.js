@@ -1,11 +1,11 @@
 window.initPageSpecific = function ()
 {
-	var $p = $('#vergessen2_password1, #vergessen2_password2');
-	var $p1 = $('#vergessen2_password1');
-	var $p2 = $('#vergessen2_password2');
-	var $name = $('#vergessen_name');
-	var $email = $('#vergessen_email');
-	var $token = $('#vergessen2_token');
+	var $p = $('#forgotten2_password1, #forgotten2_password2');
+	var $p1 = $('#forgotten2_password1');
+	var $p2 = $('#forgotten2_password2');
+	var $name = $('#forgotten_name');
+	var $email = $('#forgotten_email');
+	var $token = $('#forgotten2_token');
 
 	dns.user = {
 		requestToken: function (name, email) {
@@ -13,7 +13,7 @@ window.initPageSpecific = function ()
 				[name, email],
 				function ()
 				{
-					$('#vergessen2').show();
+					$('#forgotten2').show();
 				}
 			);
 		},
@@ -45,15 +45,15 @@ window.initPageSpecific = function ()
 	$p.on('keyup', function () {
 		if ($p1.val() != $p2.val())
 		{
-			$('#user_hinzu_nomatch').show();
+			$('#user_add_nomatch').show();
 		}
 		else
 		{
-			$('#user_hinzu_nomatch').hide();
+			$('#user_add_nomatch').hide();
 		}
 	});
 
-	$('#vergessen2_submit').on('click', function () {
+	$('#forgotten2_submit').on('click', function () {
 		var ok = true;
 		if ($token.val().length < 3)
 		{
@@ -74,7 +74,7 @@ window.initPageSpecific = function ()
 		}
 	});
 
-	$('#vergessen_submit').on('click', function () {
+	$('#forgotten_submit').on('click', function () {
 		var ok = true;
 		if ($name.val().length < 1)
 		{

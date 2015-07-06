@@ -49,11 +49,11 @@ window.initPageSpecific = function ()
 	$p.on('keyup', function () {
 		if ($p1.val() != $p2.val())
 		{
-			$('#user_hinzu_nomatch').show();
+			$('#user_add_nomatch').show();
 		}
 		else
 		{
-			$('#user_hinzu_nomatch').hide();
+			$('#user_add_nomatch').hide();
 		}
 	});
 

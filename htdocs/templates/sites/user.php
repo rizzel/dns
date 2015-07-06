@@ -11,7 +11,7 @@ global $page;
 		<input type="password" id="password1" />
 		<input type="password" id="password2" />
 		<input type="button" id="password_submit" value="Aktualisieren" />
-		<span id="user_hinzu_nomatch" style="display: none">Verschieden</span>
+		<span id="user_add_nomatch" style="display: none">Verschieden</span>
 	</div>
 	<div>
 		<label for="email">Neue Email:</label>

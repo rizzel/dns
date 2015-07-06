@@ -1,19 +1,19 @@
-<div id="vergessen">
+<div id="forgotten">
 	<h3>Zurücksetzen des Passwortes</h3>
 	<p>
 		Zum zurücksetzen des Passwortes werden folgende Angaben benötigt:
 	</p>
 	<div>
-		<label for="vergessen_name">Benutzer-Name:</label>
-		<input type="text" id="vergessen_name" />
+		<label for="forgotten_name">Benutzer-Name:</label>
+		<input type="text" id="forgotten_name" />
 		<br />
-		<label for="vergessen_email">Email:</label>
-		<input type="text" id="vergessen_email" />
+		<label for="forgotten_email">Email:</label>
+		<input type="text" id="forgotten_email" />
 		<br />
-		<input type="button" id="vergessen_submit" value="Zurücksetzen" />
+		<input type="button" id="forgotten_submit" value="Zurücksetzen" />
 	</div>
 </div>
-<div id="vergessen2" style="display: none">
+<div id="forgotten2" style="display: none">
 	<h3>Zurücksetzen des Passwortes - Schritt 2</h3>
 	<p>
 		Sie haben eine Email erhalten welche ein Token enthält um Ihr Passwort
@@ -25,14 +25,14 @@
 		Geben Sie in folgendem Formular bitte das Token sowie Ihr neues Passwort ein:
 	</p>
 	<div>
-		<label for="vergessen2_token">Token:</label>
-		<input type="text" id="vergessen2_token" size="64" />
+		<label for="forgotten2_token">Token:</label>
+		<input type="text" id="forgotten2_token" size="64" />
 		<br />
-		<label for="vergessen2_password1">Password:</label>
-		<input type="password" id="vergessen2_password1" size="32" />
-		<input type="password" id="vergessen2_password2" size="32" />
-		<span id="user_hinzu_nomatch" style="display: none">Verschieden</span>
+		<label for="forgotten2_password1">Password:</label>
+		<input type="password" id="forgotten2_password1" size="32" />
+		<input type="password" id="forgotten2_password2" size="32" />
+		<span id="user_add_nomatch" style="display: none">Verschieden</span>
 		<br />
-		<input type="button" id="vergessen2_submit" value="Password setzen" />
+		<input type="button" id="forgotten2_submit" value="Password setzen" />
 	</div>
 </div>
