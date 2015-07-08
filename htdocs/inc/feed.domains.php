@@ -126,10 +126,10 @@ class FeedsDomains extends Feeds
 		if (($record = $this->page->domains->fixRecordName($domainid, $record)) === false)
 			return;
 		if (!$this->page->domains->isValidDomainName($record))
-			$this->setResult(array('domain' => $record, 'type' => $type, 'status' => 'Ungültiger Name', 'invalid' => true));
+			$this->setResult(array('domain' => $record, 'type' => $type, 'status' => pgettext('domainRecord', 'Invalid name'), 'invalid' => true));
 		elseif (!$this->page->domains->isFreeDomain($record, $type))
-			$this->setResult(array('domain' => $record, 'type' => $type, 'status' => 'Nicht mehr frei'));
+			$this->setResult(array('domain' => $record, 'type' => $type, 'status' => pgettext('domainRecord', 'Domain taken by someone else')));
 		else
-			$this->setResult(array('domain' => $record, 'type' => $type, 'status' => 'Domain ist frei', 'free' => true));
+			$this->setResult(array('domain' => $record, 'type' => $type, 'status' => pgettext('domainRecord', 'Domain available'), 'free' => true));
 	}
 }

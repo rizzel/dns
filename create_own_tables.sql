@@ -5,6 +5,7 @@ CREATE TABLE dns_users (
   salt VARCHAR(12) NOT NULL,
   sessionid VARCHAR(100),
   email VARCHAR(100) NOT NULL,
+  locale VARCHAR(10),
   UNIQUE email (email)
 ) DEFAULT CHARSET "utf8";
 
@@ -24,4 +25,4 @@ CREATE TABLE dns_records_users (
   user VARCHAR(45) NOT NULL
 ) CHARSET "utf8";
 
-INSERT INTO dns_users VALUES ('anonymous', 'nobody', '', '', NULL, '');
+INSERT INTO dns_users VALUES ('anonymous', 'nobody', '', '', NULL, '', 'en_US');

@@ -2,7 +2,7 @@
 require_once(__DIR__ . "/inc/page.php");
 $page = new Page();
 
-$page->setTitle('DNS - Update Antwort');
+$page->setTitle(pgettext("PageTitle", "DNS - Update Response"));
 
 $page->renderHeader();
 

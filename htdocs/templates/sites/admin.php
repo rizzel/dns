@@ -1,96 +1,97 @@
 <div id="admin">
-    <h3>Administration</h3>
-    <h4>Benutzer</h4>
-    <input type="button" id="user_add_button" value="Benutzer hinzufügen"/>
+    <h3><?php echo pgettext("TemplateHeading", "Administration"); ?></h3>
+    <h4><?php echo pgettext("TemplateHeading", "Users"); ?></h4>
+    <input type="button" id="user_add_button" value="<?php echo pgettext("Button", "Add User"); ?>"/>
 
     <div id="user_add" class="hider">
-        <label for="user_add_username">Name:</label>
+        <label for="user_add_username"><?php echo pgettext("AddUser", "Name"); ?>:</label>
         <input type="text" id="user_add_username"/>
         <br/>
-        <label for="user_add_password1">Password:</label>
+        <label for="user_add_password1"><?php echo pgettext("AddUser", "Password"); ?>:</label>
         <input type="password" id="user_add_password1"/>
         <input type="password" id="user_add_password2"/>
 		<span id="user_add_default">
-			Default: "<span id="user_add_password_default"></span>"
+			<?php echo pgettext("AddUserDefaultPassword", "Default"); ?>: "<span id="user_add_password_default"></span>"
 		</span>
-        <span id="user_add_nomatch" style="display: none">Verschieden</span>
+        <span id="user_add_nomatch"
+              style="display: none"><?php echo pgettext("AddUserPasswordNoMatch", "passwords differ"); ?></span>
         <br/>
-        <label for="user_add_email">Email:</label>
+        <label for="user_add_email"><?php echo pgettext("AddUser", "Email"); ?>:</label>
         <input type="text" id="user_add_email"/>
         <br/>
-        <label for="user_add_level">Level:</label>
+        <label for="user_add_level"><?php echo pgettext("AddUser", "Level"); ?>:</label>
         <select id="user_add_level">
-            <option value="nobody">nobody</option>
-            <option value="user">user</option>
-            <option value="admin">admin</option>
+            <option value="nobody"><?php echo pgettext("UserLevel", "nobody"); ?></option>
+            <option value="user"><?php echo pgettext("UserLevel", "user"); ?></option>
+            <option value="admin"><?php echo pgettext("UserLevel", "admin"); ?></option>
         </select>
         <br/>
-        <input type="button" id="user_add_submit" value="Hinzufügen"/>
+        <input type="button" id="user_add_submit" value="<?php echo pgettext("UserAddConfirm", "Add"); ?>"/>
     </div>
     <table id="users" border="1">
         <tr>
-            <th>Benutzer</th>
-            <th>Level</th>
-            <th>Email</th>
-            <th>Records</th>
-            <th>Operation</th>
+            <th><?php echo pgettext("UserListTableHeader", "User"); ?></th>
+            <th><?php echo pgettext("UserListTableHeader", "Level"); ?></th>
+            <th><?php echo pgettext("UserListTableHeader", "Email"); ?></th>
+            <th><?php echo pgettext("UserListTableHeader", "Records"); ?></th>
+            <th><?php echo pgettext("UserListTableHeader", "Operation"); ?></th>
         </tr>
     </table>
-    <input type="button" id="userListReload" value="Neu laden"/>
+    <input type="button" id="userListReload" value="<?php echo pgettext("UserList", "Reload list"); ?>"/>
 
     <div id="userListLevelPopup" class="popup" style="display: none">
-        <label for="userListLevel">Level:</label>
+        <label for="userListLevel"><?php echo pgettext("AddUser", "Level"); ?>:</label>
         <select id="userListLevel">
-            <option>nobody</option>
-            <option>user</option>
-            <option>admin</option>
+            <option><?php echo pgettext("UserLevel", "nobody"); ?></option>
+            <option><?php echo pgettext("UserLevel", "user"); ?></option>
+            <option><?php echo pgettext("UserLevel", "admin"); ?></option>
         </select>
         <br/>
-        <input type="button" id="userListLevelSubmit" value="OK"/>
-        <input type="button" class="popupAbort" value="Abbruch"/>
+        <input type="button" id="userListLevelSubmit" value="<?php echo _("OK"); ?>"/>
+        <input type="button" class="popupAbort" value="<?php echo _("Abort"); ?>"/>
     </div>
 
-    <h4>Domains</h4>
-    <input type="button" id="domain_add_button" value="Domain hinzufügen"/>
+    <h4><?php echo pgettext("TemplateHeading", "Domains"); ?></h4>
+    <input type="button" id="domain_add_button" value="<?php echo pgettext("AddDomain", "Add Domain"); ?>"/>
 
     <div id="domain_add" class="hider">
-        <label for="domain_add_name">Name:</label>
+        <label for="domain_add_name"><?php echo pgettext("AddDomain", "Name"); ?>:</label>
         <input type="text" id="domain_add_name"/>
         <br/>
-        <label for="domain_add_type">Typ:</label>
+        <label for="domain_add_type"><?php echo pgettext("AddDomain", "Type"); ?>:</label>
         <select id="domain_add_type">
             <option>NATIVE</option>
         </select>
         <br/>
-        <label for="domain_add_soa">Soa Zeile bestehend aus '$MasterDNS $Email':</label>
+        <label for="domain_add_soa"><?php echo _("Soa line containing '%MasterDNS% %Email%'"); ?>:</label>
         <input type="text" id="domain_add_soa" size="64"/>
         <br/>
-        <input type="button" id="domain_add_submit" value="Hinzufügen"/>
+        <input type="button" id="domain_add_submit" value="<?php echo pgettext("AddDomain", "Add"); ?>"/>
     </div>
     <table id="domains" border="1">
         <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Typ</th>
-            <th>Last Check</th>
-            <th>Spezielle Records</th>
-            <th>Operation</th>
+            <th><?php echo pgettext("DomainListTableHeader", "ID"); ?></th>
+            <th><?php echo pgettext("DomainListTableHeader", "Name"); ?></th>
+            <th><?php echo pgettext("DomainListTableHeader", "Type"); ?></th>
+            <th><?php echo pgettext("DomainListTableHeader", "Last Check"); ?></th>
+            <th><?php echo pgettext("DomainListTableHeader", "Special Records"); ?></th>
+            <th><?php echo pgettext("DomainListTableHeader", "Operation"); ?></th>
         </tr>
     </table>
-    <input type="button" id="domainListReload" value="Neu Laden"/>
+    <input type="button" id="domainListReload" value="<?php echo pgettext("DomainList", "Reload List"); ?>"/>
 
     <div id="domainsListNamePopup" class="popup" style="display: none">
-        <label for="domainsListName">Name:</label>
+        <label for="domainsListName"><?php echo pgettext("DomainModify", "Name"); ?>:</label>
         <input type="text" id="domainsListName"/>
         <br/>
-        <input type="button" id="domainsListNameSubmit" value="OK"/>
-        <input type="button" class="popupAbort" value="Abbruch"/>
+        <input type="button" id="domainsListNameSubmit" value="<?php echo _("OK"); ?>"/>
+        <input type="button" class="popupAbort" value="<?php echo _("Abort"); ?>"/>
     </div>
     <div id="domainsListRecordPopup" class="popup" style="display: none">
-        <label for="domainsListRecordName">Name:</label>
+        <label for="domainsListRecordName"><?php echo pgettext("RecordAdd", "Name"); ?>:</label>
         <input type="text" id="domainsListRecordName"/>
         <br/>
-        <label for="domainsListRecordType">Typ:</label>
+        <label for="domainsListRecordType"><?php echo pgettext("RecordAdd", "Type"); ?>:</label>
         <select id="domainsListRecordType">
             <option>A</option>
             <option>AAAA</option>
@@ -114,15 +115,19 @@
             <option>SRV</option>
             <option>TXT</option>
         </select>
-        <span>Siehe <a href="http://doc.powerdns.com/html/types.html" target="_blank">hier</a></span>
+        <span><?php echo pgettext("ReferenceToDocumenationPrefix", "See"); ?> <a
+                href="http://doc.powerdns.com/html/types.html"
+                target="_blank"><?php echo pgettext("ReferenceToDocumentationLink", "here"); ?></a>
+            <?php echo pgettext("ReferenceToDocumentationSuffix", "."); ?>
+        </span>
         <br/>
-        <label for="domainsListRecordContent">Content:</label>
+        <label for="domainsListRecordContent"><?php echo pgettext("RecordAdd", "Content"); ?>:</label>
         <input type="text" id="domainsListRecordContent" size="32"/>
         <br/>
-        <label for="domainsListRecordTTL">TTL:</label>
+        <label for="domainsListRecordTTL"><?php echo pgettext("RecordAdd", "TTL"); ?>:</label>
         <input type="number" min="5" id="domainsListRecordTTL"/>
         <br/>
-        <input type="button" id="domainsListRecordSubmit" value="OK"/>
-        <input type="button" class="popupAbort" value="Abbruch"/>
+        <input type="button" id="domainsListRecordSubmit" value="<?php echo _("OK"); ?>"/>
+        <input type="button" class="popupAbort" value="<?php echo _("Abort"); ?>"/>
     </div>
 </div>

@@ -139,7 +139,7 @@ class Email
             $text . "\n" .
             ($withURL ? "\nURL: $url\nODER" : "") .
             "\nToken: $token" .
-            ($withURL ? "\n\nDas Token kann direkt auf der Einstellungen-Seite eingegeben werden." : "")
+            ($withURL ? "\n\n" . _("This token can be inserted on the Settings page.") : "")
         );
 
         $this->page->db->query("

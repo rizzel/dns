@@ -4,7 +4,7 @@
 require_once(__DIR__ . "/inc/page.php");
 $page = new Page();
 
-$page->setTitle('DNS');
+$page->setTitle(pgettext("PageTitle", "DNS - Settings"));
 
 $page->addScript('js/dns.user.js');
 

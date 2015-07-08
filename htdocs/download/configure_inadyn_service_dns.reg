@@ -1,0 +1,11 @@
+REGEDIT4
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\inadyn\Parameters]
+"Application"="C:\\inadyn\\inadyn.exe"
+"AppParameters"="--background --update_period 60000 --log_file inadyn_srv.log --input_file C:\\inadyn\\dns.txt"
+
+
+
+
+
+
+

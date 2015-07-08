@@ -1,5 +1,18 @@
 <?php
 
+if (!function_exists('pgettext')) {
+    function pgettext($context, $msgId)
+    {
+        $contextString = "{$context}\004{$msgId}";
+        $translation = dcgettext('messages', $contextString, LC_MESSAGES);
+        if ($translation == $contextString)
+            return $msgId;
+        else
+            return $translation;
+    }
+}
+
+
 /**
  * Class Page
  *

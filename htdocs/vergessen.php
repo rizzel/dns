@@ -2,7 +2,7 @@
 require_once(__DIR__ . "/inc/page.php");
 $page = new Page();
 
-$page->setTitle('DNS - Passwort vergessen');
+$page->setTitle(pgettext("PageTitle", "DNS - Forgot password"));
 
 $page->addScript('js/dns.forgotten.js');
 

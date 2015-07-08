@@ -8,16 +8,16 @@ if (array_key_exists('u', $_GET) && array_key_exists('t', $_GET))
 
 ?>
 <div>
-    <h3>Update Verifikation</h3>
+    <h3><?php echo pgettext("TokenUpdate", "Update verification"); ?></h3>
 
     <?php IF ($update): ?>
         <p>
-            Update erfolgreich.
+            <?php echo pgettext("TokenUpdate", "Update successful."); ?>
         </p>
     <?php ELSE: ?>
         <p>
-            Update nicht erfolgreich.
+            <?php echo pgettext("TokenUpdate", "Update no successful."); ?>
         </p>
     <?php ENDIF ?>
-    <a href="/index.php">Zurück zur Hauptseite</a>
+    <a href="/"><?php echo pgettext("TokenUpdate", "Back to Home"); ?></a>
 </div>

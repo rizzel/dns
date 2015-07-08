@@ -18,7 +18,7 @@ while ($f = readdir($d)) {
 ?>
 <div id="footer">
     <div>
-        Zertifikate für diese Domain: <?php echo implode(", ", $certs); ?>
+        <?php echo _("Certificates for this Domain"); ?>: <?php echo implode(", ", $certs); ?> <?php echo "LOCALE: " . User::getCurrentLocale() ?>
     </div>
 </div>
 </body>

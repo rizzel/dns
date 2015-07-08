@@ -22,6 +22,8 @@ class User
      */
     private $email;
 
+    public $locale;
+
     function __construct($page, $userToLoad)
     {
         $this->page = $page;
@@ -43,12 +45,6 @@ class User
         return $this->email;
     }
 
-    public function getDebug()
-    {
-//        return TRUE;
-        return array_key_exists('debug', $_SESSION) ? $_SESSION['debug'] : FALSE;
-    }
-
     public function isAnonymous()
     {
         return $this->username == 'anonymous';
@@ -66,34 +62,46 @@ class User
 
     private function loadUserByName($username)
     {
-        $load = $this->page->db->query('SELECT level, email FROM dns_users WHERE username = ?', $username);
+        $load = $this->page->db->query('SELECT level, email, locale FROM dns_users WHERE username = ?', $username);
         if ($load && $row = $load->fetch()) {
             $this->username = $username;
             $this->level = $row['level'];
             $this->email = $row['email'];
+            $this->fixLocale($row['locale']);
             return TRUE;
         }
         $this->username = $this->level = $this->email = NULL;
         return FALSE;
     }
 
-    private function loadUserByEmail($useremail)
+    private function loadUserByEmail($userEmail)
     {
-        $load = $this->page->db->query('SELECT username, level FROM dns_users WHERE email = ?', $useremail);
+        $load = $this->page->db->query('SELECT username, level FROM dns_users WHERE email = ?', $userEmail);
         if ($load && $row = $load->fetch()) {
             $this->username = $row['username'];
             $this->level = $row['level'];
             $this->email = $row['email'];
+            $this->fixLocale($row['locale']);
             return TRUE;
         }
         $this->username = $this->level = $this->email = NULL;
         return FALSE;
+    }
+
+    private function fixLocale($locale)
+    {
+        $this->locale = $locale;
+        if (!isset($this->locale))
+            $this->locale = self::getCurrentLocale();
     }
 
 
     public function checkLogin($password)
     {
-        $load = $this->page->db->query('SELECT password, salt FROM dns_users WHERE username = ?', $this->username);
+        $load = $this->page->db->query(
+            'SELECT password, salt FROM dns_users WHERE username = ?',
+            $this->username
+        );
         if ($load && $row = $load->fetch()) {
             if (
                 isset($row['password']) && isset($row['salt']) && strlen($row['password']) > 1 &&
@@ -116,7 +124,8 @@ class User
         $user = array(
             'username' => $this->username,
             'level' => $this->level,
-            'email' => $this->email
+            'email' => $this->email,
+            'locale' => $this->locale
         );
 
         if ($withRecords) {
@@ -161,8 +170,11 @@ class User
             }
         }
 
-        if (array_key_exists('debug', $_GET))
-            $_SESSION['debug'] = $_GET['debug'];
+        setlocale(LC_ALL, $this->locale);
+        setlocale(LC_MESSAGES, $this->locale);
+        putenv("LANG=" . $this->locale);
+        bindtextdomain('php', __DIR__ . '/../locale');
+        textdomain('php');
     }
 
     public function requestPasswordUpdate($password)
@@ -174,9 +186,15 @@ class User
         if ($get && $row = $get->fetch()) {
             $p = Users::createPassword($password, $row['salt']);
             return $this->page->email->createUpdate(
-                'Passwortänderung bestätigen',
-                "Bitte bestätigen Sie die Änderung ihres Passwortes für ihren Account " .
-                "ggdns.de für den User " . $this->page->currentUser->getUserName() . ".\n\n",
+                _('Confirm the change of password'),
+                sprintf(
+                    _(
+                        'Please confirm the requested change of your password for your account on
+                        %1$s for the user %2$s'
+                    ) . "\n\n",
+                    $_SERVER['HTTP_HOST'],
+                    $this->page->currentUser->getUserName()
+                ),
                 'password',
                 $p['hashed']
             );
@@ -201,9 +219,15 @@ class User
     public function requestEmailUpdate($email)
     {
         return $this->page->email->createUpdate(
-            'Emailänderung bestätigen',
-            "Bitte bestätigen Sie die Änderung ihres Passwortes für ihren Account bei\n" .
-            "ggdns.de für den User " . $this->page->currentUser->getUserName() . " mit folgendem Link:\n\n",
+            _('Confirm the change of email'),
+            sprintf(
+                _(
+                    'Plesase confirm the requested change of your email address for your account on
+                     %1$s for the user %1$s'
+                ) . "\n\n",
+                $_SERVER['HTTP_HOST'],
+                $this->page->currentUser->getUserName()
+            ),
             'email',
             $email
         );
@@ -215,8 +239,8 @@ class User
         if ($set->rowCount() > 0) {
             $this->page->email->sendTo(
                 $email,
-                "Passwort gesetzt",
-                "Das Passwort wurde erfolgreich geändert für den Benutzer $user."
+                pgettext("emailUpdate", "password set"),
+                sprintf(_("The password has been successfully changed for user %s."), $user)
             );
             return TRUE;
         }
@@ -228,8 +252,8 @@ class User
         $user = $this->page->users->getUserByName($name);
         if ($user->getEmail() == $email) {
             $this->page->email->createUpdate(
-                "Passwort Zurücksetzung Token",
-                "Bitte Nutzen Sie folgendes Token zum Zurücksetzen des Passwortes.",
+                _("Password reset token"),
+                _("Pleasen use the following token to reset your password."),
                 'vergessen',
                 $email,
                 $name
@@ -295,7 +319,11 @@ class User
         $u = $this->page->users->getUserByName($username);
         if ($u->checkLogin($password)) {
             $this->loadUserByName($username);
-            $this->page->db->query("UPDATE dns_users SET sessionid = ? WHERE username = ?", session_id(), $u->getUserName());
+            $this->page->db->query(
+                "UPDATE dns_users SET sessionid = ? WHERE username = ?",
+                session_id(),
+                $u->getUserName()
+            );
             $_SESSION['username'] = $u->getUserName();
             return TRUE;
         }
@@ -307,7 +335,15 @@ class User
         $this->page->db->query("UPDATE dns_users SET sessionid = NULL WHERE sessionid=?", session_id());
         if (ini_get("session.use_cookies")) {
             $params = session_get_cookie_params();
-            setcookie(session_name(), '', time() - 42000, $params['path'], $params['domain'], $params['secure'], $params['httponly']);
+            setcookie(
+                session_name(),
+                '',
+                time() - 42000,
+                $params['path'],
+                $params['domain'],
+                $params['secure'],
+                $params['httponly']
+            );
         }
         $_SESSION = array();
         session_destroy();
@@ -320,5 +356,64 @@ class User
         if (array_key_exists('HTTP_X_FORWARDED_FOR', $_SERVER))
             array_unshift($ret, $_SERVER['HTTP_X_FORWARDED_FOR']);
         return $ret;
+    }
+
+    public function setLocale($locale)
+    {
+        if ($this->isAnonymous())
+            return FALSE;
+        $this->page->db->query(
+            "UPDATE dns_users SET locale = ? WHERE username = ?",
+            $locale,
+            $this->username
+        );
+        return TRUE;
+    }
+
+    public static function getAvailableLocales()
+    {
+        $ret = array();
+        $basePath = __DIR__ . "/../locale";
+        $d = opendir($basePath);
+        while ($path = readdir($d))
+            if (is_dir("$basePath/$path") && !preg_match('/\./', $path) && $path != 'templates')
+                $ret[] = $path;
+        return $ret;
+    }
+
+    public static function getCurrentLocale()
+    {
+        preg_match_all(
+            '/([a-z]{1,8}(-[a-z]{1,8})?)\s*(;\s*q\s*=\s*(1|0\.[0-9]+))?/i',
+            $_SERVER['HTTP_ACCEPT_LANGUAGE'],
+            $lang_parse
+        );
+
+        if (count($lang_parse[1])) {
+            foreach ($lang_parse[1] AS &$lang)
+                if (preg_match('/([a-z]{1,8})(-([a-z]{1,8}))?/', $lang, $match))
+                    $lang = $match[1] . (isset($match[3]) ? '_' . strtoupper($match[3]) : '');
+
+            // create a list like "en" => 0.8
+            $languages = array_combine($lang_parse[1], $lang_parse[4]);
+
+            // set default to 1 for any without q factor
+            foreach ($languages as $lang => $val) {
+                if ($val === '') $languages[$lang] = 1;
+            }
+
+            // sort list based on value
+            arsort($languages, SORT_NUMERIC);
+
+            $possibleLanguages = User::getAvailableLocales();
+            foreach ($languages AS $lang => $q) {
+                if (in_array($lang, $possibleLanguages))
+                    return $lang;
+                $shortLang = explode('_', $lang);
+                if (in_array($shortLang, $possibleLanguages))
+                    return $shortLang;
+            }
+        }
+        return 'en_US';
     }
 }

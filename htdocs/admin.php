@@ -7,7 +7,7 @@ $page = new Page();
 if ($page->currentUser->getLevel() != 'admin')
 	$page->redirectIndex();
 
-$page->setTitle('DNS administration');
+$page->setTitle(pgettext("PageTitle", "DNS - Administration"));
 
 $page->addScript('js/dns.admin.js');
 
