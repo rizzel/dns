@@ -44,7 +44,7 @@ window.initPageSpecific = function ()
 				}
 			);
 		}
-	}
+	};
 
 	$p.on('keyup', function () {
 		if ($p1.val() != $p2.val())

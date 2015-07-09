@@ -285,7 +285,7 @@ window.initPageSpecific = function () {
                 if (data.data.free)
                     $testSpan.addClass('frei');
                 else if (data.data.invalid)
-                    $testSpan.addClass('invalid')
+                    $testSpan.addClass('invalid');
                 else
                     $testSpan.addClass('belegt');
             }
