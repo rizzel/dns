@@ -2,7 +2,7 @@
 
 cd "$(dirname $0)/htdocs"
 
-find -name '*.php' -exec xgettext --keyword="pgettext:1c,2" -c --from-code=UTF-8 -o locale/templates/php.pot {} \+
+find -name '*.php' -exec xgettext -L PHP --keyword="pgettext:1c,2" -c --from-code=UTF-8 -o locale/templates/php.pot {} \+
 find -name '*.js' -exec xgettext -L JavaScript -c --from-code=UTF-8 -o locale/templates/js.pot {} \+
 
 for i in locale/*; do
