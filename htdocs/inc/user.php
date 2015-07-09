@@ -222,8 +222,8 @@ class User
             _('Confirm the change of email'),
             sprintf(
                 _(
-                    'Plesase confirm the requested change of your email address for your account on
-                     %1$s for the user %1$s'
+                    'Please confirm the requested change of your email address for your account on
+                     %1$s for the user %2$s'
                 ) . "\n\n",
                 $_SERVER['HTTP_HOST'],
                 $this->page->currentUser->getUserName()
@@ -253,7 +253,7 @@ class User
         if ($user->getEmail() == $email) {
             $this->page->email->createUpdate(
                 _("Password reset token"),
-                _("Pleasen use the following token to reset your password."),
+                _("Please use the following token to reset your password."),
                 'vergessen',
                 $email,
                 $name
