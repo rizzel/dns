@@ -6,10 +6,10 @@ if (!Array.prototype.map)
         if (typeof fun != 'function') throw new TypeError();
 
         var res = new Array(len);
-        var thisp = arguments[1];
+        var thisP = arguments[1];
         for (var i = 0; i < len; i++)
         {
-            if (i in this) res[i] = fun.call(thisp, this[i], i, this);
+            if (i in this) res[i] = fun.call(thisP, this[i], i, this);
         }
         return res;
     }
@@ -182,8 +182,14 @@ function LoadRemote()
 			i = item.settings.errorElement;
 			j = item.settings.successElement;
 		}
-		item.settings.successElement.attr('src', 'img/success.png').attr('title', 'success (%s)'.format(item.settings.module)).attr('alt', 'success');
-		item.settings.errorElement.attr('src', 'img/error.png').attr('title', 'error (%s)'.format(item.settings.module)).attr('alt', 'error');
+		item.settings.successElement
+            .attr('src', 'img/success.png')
+            .attr('title', Jed.sprintf(i18n.pgettext('LoadRemoteStatus', 'success (%s)'), item.settings.module))
+            .attr('alt', i18n.pgettext('LoadRemoteStatus', 'success'));
+		item.settings.errorElement
+            .attr('src', 'img/error.png')
+            .attr('title', Jed.sprintf(i18n.pgettext('LoadRemoteStatus', 'error (%s)'), item.settings.module))
+            .attr('alt', i18n.pgettext('LoadRemoteStatus', 'error'));
 		i.show();
 		if (item.settings.detach)
             j.detach();
@@ -272,7 +278,7 @@ function User()
                 }
                 else
                 {
-                    alert('Connection problem...');
+                    alert(i18n.pgettext('UserGetInfo', 'Connection problem...'));
                 }
             }, {
                 insertInDiv: $('#loadProgresses')
@@ -319,9 +325,9 @@ function User()
         );
     };
 
-    this.updateUser = function (userdata)
+    this.updateUser = function (userData)
     {
-        self.user = userdata;
+        self.user = userData;
         self.updateUserInfo();
     };
 

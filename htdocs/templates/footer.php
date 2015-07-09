@@ -1,5 +1,7 @@
 <?php
 
+global $page;
+
 $d = opendir(__DIR__ . '/..');
 $certs = array();
 $hasCrt = $hasDer = FALSE;
@@ -24,8 +26,18 @@ while ($f = readdir($d)) {
 </body>
 <script type="text/javascript">
     $(function () {
-        if (typeof(initPage) == 'function')
-            initPage();
+        <?php
+        if (file_exists(__DIR__ . "/../locale/{$page->currentUser->locale}/LC_MESSAGES/js.json"))
+            $path = "/locale/{$page->currentUser->locale}/LC_MESSAGES/js.json";
+        else
+            $path =  "/locale/en_US/LC_MESSAGES/js.json";
+        ?>
+        $.getJSON("<?php echo $path; ?>", function (translation) {
+            window.i18n = new Jed(translation);
+            i18n.textdomain('js');
+            if (typeof(initPage) == 'function')
+                initPage();
+        });
     });
 </script>
 </html>

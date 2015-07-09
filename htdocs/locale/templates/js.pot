@@ -1,0 +1,202 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-07-09 10:56+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: js/dns.forgotten.js:23
+msgctxt "VerifyToken"
+msgid "Please try again."
+msgstr ""
+
+#: js/dns.forgotten.js:32
+msgctxt "VerifyToken"
+msgid "Password has been reset"
+msgstr ""
+
+#: js/dns.forgotten.js:37
+msgctxt "VerifyToken"
+msgid "Error setting the password"
+msgstr ""
+
+#: js/dns.js:187
+#, javascript-format
+msgctxt "LoadRemoteStatus"
+msgid "success (%s)"
+msgstr ""
+
+#: js/dns.js:188
+msgctxt "LoadRemoteStatus"
+msgid "success"
+msgstr ""
+
+#: js/dns.js:191
+#, javascript-format
+msgctxt "LoadRemoteStatus"
+msgid "error (%s)"
+msgstr ""
+
+#: js/dns.js:192
+msgctxt "LoadRemoteStatus"
+msgid "error"
+msgstr ""
+
+#: js/dns.js:281
+msgctxt "UserGetInfo"
+msgid "Connection problem..."
+msgstr ""
+
+#: js/dns.admin.js:60
+msgctxt "MailToUnknown"
+msgid "unknown"
+msgstr ""
+
+#: js/dns.admin.js:63
+msgctxt "UserList"
+msgid "Level"
+msgstr ""
+
+#: js/dns.admin.js:64
+msgctxt "UserList"
+msgid "Remove"
+msgstr ""
+
+#: js/dns.admin.js:166
+msgctxt "DomainList"
+msgid "Name"
+msgstr ""
+
+#: js/dns.admin.js:167
+msgctxt "DomainList"
+msgid "+Record"
+msgstr ""
+
+#: js/dns.admin.js:168
+msgctxt "DomainList"
+msgid "Remove"
+msgstr ""
+
+#: js/dns.admin.js:173
+msgctxt "DomainListHeader"
+msgid "ID"
+msgstr ""
+
+#: js/dns.admin.js:174
+msgctxt "DomainListHeader"
+msgid "Name"
+msgstr ""
+
+#: js/dns.admin.js:175
+msgctxt "DomainListHeader"
+msgid "Type"
+msgstr ""
+
+#: js/dns.admin.js:176
+msgctxt "DomainListHeader"
+msgid "Content"
+msgstr ""
+
+#: js/dns.admin.js:177
+msgctxt "DomainListHeader"
+msgid "TTL"
+msgstr ""
+
+#: js/dns.admin.js:178
+msgctxt "DomainListHeader"
+msgid "OP"
+msgstr ""
+
+#: js/dns.admin.js:192
+msgctxt "DomainListRecordButtons"
+msgid "Edit"
+msgstr ""
+
+#: js/dns.admin.js:193
+msgctxt "DomainListRecordButtons"
+msgid "Remove"
+msgstr ""
+
+#: js/dns.admin.js:203
+#, javascript-format
+msgctxt "RemoveDomain"
+msgid "Remove domain %s?"
+msgstr ""
+
+#: js/dns.admin.js:262
+msgctxt "RemoveRecordFromDomainConfirmation"
+msgid "Really remove record %1$s (%2$s) on domain %3$s?"
+msgstr ""
+
+#: js/dns.user.js:16 js/dns.user.js:26
+msgctxt "EmailVerification"
+msgid "Verification email has been sent."
+msgstr ""
+
+#: js/dns.user.js:37
+msgctxt "EmailVerification"
+msgid "Token successfully verified."
+msgstr ""
+
+#: js/dns.user.js:42
+msgctxt "EmailVerification"
+msgid "Error verifying token - token invalid"
+msgstr ""
+
+#: js/dns.main.js:57
+msgctxt "RecordListPasswordShow"
+msgid "Click"
+msgstr ""
+
+#: js/dns.main.js:60
+msgctxt "RecordListHeader"
+msgid "Name"
+msgstr ""
+
+#: js/dns.main.js:61
+msgctxt "RecordListHeader"
+msgid "Password"
+msgstr ""
+
+#: js/dns.main.js:62
+msgctxt "RecordListHeader"
+msgid "Content"
+msgstr ""
+
+#: js/dns.main.js:63
+msgctxt "RecordListHeader"
+msgid "TTL"
+msgstr ""
+
+#: js/dns.main.js:64
+msgctxt "RecordListHeader"
+msgid "Remove"
+msgstr ""
+
+#: js/dns.main.js:74
+#, javascript-format
+msgctxt "RecordListRemove"
+msgid "Remove record %d?"
+msgstr ""
+
+#: js/dns.main.js:253
+msgctxt "AddRecordTypeFields"
+msgid "IPv6:"
+msgstr ""
+
+#: js/dns.main.js:259
+msgctxt "AddRecordTypeFields"
+msgid "Original URI:"
+msgstr ""

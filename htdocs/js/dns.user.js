@@ -13,7 +13,7 @@ window.initPageSpecific = function ()
 				function (data, success)
 				{
 					if (success)
-						alert("Bestätigungs-Email wurde versandt.");
+						alert(i18n.pgettext('EmailVerification', "Verification email has been sent."));
 				}
 			);
 		},
@@ -23,7 +23,7 @@ window.initPageSpecific = function ()
 				function (data, success)
 				{
 					if (success)
-						alert("Bestätigungs-Email wurde versandt.");
+						alert(i18n.pgettext('EmailVerification', "Verification email has been sent."));
 				}
 			);
 		},
@@ -34,12 +34,12 @@ window.initPageSpecific = function ()
 				{
 					if (success)
 					{
-						alert("Token erfolgreich verifiziert");
+						alert(i18n.pgettext('EmailVerification', "Token successfully verified."));
 						window.location.reload();
 					}
 					else
 					{
-						alert("Fehler bei Token-Verifizierung - Token ungültig");
+						alert(i18n.pgettext('EmailVerification', "Error verifying token - token invalid"));
 					}
 				}
 			);

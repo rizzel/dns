@@ -43,7 +43,7 @@ global $page;
     </div>
     <table id="recordList" border="1">
         <tr>
-			<td><?php echo pgettext("RecordListTableHeader", "ID"); ?></td>
+			<th><?php echo pgettext("RecordListTableHeader", "ID"); ?></th>
 			<th><?php echo pgettext("RecordListTableHeader", "Domain"); ?></th>
 			<th><?php echo pgettext("RecordListTableHeader", "Name"); ?></th>
 			<th><?php echo pgettext("RecordListTableHeader", "Type"); ?></th>

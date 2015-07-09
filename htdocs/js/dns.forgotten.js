@@ -20,7 +20,7 @@ window.initPageSpecific = function ()
 		verifyToken: function (token, password) {
 			if (typeof(dns.user.name) == 'undefined')
 			{
-				alert("Bitte erneut versuchen");
+				alert(i18n.pgettext('VerifyToken', "Please try again."));
 				return;
 			}
 			dns.loadRemote.loadRemote('user/forgottenResponse',
@@ -29,12 +29,12 @@ window.initPageSpecific = function ()
 				{
 					if (success)
 					{
-						alert("Passwort wurde gesetzt");
+						alert(i18n.pgettext('VerifyToken', "Password has been reset"));
 						window.location = '/index.php';
 					}
 					else
 					{
-						alert("Fehler beim Setzen des Passwortes");
+						alert(i18n.pgettext('VerifyToken', "Error setting the password"));
 						window.location.reload(false);
 					}
 				}

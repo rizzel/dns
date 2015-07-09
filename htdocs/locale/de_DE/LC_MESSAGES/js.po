@@ -1,0 +1,205 @@
+# German translations for PACKAGE package
+# German translation for PACKAGE.
+# Copyright (C) 2015 THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+#  <rizzle@underdog-projects.net>, 2015.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: dns\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2015-07-09 10:15+0200\n"
+"PO-Revision-Date: 2015-07-09 10:21+0100\n"
+"Last-Translator: Philipp Zimmer <pz@ggdns.de>\n"
+"Language-Team: German\n"
+"Language: de\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 1.5.5\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+
+#: js/dns.forgotten.js:23
+msgctxt "VerifyToken"
+msgid "Please try again."
+msgstr "Bitte versuchen Sie es erneut."
+
+#: js/dns.forgotten.js:32
+msgctxt "VerifyToken"
+msgid "Password has been reset"
+msgstr "Passwort wurde zurück gesetzt"
+
+#: js/dns.forgotten.js:37
+msgctxt "VerifyToken"
+msgid "Error setting the password"
+msgstr "Fehler beim zurücksetzen des Passworts"
+
+#: js/dns.js:187
+#, javascript-format
+msgctxt "LoadRemoteStatus"
+msgid "success (%s)"
+msgstr "erfolgreich (%s)"
+
+#: js/dns.js:188
+msgctxt "LoadRemoteStatus"
+msgid "success"
+msgstr "erfolgreich"
+
+#: js/dns.js:191
+#, javascript-format
+msgctxt "LoadRemoteStatus"
+msgid "error (%s)"
+msgstr "fehler (%s)"
+
+#: js/dns.js:192
+msgctxt "LoadRemoteStatus"
+msgid "error"
+msgstr "fehler"
+
+#: js/dns.js:281
+msgctxt "UserGetInfo"
+msgid "Connection problem..."
+msgstr "Verbindungsproblem..."
+
+#: js/dns.admin.js:60
+msgctxt "MailToUnknown"
+msgid "unknown"
+msgstr "unbekannt"
+
+#: js/dns.admin.js:63
+msgctxt "UserList"
+msgid "Level"
+msgstr "Level"
+
+#: js/dns.admin.js:64
+msgctxt "UserList"
+msgid "Remove"
+msgstr "Entfernen"
+
+#: js/dns.admin.js:166
+msgctxt "DomainList"
+msgid "Name"
+msgstr "Name"
+
+#: js/dns.admin.js:167
+msgctxt "DomainList"
+msgid "+Record"
+msgstr "+Record"
+
+#: js/dns.admin.js:168
+msgctxt "DomainList"
+msgid "Remove"
+msgstr "Entfernen"
+
+#: js/dns.admin.js:173
+msgctxt "DomainListHeader"
+msgid "ID"
+msgstr "ID"
+
+#: js/dns.admin.js:174
+msgctxt "DomainListHeader"
+msgid "Name"
+msgstr "Name"
+
+#: js/dns.admin.js:175
+msgctxt "DomainListHeader"
+msgid "Type"
+msgstr "Typ"
+
+#: js/dns.admin.js:176
+msgctxt "DomainListHeader"
+msgid "Content"
+msgstr "Content"
+
+#: js/dns.admin.js:177
+msgctxt "DomainListHeader"
+msgid "TTL"
+msgstr "TTL"
+
+#: js/dns.admin.js:178
+msgctxt "DomainListHeader"
+msgid "OP"
+msgstr "OP"
+
+#: js/dns.admin.js:192
+msgctxt "DomainListRecordButtons"
+msgid "Edit"
+msgstr "Bearbeiten"
+
+#: js/dns.admin.js:193
+msgctxt "DomainListRecordButtons"
+msgid "Remove"
+msgstr "Entfernen"
+
+#: js/dns.admin.js:203
+#, javascript-format
+msgctxt "RemoveDomain"
+msgid "Remove domain %s?"
+msgstr "Domain %s entfernen?"
+
+#: js/dns.admin.js:262
+msgctxt "RemoveRecordFromDomainConfirmation"
+msgid "Really remove record %1$s (%2$s) on domain %3$s?"
+msgstr "Wirklich record %1$s (%2$s) von domain %3$s entfernen?"
+
+#: js/dns.user.js:16 js/dns.user.js:26
+msgctxt "EmailVerification"
+msgid "Verification email has been sent."
+msgstr "Überprüfungs-Email wurde versandt."
+
+#: js/dns.user.js:37
+msgctxt "EmailVerification"
+msgid "Token successfully verified."
+msgstr "Token erfolgreich überprüft."
+
+#: js/dns.user.js:42
+msgctxt "EmailVerification"
+msgid "Error verifying token - token invalid"
+msgstr "Fehler bei der Überprüfung des Token - Token ungültig."
+
+#: js/dns.main.js:57
+msgctxt "RecordListPasswordShow"
+msgid "Click"
+msgstr "Klick"
+
+#: js/dns.main.js:60
+msgctxt "RecordListHeader"
+msgid "Name"
+msgstr "Name"
+
+#: js/dns.main.js:61
+msgctxt "RecordListHeader"
+msgid "Password"
+msgstr "Passwort"
+
+#: js/dns.main.js:62
+msgctxt "RecordListHeader"
+msgid "Content"
+msgstr "Content"
+
+#: js/dns.main.js:63
+msgctxt "RecordListHeader"
+msgid "TTL"
+msgstr "TTL"
+
+#: js/dns.main.js:64
+msgctxt "RecordListHeader"
+msgid "Remove"
+msgstr "Entfernen"
+
+#: js/dns.main.js:74
+#, javascript-format
+msgctxt "RecordListRemove"
+msgid "Remove record %d?"
+msgstr "Record %d entfernen?"
+
+#: js/dns.main.js:253
+msgctxt "AddRecordTypeFields"
+msgid "IPv6:"
+msgstr "IPv6"
+
+#: js/dns.main.js:259
+msgctxt "AddRecordTypeFields"
+msgid "Original URI:"
+msgstr "Original URI:"

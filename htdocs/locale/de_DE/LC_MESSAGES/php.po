@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dns\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-07-09 09:14+0200\n"
+"POT-Creation-Date: 2015-07-09 10:55+0200\n"
 "PO-Revision-Date: 2015-07-09 09:14+0100\n"
 "Last-Translator: Philipp Zimmer <pz@ggdns.de>\n"
 "Language-Team: German\n"
@@ -529,7 +529,7 @@ msgctxt "TokenUpdate"
 msgid "Back to Home"
 msgstr "Zurück zum Start"
 
-#: templates/footer.php:21
+#: templates/footer.php:23
 msgid "Certificates for this Domain"
 msgstr "Zertifikate für diese Domain"
 
