@@ -107,9 +107,4 @@ class FeedsUsers extends Feeds
 	{
 		$this->setResult($this->page->currentUser->getIPs());
 	}
-
-	public function user_testmail()
-	{
-		//$this->page->email->sendTo("rizzle@underdog-projects.net", 'göüäßg', 'testmail');
-	}
 }

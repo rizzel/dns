@@ -2,7 +2,7 @@
 <?php
 /**
  * Created by PhpStorm.
- * User: pzimmer
+ * User: Philipp Zimmer
  * Date: 7/9/15
  * Time: 11:31 AM
  */
