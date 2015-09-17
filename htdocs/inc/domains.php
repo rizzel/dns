@@ -38,7 +38,7 @@ class Domains
                   r.ttl
                 FROM records r
                 LEFT JOIN dns_records_users dru
-                  ON r.id = dru.records_id
+                  ON dru.records_id is null or r.id = dru.records_id
 				WHERE r.domain_id = ? AND (r.type NOT IN ('A', 'AAAA', 'CNAME') OR dru.user = '')
 				ORDER BY r.type, r.name, r.content
 			",
