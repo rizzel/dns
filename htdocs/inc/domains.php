@@ -662,7 +662,7 @@ class Domains
             return FALSE;
         $get = $this->page->db->query("SELECT name, type FROM records WHERE id = ?", $args[0]);
         if ($get && $row = $get->fetch()) {
-            return $this->recordUpdateIPx($row['name'], $args[1], $row['type'], $args[2]);
+            return $this->recordUpdateIPx($row['name'], $args[1], $row['type'], isset($args[2]) ? $args[2] : NULL);
         } else {
             return FALSE;
         }
@@ -676,7 +676,7 @@ class Domains
      */
     public function recordUpdateIP4($args)
     {
-        return $this->recordUpdateIPx($args[0], $args[1], 'A', $args[2]);
+        return $this->recordUpdateIPx($args[0], $args[1], 'A', isset($args[2]) ? $args[2] : NULL);
     }
 
     /**
@@ -687,7 +687,7 @@ class Domains
      */
     public function recordUpdateIP6($args)
     {
-        return $this->recordUpdateIPx($args[0], $args[1], 'AAAA', $args[2]);
+        return $this->recordUpdateIPx($args[0], $args[1], 'AAAA', isset($args[2]) ? $args[2] : NULL);
     }
 
     /**
@@ -703,7 +703,7 @@ class Domains
     {
         if ($content == NULL)
             if (in_array($recordType, array('A', 'AAAA'))) {
-                $ips = $this->page->user->getIPs();
+                $ips = $this->page->currentUser->getIPs();
                 $content = $ips[0];
             } else
                 return FALSE;
