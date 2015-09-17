@@ -35,7 +35,7 @@
 	}
 
 	switch($name) {
-//		case '/rpc.php/js':
+//		case '/js':
 //			header("Content-Type: text/javascript; charset=utf-8");
 //			$js = $page->settings->defaultScripts;
 //			foreach ($js AS $j) {
@@ -43,31 +43,31 @@
 //                echo ";";
 //            }
 //			break;
-//		case '/rpc.php/css':
+//		case '/css':
 //			header("Content-Type: text/css; charset=utf-8");
 //			$css = $page->settings->defaultStyles;
 //			foreach($css AS $c)
 //				readfile(__DIR__ . "/" . $c);
 //			break;
-		case '/rpc.php/ip':
+		case '/ip':
 			if ($page->domains->recordUpdateIP($args))
 				exit(0);
 			else
 				$page->call404();
 			break;
-		case '/rpc.php/ip4':
+		case '/ip4':
 			if ($page->domains->recordUpdateIP4($args))
 				exit(0);
 			else
 				$page->call404();
 			break;
-		case '/rpc.php/ip6':
+		case '/ip6':
 			if ($page->domains->recordUpdateIP6($args))
 				exit(0);
 			else
 				$page->call404();
 			break;
-		case '/rpc.php/inadyn4':
+		case '/inadyn4':
 			if (count($args) > 1)
 			{
 				$swap = $args[1];
@@ -77,7 +77,7 @@
 			if ($page->domains->recordUpdateIP4($args))
 				exit(0);
             break;
-		case '/rpc.php/inadyn6':
+		case '/inadyn6':
 			if (count($args) > 1)
 			{
 				$swap = $args[1];
@@ -87,7 +87,7 @@
 			if ($page->domains->recordUpdateIP6($args))
 				exit(0);
             break;
-		case '/rpc.php/myip':
+		case '/myip':
 			print implode("\n", $page->currentUser->getIPs());
 			break;
 		default:
