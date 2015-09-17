@@ -27,9 +27,8 @@ while ($f = readdir($d)) {
 <script type="text/javascript">
     $(function () {
         <?php
-        if (file_exists(__DIR__ . "/../locale/{$page->currentUser->locale}/LC_MESSAGES/js.json"))
-            $path = "/locale/{$page->currentUser->locale}/LC_MESSAGES/js.json";
-        else
+        $path = "{$page->currentUser->textDomainFolder}/js.json";
+        if (!file_exists($f))
             $path =  "/locale/en_US/LC_MESSAGES/js.json";
         ?>
         $.getJSON("<?php echo $path; ?>", function (translation) {

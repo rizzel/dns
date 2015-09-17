@@ -85,8 +85,9 @@ global $page;
 	</div>
 
     <?php
-        if (file_exists(__DIR__ . "/../../locale/{$page->currentUser->locale}/LC_MESSAGES/help.php"))
-            require(__DIR__ . "/../../locale/{$page->currentUser->locale}/LC_MESSAGES/help.php");
+        $f = "{$page->currentUser->textDomainFolder}/help.php";
+        if (file_exists($f))
+            require($f);
         else
             require(__DIR__ . "/../../locale/en_US/LC_MESSAGES/help.php");
         ?>

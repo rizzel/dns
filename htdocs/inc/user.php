@@ -23,10 +23,12 @@ class User
     private $email;
 
     public $locale;
+    public $textDomainFolder;
 
     function __construct($page, $userToLoad)
     {
         $this->page = $page;
+        $this->locale = $this->getCurrentLocale();
         $this->loadUser($userToLoad);
     }
 
@@ -91,7 +93,7 @@ class User
     private function fixLocale($locale)
     {
         $this->locale = $locale;
-        if (!isset($this->locale))
+        if (empty($this->locale))
             $this->locale = self::getCurrentLocale();
     }
 
@@ -170,10 +172,12 @@ class User
             }
         }
 
-        setlocale(LC_ALL, $this->locale);
         setlocale(LC_MESSAGES, $this->locale);
         putenv("LANG=" . $this->locale);
-        bindtextdomain('php', __DIR__ . '/../locale');
+        $this->textDomainFolder = bindtextdomain('php', __DIR__ . '/../locale') . '/' . $this->locale . '/LC_MESSAGES';
+        if (function_exists('bind_textdomain_codeset')) {
+            bind_textdomain_codeset('php', 'UTF-8');
+        }
         textdomain('php');
     }
 
