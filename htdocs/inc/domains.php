@@ -39,7 +39,7 @@ class Domains
                 FROM records r
                 LEFT JOIN dns_records_users dru
                   ON dru.records_id is null or r.id = dru.records_id
-				WHERE r.domain_id = ? AND (r.type NOT IN ('A', 'AAAA', 'CNAME') OR dru.user = '')
+				WHERE r.domain_id = ? AND (r.type NOT IN ('A', 'AAAA', 'CNAME') OR dru.user = '' or dru.records_id is null)
 				ORDER BY r.type, r.name, r.content
 			",
                 $r['id']
