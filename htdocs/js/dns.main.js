@@ -71,7 +71,7 @@ window.initPageSpecific = function () {
 
                     $table.find('.recordListDel').on('click', function () {
                         var r = $(this).parents('tr').attr('data-rid');
-                        if (confirm(Jed.sprintf(i18n.pgettext('RecordListRemove', "Remove record %d?"), r)))
+                        if (confirm(Jed.sprintf(i18n.pgettext('RecordListRemove', "Remove record %s?"), r)))
                             dns.record.del(r);
                         return false;
                     });
