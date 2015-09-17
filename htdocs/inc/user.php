@@ -383,37 +383,21 @@ class User
 
     public static function getCurrentLocale()
     {
-        preg_match_all(
-            '/([a-z]{1,8}(-[a-z]{1,8})?)\s*(;\s*q\s*=\s*(1|0\.[0-9]+))?/i',
-            $_SERVER['HTTP_ACCEPT_LANGUAGE'],
-            $lang_parse
-        );
-
-        if (count($lang_parse[1])) {
-            foreach ($lang_parse[1] AS &$lang)
-                if (preg_match('/([a-z]{1,8})(-([a-z]{1,8}))?/', $lang, $match))
-                    $lang = $match[1] . (isset($match[3]) ? '_' . strtoupper($match[3]) : '');
-
-            // create a list like "en" => 0.8
-            $languages = array_combine($lang_parse[1], $lang_parse[4]);
-
-            // set default to 1 for any without q factor
-            foreach ($languages as $lang => $val) {
-                if ($val === '') $languages[$lang] = 1;
-            }
-
-            // sort list based on value
-            arsort($languages, SORT_NUMERIC);
-
-            $possibleLanguages = User::getAvailableLocales();
-            foreach ($languages AS $lang => $q) {
-                if (in_array($lang, $possibleLanguages))
-                    return $lang;
-                $shortLang = explode('_', $lang);
-                if (in_array($shortLang, $possibleLanguages))
-                    return $shortLang;
+        $locales = User::getAvailableLocales();
+        foreach (explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE']) as $lang) {
+            $langLower = strtolower($lang);
+            list($langLower, $score) = explode(';', $langLower);
+            list($shortLangLower) = explode('-', $langLower);
+            $langLower = str_replace('-', '_', $langLower);
+            foreach ($locales as $locale) {
+                $localeLower = strtolower($locale);
+                list($shortLocaleLower) = explode('_', $localeLower);
+                if ($langLower == $localeLower || $shortLangLower == $shortLocaleLower) {
+                    return $locale;
+                }
             }
         }
+
         return 'en_US';
     }
 }
