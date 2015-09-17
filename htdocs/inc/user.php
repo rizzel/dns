@@ -388,16 +388,18 @@ class User
     public static function getCurrentLocale()
     {
         $locales = User::getAvailableLocales();
-        foreach (explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE']) as $lang) {
-            $langLower = strtolower($lang);
-            list($langLower) = explode(';', $langLower);
-            list($shortLangLower) = explode('-', $langLower);
-            $langLower = str_replace('-', '_', $langLower);
-            foreach ($locales as $locale) {
-                $localeLower = strtolower($locale);
-                list($shortLocaleLower) = explode('_', $localeLower);
-                if ($langLower == $localeLower || $shortLangLower == $shortLocaleLower) {
-                    return $locale;
+	if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
+            foreach (explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE']) as $lang) {
+                $langLower = strtolower($lang);
+                list($langLower) = explode(';', $langLower);
+                list($shortLangLower) = explode('-', $langLower);
+                $langLower = str_replace('-', '_', $langLower);
+                foreach ($locales as $locale) {
+                    $localeLower = strtolower($locale);
+                    list($shortLocaleLower) = explode('_', $localeLower);
+                    if ($langLower == $localeLower || $shortLangLower == $shortLocaleLower) {
+                        return $locale;
+                    }
                 }
             }
         }
