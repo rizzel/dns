@@ -130,7 +130,7 @@ class Page {
     /**
      * Set the HTML title.
      *
-     * @param $title The title.
+     * @param string $title The title.
      */
 	public function setTitle($title) {
 		$this->title = $title;
