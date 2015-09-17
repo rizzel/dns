@@ -386,7 +386,7 @@ class User
         $locales = User::getAvailableLocales();
         foreach (explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE']) as $lang) {
             $langLower = strtolower($lang);
-            list($langLower, $score) = explode(';', $langLower);
+            list($langLower) = explode(';', $langLower);
             list($shortLangLower) = explode('-', $langLower);
             $langLower = str_replace('-', '_', $langLower);
             foreach ($locales as $locale) {
