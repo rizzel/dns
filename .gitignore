@@ -1,3 +1,4 @@
 /htdocs/inc/settings.php
 /htdocs/*.der
 /htdocs/*.crt
+/.idea
