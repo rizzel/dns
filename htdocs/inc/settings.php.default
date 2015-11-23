@@ -44,7 +44,7 @@ class Settings {
     public $pearBackend = NULL;
 
     // A Mail configuration for PEAR::Mail::factory has to be set
-    public $mailConfig = array(
+    public $pearConfig = array(
         'host' => 'mail.example.com',
         'username' => 'mail@mail.example.com',
         'password' => 'mail password',
