@@ -22,10 +22,13 @@ class Email
         $this->page = $page;
         $this->cleanUpTokens();
 
+        set_include_path(get_include_path() . PATH_SEPARATOR . "/usr/share/php");
+
         $e = ini_get('error_reporting');
         ini_set('error_reporting', 0);
-        if (include("Mail.php"))
-            $this->hasPearMail = TRUE;
+        if (include("Mail.php")) {
+            $this->hasPearMail = true;
+        }
         ini_set('error_reporting', $e);
     }
 
@@ -117,6 +120,8 @@ class Email
         if ($username != null) {
             $withURL = FALSE;
             $user = $this->page->users->getUserByName($username);
+        } else {
+            $user = $this->page->currentUser;
         }
         if ($user->getUserName() == 'anonymous')
             return FALSE;
