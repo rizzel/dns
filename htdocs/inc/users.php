@@ -45,7 +45,7 @@ class Users
                   (?, ?, ?, ?, ?)
             ",
                 $username,
-                $password['hash'],
+                $password['hashed'],
                 $password['salt'],
                 $level,
                 $email
