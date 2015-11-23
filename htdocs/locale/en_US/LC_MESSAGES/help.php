@@ -11,8 +11,10 @@
 <p>
     Possible URLs:
 <blockquote>http://<?php echo $host; ?>/ip?<var>RECORDID</var>;<var>PASSWORD</var>;<var>CONTENT_FIELD</var></blockquote>
-<blockquote>http://<?php echo $host; ?>/ip4?<var>RECORDNAME</var>;<var>PASSWORD</var>;<var>CONTENT_FIELD</var></blockquote>
-<blockquote>http://<?php echo $host; ?>/ip6?<var>RECORDNAME</var>;<var>PASSWORD</var>;<var>CONTENT_FIELD</var></blockquote>
+<blockquote>http://<?php echo $host; ?>/ip4?<var>RECORDNAME</var>;<var>PASSWORD</var>;<var>CONTENT_FIELD</var>
+</blockquote>
+<blockquote>http://<?php echo $host; ?>/ip6?<var>RECORDNAME</var>;<var>PASSWORD</var>;<var>CONTENT_FIELD</var>
+</blockquote>
 <blockquote>http://<?php echo $host; ?>/inadyn4?<var>PASSWORT</var>;<var>RECORDNAME</var></blockquote>
 <blockquote>http://<?php echo $host; ?>/inadyn6?<var>PASSWORT</var>;<var>RECORDNAME</var></blockquote>
 </p>
@@ -20,7 +22,18 @@
     The addition of additional URL-Schemata is possible.
     <br/>
     An example update crontab row would be (updated every 5 minutes):
-<blockquote>*/5 * * * * nobody wget -qO /dev/null 'http://<?php echo $host; ?>/ip4?<var>RECORDNAME</var>;<var>PASSWORD</var>'
+<blockquote>*/5 * * * * nobody wget -qO /dev/null 'http://<?php echo $host; ?>
+    /ip4?<var>RECORDNAME</var>;<var>PASSWORD</var>'
+</blockquote>
+</p>
+<p>
+    An example Fritz!Box configuration would be:
+<blockquote>
+    Dynamic DNS-Provider: Custom
+    Update-URL: http://ggdns.de/ip?<var>RECORDID</var>;&lt;pass&gt;;&lt;ipaddr&gt;
+    Domainname: <var>RECORDNAME</var>
+    Username: 1
+    Password: <var>PASSWORD</var>
 </blockquote>
 </p>
 <p>

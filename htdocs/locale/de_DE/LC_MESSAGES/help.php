@@ -11,8 +11,10 @@
 <p>
     Möglichkeiten:
 <blockquote>http://<?php echo $host; ?>/ip?<var>RECORDID</var>;<var>PASSWORT</var>;<var>CONTENT_FELD</var></blockquote>
-<blockquote>http://<?php echo $host; ?>/ip4?<var>RECORDNAME</var>;<var>PASSWORT</var>;<var>CONTENT_FELD</var></blockquote>
-<blockquote>http://<?php echo $host; ?>/ip6?<var>RECORDNAME</var>;<var>PASSWORT</var>;<var>CONTENT_FELD</var></blockquote>
+<blockquote>http://<?php echo $host; ?>/ip4?<var>RECORDNAME</var>;<var>PASSWORT</var>;<var>CONTENT_FELD</var>
+</blockquote>
+<blockquote>http://<?php echo $host; ?>/ip6?<var>RECORDNAME</var>;<var>PASSWORT</var>;<var>CONTENT_FELD</var>
+</blockquote>
 <blockquote>http://<?php echo $host; ?>/inadyn4?<var>PASSWORT</var>;<var>RECORDNAME</var></blockquote>
 <blockquote>http://<?php echo $host; ?>/inadyn6?<var>PASSWORT</var>;<var>RECORDNAME</var></blockquote>
 </p>
@@ -20,7 +22,18 @@
     Werden andere URL-Schemata benötigt, so können diese noch hinzugefügt werden.
     <br/>
     Eine Beispiel Crontab-Zeile für ein Update alle 5 Minuten sieht so aus:
-<blockquote>*/5 * * * * nobody wget -qO /dev/null 'http://<?php echo $host; ?>/ip4?<var>RECORDNAME</var>;<var>PASSWORT</var>'
+<blockquote>*/5 * * * * nobody wget -qO /dev/null 'http://<?php echo $host; ?>
+    /ip4?<var>RECORDNAME</var>;<var>PASSWORT</var>'
+</blockquote>
+</p>
+<p>
+    Eine Beispiel Fritz!Box-Konfiguration siehts so aus:
+<blockquote>
+    Dynamic DNS-Anbieter: Benutzerdefiniert
+    Update-URL: http://ggdns.de/ip?<var>RECORDID</var>;&lt;pass&gt;;&lt;ipaddr&gt;
+    Domainname: <var>RECORDNAME</var>
+    Benutzername: 1
+    Kennwort: <var>PASSWORT</var>
 </blockquote>
 </p>
 <p>
@@ -121,12 +134,16 @@ abgefragt werden.
 <p>
     Regeln für Domain-Namen:
 <ul>
-    <li>Ein Domain-Name darf nicht mit einem "." beginnen (z.B. "<span class="nicht">.</span>test.<?php echo $host; ?>")</li>
-    <li>Ein Domain-Name darf nicht mit einem "." aufhören (z.B. "test.<?php echo $host; ?><span class="nicht">.</span>")</li>
-    <li>Ein Domain-Name darf am Anfang einer Subdomain kein "-" haben (z.B. "<span class="nicht">-</span>test.<?php echo $host; ?>"
+    <li>Ein Domain-Name darf nicht mit einem "." beginnen (z.B. "<span class="nicht">.</span>test.<?php echo $host; ?>")
+    </li>
+    <li>Ein Domain-Name darf nicht mit einem "." aufhören (z.B. "test.<?php echo $host; ?><span class="nicht">.</span>")
+    </li>
+    <li>Ein Domain-Name darf am Anfang einer Subdomain kein "-" haben (z.B. "<span
+            class="nicht">-</span>test.<?php echo $host; ?>"
         oder "a.<span class="nicht">-</span>test.<?php echo $host; ?>")
     </li>
-    <li>Ein Domain-Name darf am Ende einer Subdomain kein "-" haben (z.B. "test<span class="nicht">-</span>.<?php echo $host; ?>"
+    <li>Ein Domain-Name darf am Ende einer Subdomain kein "-" haben (z.B. "test<span
+            class="nicht">-</span>.<?php echo $host; ?>"
         oder "a.test<span class="nicht">-</span>.<?php echo $host; ?>")
     </li>
     <li>Ein Domain-Name darf nur aus folgenden Zeichen bestehen: 0-9, a-z, A-Z, ., - (keine Kommas...).</li>
