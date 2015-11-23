@@ -29,10 +29,10 @@
 <p>
     Eine Beispiel Fritz!Box-Konfiguration siehts so aus:
 <blockquote>
-    Dynamic DNS-Anbieter: Benutzerdefiniert
-    Update-URL: http://ggdns.de/ip?<var>RECORDID</var>;&lt;pass&gt;;&lt;ipaddr&gt;
-    Domainname: <var>RECORDNAME</var>
-    Benutzername: 1
+    Dynamic DNS-Anbieter: Benutzerdefiniert<br/>
+    Update-URL: http://ggdns.de/ip?<var>RECORDID</var>;&lt;pass&gt;;&lt;ipaddr&gt;<br/>
+    Domainname: <var>RECORDNAME</var><br/>
+    Benutzername: 1<br/>
     Kennwort: <var>PASSWORT</var>
 </blockquote>
 </p>
