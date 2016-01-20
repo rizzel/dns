@@ -17,6 +17,9 @@
 </blockquote>
 <blockquote>http://<?php echo $host; ?>/inadyn4?<var>PASSWORT</var>;<var>RECORDNAME</var></blockquote>
 <blockquote>http://<?php echo $host; ?>/inadyn6?<var>PASSWORT</var>;<var>RECORDNAME</var></blockquote>
+<blockquote>http://<?php echo $host; ?>/update.php?recordid=<var>RECORDID</var>&password=<var>PASSWORD</var>&content=<var>CONTENT</var></blockquote>
+<blockquote>http://<?php echo $host; ?>/update.php?recordname=<var>RECORDNAME</var>&addrtype=ipv4&password=<var>PASSWORD</var>&content=<var>CONTENT</var></blockquote>
+<blockquote>http://<?php echo $host; ?>/update.php?recordname=<var>RECORDNAME</var>&addrtype=ipv6&password=<var>PASSWORD</var>&content=<var>CONTENT</var></blockquote>
 </p>
 <p>
     Werden andere URL-Schemata benötigt, so können diese noch hinzugefügt werden.
