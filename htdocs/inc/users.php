@@ -75,7 +75,7 @@ class Users
      *
      * @param string $password The password to hash.
      * @param string|null $salt The salt to use (NULL to create it).
-     * @return object The password object.
+     * @return array The password object.
      */
     public static function createPassword($password, $salt = NULL)
     {

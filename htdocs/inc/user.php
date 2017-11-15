@@ -208,13 +208,16 @@ class User
 
     public function confirmPasswordUpdate($user, $password)
     {
+        $pass = Users::createPassword($password);
         $set = $this->page->db->query("
             UPDATE dns_users
             SET
-              password = ?
+              password = ?,
+              salt = ?
             WHERE username = ?
         ",
-            $password,
+            $pass['hashed'],
+            $pass['salt'],
             $user
         );
         return ($set->rowCount() > 0);
