@@ -11,7 +11,6 @@
         <Directory "/var/www/example.com/htdocs">
                 Options FollowSymLinks
                 AllowOverride All
-                Order allow,deny
-                Allow from all
+                Require all granted
         </Directory>
         AddType application/x-x509-ca-cert .crt .der
