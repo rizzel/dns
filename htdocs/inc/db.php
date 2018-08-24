@@ -21,11 +21,23 @@ class DB
     {
         $this->page = $page;
         $config = $page->settings->db;
-        $s = sprintf("mysql:host=%s;port=%d;dbname=%s", $config['dbHost'], $config['dbPort'], $config['dbName']);
+
+        $dsnParts = [];
+        if (!empty($config['dbHost'])) {
+            $dsnParts[] = 'host=' . $config['dbHost'];
+            if (!empty($config['dbPort'])) {
+                $dsnParts[] = 'port=' . $config['dbPort'];
+            }
+        }
+        $dbParts[] = 'dbname=' . $config['dbName'];
+
+        $s = sprintf(config['dbType'] . ':' . implode(';', $dsnParts));
         $this->handle = new PDO($s, $config['dbUser'], $config['dbPass']);
         $this->handle->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-        $this->handle->query("SET NAMES 'utf-8'");
-        $this->handle->query("SET CHARACTER SET 'utf-8'");
+        if ($config['dbType'] === 'mysql') {
+            $this->handle->query("SET NAMES 'utf-8'");
+            $this->handle->query("SET CHARACTER SET 'utf-8'");
+        }
     }
 
     /**
@@ -88,6 +100,41 @@ class DB
         }
         $q->execute() || print("SQLERROR: " . $sql . print_r($args, true) . ' (' . print_r($q->errorInfo()) . ')');
         return $q;
+    }
+
+    /**
+     * Because of the possibility of multi master postgresql setups we cannot rely on the AUTO_INCREMENT PRIMARY KEY.
+     * This function keeps track of the primary key of all relevant tables in the database and returns the next unused one for a specific table.
+     *
+     * @param string $table The table the primary key should be created for
+     * @return int The next primary key for the given table
+     */
+    public function getNextPrimaryKeyId($table) {
+        if (!in_array($table, ['comments', 'cryptokeys', 'domainmetadata', 'domain', 'record', 'tsigkeys']))
+            die("table error");
+        $this->handle->beginTransaction();
+        $offsetId = $this->page->settings->db['multiMaster']['primaryKeyOffset'];
+        $field = 'current_max_' . $table . '_id';
+        $get = $this->query("SELECT $field FROM dns_max_key WHERE offset_id = ?", $offsetId);
+
+        if (empty($get)) {
+            $this->query("INSERT INTO dns_max_key (
+                offset_id,
+                current_max_comments_id,
+                current_max_cryptokeys_id,
+                current_max_domainmetadata_id,
+                current_max_domain_id,
+                current_max_record_id,
+                current_max_tsigkeys_id)
+            VALUES (?, ?, ?, ?, ?, ?, ?)", $offsetId, $offsetId, $offsetId, $offsetId, $offsetId, $offsetId, $offsetId);
+            $result = $offsetId;
+        } else {
+            $result = $get->fetch(PDO::FETCH_NUM)[0];
+            $this->query("UPDATE dns_max_key SET $field = ? WHERE offset_id = ?", $result + 1, $offsetId);
+        }
+        $this->handle->commit();
+
+        return $result;
     }
 
     /**
