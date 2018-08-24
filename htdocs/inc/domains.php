@@ -75,7 +75,8 @@ class Domains
     {
         if ($this->page->currentUser->getLevel() != 'admin')
             return FALSE;
-        $set = $this->page->db->query("INSERT INTO domains (name, type) VALUES (?, ?)", $name, $domainType);
+        $newDomainId = $this->page->db->getNextPrimaryKeyId('domains');
+        $set = $this->page->db->query("INSERT INTO domains (id, name, type) VALUES (?, ?, ?)", $newDomainId, $name, $domainType);
         if ($set->rowCount() > 0) {
             $recordId = $this->page->db->getLastInsertId();
             $this->insertSpecialRecord($recordId, $name, 'SOA', $soa);
@@ -154,12 +155,14 @@ class Domains
             $content = $this->getSOAContent($recordType, $content);
             if ($content === FALSE)
                 return FALSE;
+            $newRecordsId = $this->page->db->getNextPrimaryKeyId('records');
             $in = $this->page->db->query("
                 INSERT INTO records
-                  (domain_id, name, type, content, ttl, change_date)
+                  (id, domain_id, name, type, content, ttl, change_date)
 				VALUES
-                  (?, ?, ?, ?, ?, UNIX_TIMESTAMP())
-			",
+                  (?, ?, ?, ?, ?, ?, UNIX_TIMESTAMP())
+            ",
+                $newRecordsId,
                 $domainId,
                 $name,
                 $recordType,
@@ -363,13 +366,14 @@ class Domains
             return FALSE;
         if (!$this->isValidDomainName($name))
             return FALSE;
+        $newRecordsId = $this->page->db->getNextPrimaryKeyId('records');
         $set = $this->page->db->query("
             INSERT INTO records
-              (domain_id, name, type, content, ttl, change_date)
+              (id, domain_id, name, type, content, ttl, change_date)
             VALUES
-			  (?, ?, ?, ?, ?, UNIX_TIMESTAMP())
+			  (?, ?, ?, ?, ?, ?, UNIX_TIMESTAMP())
 		",
-            $domainId, $name, $recordType, $content, $ttl
+            $newRecordsId, $domainId, $name, $recordType, $content, $ttl
         );
         if ($set->rowCount() > 0) {
             $recordId = $this->page->db->getLastInsertId();
@@ -384,13 +388,14 @@ class Domains
             $pid = $this->getPTRDomainID($ptr);
 
             if (isset($pid) && isset($ptr))
+                $newRecordsPtrId = $this->page->db->getNextPrimaryKeyId('records');
                 $this->page->db->query("
                     INSERT INTO records
-                      (domain_id, name, type, content, ttl, change_date)
+                      (id, domain_id, name, type, content, ttl, change_date)
                     VALUES
-                      (?, ?, ?, ?, ?, UNIX_TIMESTAMP())
+                      (?, ?, ?, ?, ?, ?, UNIX_TIMESTAMP())
                 ",
-                    $pid, $ptr, 'PTR', $name, $ttl
+                    $id, $pid, $ptr, 'PTR', $name, $ttl
                 );
 
             //		$this->page->email->sendToCurrent(
