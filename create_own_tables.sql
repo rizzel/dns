@@ -25,4 +25,14 @@ CREATE TABLE dns_records_users (
   user VARCHAR(45) NOT NULL
 ) CHARSET "utf8";
 
+CREATE TABLE dns_max_key (
+  offset_id INT NOT NULL PRIMARY KEY,
+  current_max_comments_id INT NOT NULL,
+  current_max_cryptokeys_id INT NOT NULL,
+  current_max_domainmetadata_id INT NOT NULL,
+  current_max_domain_id INT NOT NULL,
+  current_max_record_id INT NOT NULL,
+  current_max_tsigkeys_id INT NOT NULL,
+);
+
 INSERT INTO dns_users VALUES ('anonymous', 'nobody', '', '', NULL, '', 'en_US');
