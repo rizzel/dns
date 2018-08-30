@@ -113,7 +113,7 @@ class DB
         if (!in_array($table, ['comments', 'cryptokeys', 'domainmetadata', 'domain', 'record', 'tsigkeys']))
             die("table error");
         $this->handle->beginTransaction();
-        $offsetId = $this->page->settings->db['multiMaster']['primaryKeyOffset'];
+        $offsetId = isset($this->page->settings->db['multiMaster']['primaryKeyOffset']) ? $this->page->settings->db['multiMaster']['primaryKeyOffset'] : 0;
         $field = 'current_max_' . $table . '_id';
         $get = $this->query("SELECT $field FROM dns_max_key WHERE offset_id = ?", $offsetId);
 
