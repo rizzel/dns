@@ -115,7 +115,7 @@ class DB
         $this->handle->beginTransaction();
         $offsetId = isset($this->page->settings->db['multiMaster']['primaryKeyOffset']) ? $this->page->settings->db['multiMaster']['primaryKeyOffset'] : 0;
         $field = 'current_max_' . $table . '_id';
-        $get = $this->query("SELECT $field FROM dns_max_key WHERE offset_id = ?", $offsetId);
+        $get = $this->query("SELECT $field FROM dns_max_key WHERE offset_id = ? FOR UPDATE OF dns_max_key", $offsetId);
 
         if (empty($get)) {
             $this->query("INSERT INTO dns_max_key (
