@@ -142,6 +142,10 @@ table td {
 	padding: 3px;
 }
 
+table td.content {
+	word-break: break-all;
+}
+
 tr:nth-child(odd) {
 	background: #ddd;
 }

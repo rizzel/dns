@@ -181,7 +181,7 @@ window.initPageSpecific = function () {
                                 if (!data.data[i].records.hasOwnProperty(j)) continue;
                                 var r = data.data[i].records[j];
                                 $special.find('table').append('<tr data-rid="%d" data-rName="%s" data-rType="%s" data-rContent="%s" data-rTtl="%s"> \
-															  <td>%d</td><td>%s</td><td>%s</td><td>%s</td><td>%d</td> \
+															  <td>%d</td><td>%s</td><td>%s</td><td class="content">%s</td><td>%d</td> \
 															  <td> \
 															  <a href="#" title="%s" class="domainListRecordEdit">#</a> \
 															  <a href="#" title="%s" class="domainListRecordDelete">-</a> \
