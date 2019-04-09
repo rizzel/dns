@@ -102,7 +102,7 @@
             <option>HINFO</option>
             <option value="KEY">KEY (pdns 2.9.21)</option>
             <option>LOC</option>
-            <option>MX</option>
+            <option value="MX">MX (prepend with prio for pdns 4)</option>
             <option>NAPTR</option>
             <option>NS</option>
             <option value="NSEC">NSEC (pdns 2.9.21)</option>
