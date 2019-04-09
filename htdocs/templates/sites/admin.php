@@ -112,7 +112,7 @@
             <option>SOA</option>
             <option>SPF</option>
             <option>SSHFP</option>
-            <option>SRV</option>
+            <option VALUE="SRV">SRV (prepend with prio for pdns 4)</option>
             <option>TXT</option>
         </select>
         <span><?php echo pgettext("ReferenceToDocumenationPrefix", "See"); ?> <a
