@@ -57,7 +57,7 @@ class Domains
     {
         $set = $this->page->db->query("
             UPDATE records
-            SET content = CONCAT(SUBSTRING_INDEX(content, ' ', 2), ' ', UNIX_TIMESTAMP())
+            SET content = CONCAT(SUBSTRING_INDEX(content, ' ', 2), ' ', UNIX_TIMESTAMP(), SUBSTRING(content, CHAR_LENGTH(SUBSTRING_INDEX(content, ' ', 3)) + 1))
             WHERE domain_id = ? AND type = 'SOA'
         ",
             $domainId
