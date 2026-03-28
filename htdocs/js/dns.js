@@ -1,26 +1,12 @@
-if (!Array.prototype.map)
-{
-    Array.prototype.map = function (fun)
-    {
-        var len = this.length;
-        if (typeof fun != 'function') throw new TypeError();
-
-        var res = new Array(len);
-        var thisP = arguments[1];
-        for (var i = 0; i < len; i++)
-        {
-            if (i in this) res[i] = fun.call(thisP, this[i], i, this);
-        }
-        return res;
-    }
-}
+function $(sel) { return document.querySelector(sel); }
+function $$(sel) { return Array.from(document.querySelectorAll(sel)); }
 
 function initPage()
 {
     dns = {};
     dns.loadRemote = new LoadRemote();
 
-	$('body').bind('initReady', function() {
+	document.body.addEventListener('initReady', function() {
 		if (typeof(window.initPageSpecific) == 'function')
 			window.initPageSpecific();
 	});
@@ -36,20 +22,18 @@ function initPage()
 		return ret.join('');
 	};
 
-	dns.fehler = function ($f)
+	dns.fehler = function (el)
 	{
-		$f.addClass('falsch');
+		el.classList.add('falsch');
 		window.setTimeout(function () {
-			$f.removeClass('falsch');
+			el.classList.remove('falsch');
 		}, 2000);
 	};
 
-	dns.toggleCB = function ($cb)
+	dns.toggleCB = function (el)
 	{
-		$cb = $cb.find('input[type="checkbox"]');
-		$cb.each(function () {
-			var $t = $(this);
-			$t.prop('checked', !$t.prop('checked'));
+		el.querySelectorAll('input[type="checkbox"]').forEach(function (cb) {
+			cb.checked = !cb.checked;
 		});
 	};
 
@@ -62,14 +46,24 @@ function initPage()
 		);
 	};
 
-	$('.popupAbort').on('click', function () {
-		$(this).parents('.popup').hide();
+	$$('.popupAbort').forEach(function (el) {
+		el.addEventListener('click', function () {
+			this.closest('.popup').style.display = 'none';
+		});
 	});
 
-	$('#login_name, #login_password').on('keyup', function (e) {
-		if (e.keyCode == 13)
-			$('#login_submit').trigger('click');
-	});
+	var loginName = $('#login_name');
+	var loginPassword = $('#login_password');
+	if (loginName) {
+		loginName.addEventListener('keyup', function (e) {
+			if (e.keyCode == 13) $('#login_submit').click();
+		});
+	}
+	if (loginPassword) {
+		loginPassword.addEventListener('keyup', function (e) {
+			if (e.keyCode == 13) $('#login_submit').click();
+		});
+	}
 }
 
 function createSpinner(options)
@@ -89,44 +83,12 @@ function createSpinner(options)
 		top: 'auto',
 		left: 'auto'
 	};
-	if (options) $.extend(opts, options);
+	if (options) Object.assign(opts, options);
 	return new Spinner(opts).spin();
 }
 
 function LoadRemote()
 {
-	/* Usage:
-	loadRemote.loadRemote(
-	'manga/listItemAdd',
-	[
-		$this.parents('.option').attr('type'),
-		$this.parent().find('.optionAddText').val()
-	], function(data, success) {
-		if (success) {
-			Configuration.loadConfiguration();
-		}
-	}, settings
-	);
-
-	settings can be:
-	settings = {
-		progressElement: $('<span class="optionButtonProgress"></span>').insertAfter($this),
-		successElement: $('<img class="optionButtonSuccess" />').insertAfter($this),
-		errorElement: $('<img class="optionButtonError" />').insertAfter($this),
-		detach: true,
-		timeout: 10000,
-		timeoutElement: 2000
-	}
-	or:
-	settings = {
-		insertAfterButton: $this
-	}
-	or (default):
-	settings = {
-		insertInDiv: $('#loadProgresses')
-	}
-	-> those set progressElement, successElement, errorElement and detach as in the first example
-	*/
 	var self = this;
 
 	this._activeProgresses = {};
@@ -141,12 +103,12 @@ function LoadRemote()
 			if (prog.settings.progressElement)
             {
 				prog.spinner.stop();
-				prog.settings.progressElement.detach();
+				prog.settings.progressElement.remove();
 			}
 			if (prog.settings.successElement)
-                prog.settings.successElement.detach();
+                prog.settings.successElement.remove();
 			if (prog.settings.errorElement)
-                prog.settings.errorElement.detach();
+                prog.settings.errorElement.remove();
 		}
 
 		if (!settings.spinner)
@@ -158,9 +120,9 @@ function LoadRemote()
 			settings: settings,
 			spinner: createSpinner(settings.spinner)
 		};
-		item.settings.progressElement.append(item.spinner.el);
-		item.settings.successElement.hide();
-		item.settings.errorElement.hide();
+		item.settings.progressElement.appendChild(item.spinner.el);
+		item.settings.successElement.style.display = 'none';
+		item.settings.errorElement.style.display = 'none';
 		self._activeProgresses[xhr.reqID] = item;
 	};
 
@@ -170,7 +132,7 @@ function LoadRemote()
 		if (!item || !(item.settings.progressElement && item.settings.successElement && item.settings.errorElement))
             return;
 		item.spinner.stop();
-		if (item.settings.detach) item.settings.progressElement.detach();
+		if (item.settings.detach) item.settings.progressElement.remove();
 		var i, j;
 		if (success)
         {
@@ -182,23 +144,23 @@ function LoadRemote()
 			i = item.settings.errorElement;
 			j = item.settings.successElement;
 		}
-		item.settings.successElement
-            .attr('src', 'img/success.png')
-            .attr('title', Jed.sprintf(i18n.pgettext('LoadRemoteStatus', 'success (%s)'), item.settings.module))
-            .attr('alt', i18n.pgettext('LoadRemoteStatus', 'success'));
-		item.settings.errorElement
-            .attr('src', 'img/error.png')
-            .attr('title', Jed.sprintf(i18n.pgettext('LoadRemoteStatus', 'error (%s)'), item.settings.module))
-            .attr('alt', i18n.pgettext('LoadRemoteStatus', 'error'));
-		i.show();
+		item.settings.successElement.src = 'img/success.png';
+		item.settings.successElement.title = Jed.sprintf(i18n.pgettext('LoadRemoteStatus', 'success (%s)'), item.settings.module);
+		item.settings.successElement.alt = i18n.pgettext('LoadRemoteStatus', 'success');
+
+		item.settings.errorElement.src = 'img/error.png';
+		item.settings.errorElement.title = Jed.sprintf(i18n.pgettext('LoadRemoteStatus', 'error (%s)'), item.settings.module);
+		item.settings.errorElement.alt = i18n.pgettext('LoadRemoteStatus', 'error');
+
+		i.style.display = '';
 		if (item.settings.detach)
-            j.detach();
+            j.remove();
 		if (item.settings.timeoutElement == undefined || item.settings.timeoutElement >= 0)
         {
 			window.setTimeout(function () {
-				i.hide();
+				i.style.display = 'none';
 				if (item.settings.detach)
-                    i.detach();
+                    i.remove();
 			}, item.settings.timeoutElement == undefined ? (success ? 2000 : 10000) : item.settings.timeoutElement);
 		}
 	};
@@ -212,49 +174,54 @@ function LoadRemote()
 
 		if (settings.insertAfterButton || settings.insertInDiv)
         {
-			settings.progressElement = $('<span class="optionButtonProgress"></span>');
-			settings.successElement = $('<img class="optionButtonSuccess" />');
-			settings.errorElement = $('<img class="optionButtonError" />');
+			settings.progressElement = document.createElement('span');
+			settings.progressElement.className = 'optionButtonProgress';
+			settings.successElement = document.createElement('img');
+			settings.successElement.className = 'optionButtonSuccess';
+			settings.errorElement = document.createElement('img');
+			settings.errorElement.className = 'optionButtonError';
 			settings.detach = true;
 		}
 		if (settings.insertAfterButton)
         {
-			settings.insertAfterButton.after(settings.progressElement, settings.successElement, settings.errorElement);
+			var ref = settings.insertAfterButton;
+			ref.after(settings.progressElement, settings.successElement, settings.errorElement);
 		}
 		if (settings.insertInDiv)
         {
-			settings.insertInDiv.append(settings.errorElement, settings.successElement, settings.progressElement);
+			settings.insertInDiv.appendChild(settings.errorElement);
+			settings.insertInDiv.appendChild(settings.successElement);
+			settings.insertInDiv.appendChild(settings.progressElement);
 		}
 
-		//query = query.map(function(a) {return encodeURIComponent(a);}).join('&');
-		//console.debug(query);
-		//var realQuery = [];
-		//for(var q in query) {
-		//	realQuery.push(query[q] + '=1');
-		//}
-		//realQuery = realQuery.join('&');
+		var reqID = hex_md5(module + '?' + JSON.stringify(query));
+		var fakeXhr = { reqID: reqID };
+		self._displayStart(fakeXhr, settings);
 
-		var xhr = $.ajax('rpc.php/' + module, {
-			cache: settings.cache,
-			data: {q: JSON.stringify(query)},
-			type: 'post',
-			error: function(xhr)
-            {
-				self._displayComplete(xhr, 0);
-				if (typeof(callback) == 'function')
-					callback(undefined, 0);
-			},
-			success: function(data, status, xhr)
-            {
-				var success = (data && data.status == 'ok');
-				self._displayComplete(xhr, success);
-				if (typeof(callback) == 'function')
-					callback(data, success);
-			},
-			timeout: settings.timeout
+		var body = new URLSearchParams();
+		body.append('q', JSON.stringify(query));
+
+		var controller = new AbortController();
+		if (settings.timeout) {
+			setTimeout(function() { controller.abort(); }, settings.timeout);
+		}
+
+		fetch('rpc.php/' + module, {
+			method: 'POST',
+			body: body,
+			signal: controller.signal
+		}).then(function(response) {
+			return response.json();
+		}).then(function(data) {
+			var success = (data && data.status == 'ok');
+			self._displayComplete(fakeXhr, success);
+			if (typeof(callback) == 'function')
+				callback(data, success);
+		}).catch(function() {
+			self._displayComplete(fakeXhr, 0);
+			if (typeof(callback) == 'function')
+				callback(undefined, 0);
 		});
-		xhr.reqID = hex_md5(module + '?' + JSON.stringify(query));
-		self._displayStart(xhr, settings);
 	};
 }
 
@@ -288,8 +255,8 @@ function User()
 
     this.updateUserInfo = function ()
     {
-        $('#usertext').text(self.user.username);
-        $('#userlevel').text(self.user.level);
+        $('#usertext').textContent = self.user.username;
+        $('#userlevel').textContent = self.user.level;
     };
 
     this.doLogin = function (user, password)
@@ -298,7 +265,6 @@ function User()
             'user/login',
             [user, password],
             function (data, success) {
-                //self.updateUser(data.user);
 				if (success) {
 					window.location.reload();
 				}
@@ -333,19 +299,26 @@ function User()
 
     this.__init__ = function ()
     {
-        $('#currentUserChangeShow').bind('click', function () {
-            $('#login_change').toggle();
-        });
-        $('#login_submit').bind('click', function () {
-            self.doLogin(
-                $('#login_name').val(),
-                $('#login_password').val()
-            );
-        });
-        $('#logout_submit').bind('click', function () {
-            self.doLogout();
-        });
-        $('body').trigger('initReady');
+        var changeShow = $('#currentUserChangeShow');
+        if (changeShow) {
+            changeShow.addEventListener('click', function () {
+                var el = $('#login_change');
+                el.style.display = el.style.display === 'none' ? '' : 'none';
+            });
+        }
+        var loginSubmit = $('#login_submit');
+        if (loginSubmit) {
+            loginSubmit.addEventListener('click', function () {
+                self.doLogin($('#login_name').value, $('#login_password').value);
+            });
+        }
+        var logoutSubmit = $('#logout_submit');
+        if (logoutSubmit) {
+            logoutSubmit.addEventListener('click', function () {
+                self.doLogout();
+            });
+        }
+        document.body.dispatchEvent(new Event('initReady'));
     };
 
     this.loadUser(this.__init__);

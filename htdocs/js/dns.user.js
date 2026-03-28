@@ -1,10 +1,9 @@
 window.initPageSpecific = function ()
 {
-	var $p = $('#password1, #password2');
-	var $p1 = $('#password1');
-	var $p2 = $('#password2');
-	var $email = $('#email');
-	var $token = $('#token');
+	var p1 = $('#password1');
+	var p2 = $('#password2');
+	var email = $('#email');
+	var token = $('#token');
 
 	dns.user = {
 		updatePassword: function (password) {
@@ -46,48 +45,50 @@ window.initPageSpecific = function ()
 		}
 	};
 
-	$p.on('keyup', function () {
-		if ($p1.val() != $p2.val())
-		{
-			$('#user_add_nomatch').show();
-		}
-		else
-		{
-			$('#user_add_nomatch').hide();
-		}
+	[p1, p2].forEach(function (el) {
+		el.addEventListener('keyup', function () {
+			if (p1.value != p2.value)
+			{
+				$('#user_add_nomatch').style.display = '';
+			}
+			else
+			{
+				$('#user_add_nomatch').style.display = 'none';
+			}
+		});
 	});
 
-	$('#password_submit').on('click', function () {
+	$('#password_submit').addEventListener('click', function () {
 		var ok = true;
-		if ($p1.val() != $p2.val())
+		if (p1.value != p2.value)
 		{
-			dns.fehler($p1);
-			dns.fehler($p2);
+			dns.fehler(p1);
+			dns.fehler(p2);
 			ok = false;
 		}
 		if (ok)
-			dns.user.updatePassword($p1.val());
+			dns.user.updatePassword(p1.value);
 	});
 
-	$('#email_submit').on('click', function () {
+	$('#email_submit').addEventListener('click', function () {
 		var ok = true;
-		if (!$email.val().match(/@/) || $email.val().length <= 3)
+		if (!email.value.match(/@/) || email.value.length <= 3)
 		{
-			dns.fehler($email);
+			dns.fehler(email);
 			ok = false;
 		}
 		if (ok)
-			dns.user.updateEmail($email.val());
+			dns.user.updateEmail(email.value);
 	});
 
-	$('#token_submit').on('click', function () {
+	$('#token_submit').addEventListener('click', function () {
 		var ok = true;
-		if ($token.val().length == 0)
+		if (token.value.length == 0)
 		{
-			dns.fehler($token);
+			dns.fehler(token);
 			ok = false;
 		}
 		if (ok)
-			dns.user.verifyToken($token.val());
+			dns.user.verifyToken(token.value);
 	});
 };

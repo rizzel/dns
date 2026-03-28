@@ -16,7 +16,6 @@ class Settings {
      * @var array The default javascript files to include.
      */
 	public $defaultScripts = array(
-		'js/jquery-2.0.0.min.js',
 		'js/spin.min.js',
 		'js/string.js',
 		'js/md5.js',
