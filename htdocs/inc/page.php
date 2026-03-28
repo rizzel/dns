@@ -108,6 +108,14 @@ class Page {
 
 		$this->scripts = $this->settings->defaultScripts;
 		$this->styles = $this->settings->defaultStyles;
+
+		header('X-Content-Type-Options: nosniff');
+		header('X-Frame-Options: SAMEORIGIN');
+		header('X-XSS-Protection: 1; mode=block');
+		header('Referrer-Policy: strict-origin-when-cross-origin');
+		if (isset($_SERVER['HTTPS'])) {
+			header('Strict-Transport-Security: max-age=31536000; includeSubDomains');
+		}
 	}
 
     /**
@@ -197,10 +205,7 @@ class Page {
      * @return array The javascript to include.
      */
 	public function getIncludeScripts() {
-//		if ($this->currentUser->getDebug()) {
-			return $this->scripts;
-//		}
-//		return array("/rpc.php/js");
+		return $this->scripts;
 	}
 
     /**
@@ -209,10 +214,7 @@ class Page {
      * @return array The CSS styles to include.
      */
 	public function getIncludeStyles() {
-//		if ($this->currentUser->getDebug()) {
-			return $this->styles;
-//		}
-//		return array("/rpc.php/css");
+		return $this->styles;
 	}
 
     /**

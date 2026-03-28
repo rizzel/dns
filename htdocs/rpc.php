@@ -35,68 +35,40 @@
 	}
 
 	switch($name) {
-//		case '/js':
-//			header("Content-Type: text/javascript; charset=utf-8");
-//			$js = $page->settings->defaultScripts;
-//			foreach ($js AS $j) {
-//                readfile(__DIR__ . "/" . $j);
-//                echo ";";
-//            }
-//			break;
-//		case '/css':
-//			header("Content-Type: text/css; charset=utf-8");
-//			$css = $page->settings->defaultStyles;
-//			foreach($css AS $c)
-//				readfile(__DIR__ . "/" . $c);
-//			break;
 		case '/ip':
-			if ($page->domains->recordUpdateIP($args))
+			if (count($args) >= 2 && $page->domains->recordUpdateIP($args[0], $args[1], isset($args[2]) ? $args[2] : NULL))
 				exit(0);
 			else
 				$page->call404();
 			break;
 		case '/ip4':
-			if ($page->domains->recordUpdateIP4($args))
+			if (count($args) >= 2 && $page->domains->recordUpdateByName($args[0], $args[1], 'A', isset($args[2]) ? $args[2] : NULL))
 				exit(0);
 			else
 				$page->call404();
 			break;
 		case '/ip6':
-			if ($page->domains->recordUpdateIP6($args))
+			if (count($args) >= 2 && $page->domains->recordUpdateByName($args[0], $args[1], 'AAAA', isset($args[2]) ? $args[2] : NULL))
 				exit(0);
 			else
 				$page->call404();
 			break;
 		case '/inadyn4':
-			if (count($args) > 1)
-			{
-				$swap = $args[1];
-				$args[1] = $args[0];
-				$args[0] = $swap;
-			}
-			if ($page->domains->recordUpdateIP4($args))
+			if (count($args) >= 2 && $page->domains->recordUpdateByName($args[1], $args[0], 'A', isset($args[2]) ? $args[2] : NULL))
 				exit(0);
             break;
 		case '/inadyn6':
-			if (count($args) > 1)
-			{
-				$swap = $args[1];
-				$args[1] = $args[0];
-				$args[0] = $swap;
-			}
-			if ($page->domains->recordUpdateIP6($args))
+			if (count($args) >= 2 && $page->domains->recordUpdateByName($args[1], $args[0], 'AAAA', isset($args[2]) ? $args[2] : NULL))
 				exit(0);
             break;
 		case '/myip':
 			print implode("\n", $page->currentUser->getIPs());
 			break;
 		default:
+			error_log(sprintf("DNS 404: PATH_INFO=%s QS=%s",
+				isset($_SERVER['PATH_INFO']) ? $_SERVER['PATH_INFO'] : '',
+				$_SERVER['QUERY_STRING']
+			));
 			$page->call404();
-			header("Content-Type: text/plain");
-			echo "PI: [[" . $_SERVER['PATH_INFO'] . "]]\n";
-			echo "QS: [[" . $_SERVER['QUERY_STRING'] . "]]\n";
-			echo "POST: [["; print_r(array_keys($_POST)); echo "]]\n";
-			echo "SERVER: [["; print_r($_SERVER); echo "]]\n";
-			print_r($args);
 			break;
 	}

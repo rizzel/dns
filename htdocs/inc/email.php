@@ -38,6 +38,7 @@ class Email
     public function cleanUpTokens()
     {
         $this->page->db->query("DELETE FROM dns_users_update WHERE DATEDIFF(NOW(), requesttime) > 2");
+        $this->page->db->query("DELETE FROM dns_login_attempts WHERE attempt_time < DATE_SUB(NOW(), INTERVAL 1 HOUR)");
     }
 
     /**
@@ -62,11 +63,12 @@ class Email
      */
     public function sendTo($to, $subject, $body)
     {
-        if (strlen($to) == 0 || strpos($to, '@') === FALSE)
+        if (!filter_var($to, FILTER_VALIDATE_EMAIL))
             return FALSE;
 
-        $from = isset($this->page->settings->mailFrom) ?
-            $this->page->settings->mailFrom : sprintf('dns@%s', $_SERVER['HTTP_HOST']);
+        if (!isset($this->page->settings->mailFrom))
+            return FALSE;
+        $from = $this->page->settings->mailFrom;
         $subject = "=?UTF-8?B?" . base64_encode($subject) . "?=";
 
         if (
@@ -126,10 +128,7 @@ class Email
         if ($user->getUserName() == 'anonymous')
             return FALSE;
 
-        $token = '';
-        $possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-        for ($i = 0; $i < 32; $i++)
-            $token .= $possible[mt_rand(1, strlen($possible)) - 1];
+        $token = bin2hex(random_bytes(32));
 
         $url = sprintf("%s://%s/u?u=%s&t=%s",
             isset($_SERVER['HTTPS']) ? 'https' : 'http',
@@ -184,7 +183,7 @@ class Email
 
             switch ($row['key']) {
                 case 'password':
-                    if (!$this->page->user->confirmPasswordUpdate($user, $row['value']))
+                    if (!$this->page->user->confirmPasswordUpdate($user, $row['value'], true))
                         return FALSE;
                     break;
                 case 'email':

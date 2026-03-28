@@ -25,12 +25,12 @@ window.initPageSpecific = function () {
                     $table.find('tr:not(:first)').detach();
                     for (var i in data.data) {
                         if (!data.data.hasOwnProperty(i)) continue;
-                        $table.append('<tr data-rid="%d" data-rName="%s" data-rContent="%s" data-rTtl="%d"> \
+                        $table.append('<tr data-rid="%d" data-rName="%q" data-rContent="%q" data-rTtl="%d"> \
 									<td>%d</td> \
-									<td>%s</td> \
-									<td>%s</td> \
-									<td>%s</td> \
-									<td>%s</td> \
+									<td>%h</td> \
+									<td>%h</td> \
+									<td>%h</td> \
+									<td>%h</td> \
 									<td>%d</td> \
 									<td>%s</td> \
 									<td>%s</td> \
@@ -52,7 +52,7 @@ window.initPageSpecific = function () {
                             data.data[i].type,
                             data.data[i].content,
                             data.data[i].ttl,
-                            '<span class="table_password" data-p="%s">%s</span>'.format(
+                            '<span class="table_password" data-p="%q">%s</span>'.format(
                                 data.data[i].password,
                                 i18n.pgettext('RecordListPasswordShow', 'Click')
                             ),
@@ -203,7 +203,7 @@ window.initPageSpecific = function () {
                 $select.empty();
                 for (var i in data.data) {
                     if (!data.data.hasOwnProperty(i)) continue;
-                    $select.append('<option value="%d">%s</option>'.format(
+                    $select.append('<option value="%d">%h</option>'.format(
                         data.data[i].id,
                         data.data[i].name
                     ));

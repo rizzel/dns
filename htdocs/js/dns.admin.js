@@ -39,9 +39,9 @@ window.initPageSpecific = function () {
                                     r.domain_name
                                 ));
                             }
-                            $table.append('<tr data-uid="%s" data-level="%s"> \
-									<td>%s</td> \
-									<td>%s</td> \
+                            $table.append('<tr data-uid="%q" data-level="%q"> \
+									<td>%h</td> \
+									<td>%h</td> \
 									<td>%s</td> \
 									<td> \
 										<span class="userListZeigen">%s</span> \
@@ -56,7 +56,7 @@ window.initPageSpecific = function () {
                                 data.data[i].level,
                                 data.data[i].username,
                                 data.data[i].level,
-                                data.data[i].email.length > 0 ? '<a href="mailto:%s">%s</a>'.format(
+                                data.data[i].email.length > 0 ? '<a href="mailto:%q">%h</a>'.format(
                                     data.data[i].email, data.data[i].email) : i18n.pgettext('MailToUnknown', 'unknown'),
                                 records.length,
                                 records.join('<br />'),
@@ -145,10 +145,10 @@ window.initPageSpecific = function () {
                         $table.find('tr:not(:first)').detach();
                         for (var i in data.data) {
                             if (!data.data.hasOwnProperty(i)) continue;
-                            var $row = $('<tr data-did="%d" data-dname="%s"> \
+                            var $row = $('<tr data-did="%d" data-dname="%q"> \
 									<td>%d</td> \
-									<td>%s</td> \
-									<td>%s</td> \
+									<td>%h</td> \
+									<td>%h</td> \
 									<td>%d</td> \
 									<td class="specialRecords"></td> \
 									<td> \
@@ -180,8 +180,8 @@ window.initPageSpecific = function () {
                             for (var j in data.data[i].records) {
                                 if (!data.data[i].records.hasOwnProperty(j)) continue;
                                 var r = data.data[i].records[j];
-                                $special.find('table').append('<tr data-rid="%d" data-rName="%s" data-rType="%s" data-rContent="%s" data-rTtl="%s"> \
-															  <td>%d</td><td>%s</td><td>%s</td><td class="content">%s</td><td>%d</td> \
+                                $special.find('table').append('<tr data-rid="%d" data-rName="%q" data-rType="%q" data-rContent="%q" data-rTtl="%q"> \
+															  <td>%d</td><td>%h</td><td>%h</td><td class="content">%h</td><td>%d</td> \
 															  <td> \
 															  <a href="#" title="%s" class="domainListRecordEdit">#</a> \
 															  <a href="#" title="%s" class="domainListRecordDelete">-</a> \

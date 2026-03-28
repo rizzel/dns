@@ -86,7 +86,13 @@ class DB
                 }
             }
         }
-        $q->execute() || print("SQLERROR: " . $sql . print_r($args, true) . ' (' . print_r($q->errorInfo()) . ')');
+        if (!$q->execute()) {
+            error_log(sprintf("SQLERROR: %s %s (%s)",
+                $sql,
+                print_r($args, true),
+                print_r($q->errorInfo(), true)
+            ));
+        }
         return $q;
     }
 

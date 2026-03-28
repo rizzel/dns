@@ -36,17 +36,16 @@ class Users
     public function registerUser($username, $password, $level, $email)
     {
         if ($this->page->currentUser->getLevel() == 'admin') {
-            $password = $this::createPassword($password);
+            $hash = $this::createPassword($password);
 
             $q = $this->page->db->query("
                 INSERT INTO dns_users
                   (username, password, salt, level, email)
                 VALUES
-                  (?, ?, ?, ?, ?)
+                  (?, ?, '', ?, ?)
             ",
                 $username,
-                $password['hashed'],
-                $password['salt'],
+                $hash,
                 $level,
                 $email
             );
@@ -71,25 +70,27 @@ class Users
     }
 
     /**
-     * Hash a password and return the hash and the salt.
+     * Hash a password using bcrypt.
      *
      * @param string $password The password to hash.
-     * @param string|null $salt The salt to use (NULL to create it).
-     * @return array The password object.
+     * @return string The bcrypt hash.
      */
-    public static function createPassword($password, $salt = NULL)
+    public static function createPassword($password)
     {
-        if ($salt == NULL) {
-            $salt = '';
-            $possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-            for ($i = 0; $i < 12; $i++)
-                $salt .= $possible[mt_rand(1, strlen($possible)) - 1];
-        }
+        return password_hash($password, PASSWORD_DEFAULT);
+    }
 
-        return array(
-            'hashed' => sha1($password . $salt),
-            'salt' => $salt
-        );
+    /**
+     * Verify a password against legacy SHA1+salt hash.
+     *
+     * @param string $password The plaintext password.
+     * @param string $hash The stored SHA1 hash.
+     * @param string $salt The stored salt.
+     * @return bool Whether the password matches.
+     */
+    public static function verifyLegacyPassword($password, $hash, $salt)
+    {
+        return strlen($hash) > 1 && strlen($salt) > 0 && hash_equals($hash, sha1($password . $salt));
     }
 }
 

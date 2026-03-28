@@ -64,21 +64,20 @@ class User
 
     private function loadUserByName($username)
     {
-        $load = $this->page->db->query('SELECT level, email, locale FROM dns_users WHERE username = ?', $username);
-        if ($load && $row = $load->fetch()) {
-            $this->username = $username;
-            $this->level = $row['level'];
-            $this->email = $row['email'];
-            $this->fixLocale($row['locale']);
-            return TRUE;
-        }
-        $this->username = $this->level = $this->email = NULL;
-        return FALSE;
+        return $this->loadUserBy('username', $username);
     }
 
     private function loadUserByEmail($userEmail)
     {
-        $load = $this->page->db->query('SELECT username, level FROM dns_users WHERE email = ?', $userEmail);
+        return $this->loadUserBy('email', $userEmail);
+    }
+
+    private function loadUserBy($field, $value)
+    {
+        $load = $this->page->db->query(
+            "SELECT username, level, email, locale FROM dns_users WHERE $field = ?",
+            $value
+        );
         if ($load && $row = $load->fetch()) {
             $this->username = $row['username'];
             $this->level = $row['level'];
@@ -105,10 +104,20 @@ class User
             $this->username
         );
         if ($load && $row = $load->fetch()) {
-            if (
-                isset($row['password']) && isset($row['salt']) && strlen($row['password']) > 1 &&
-                sha1($password . $row['salt']) == $row['password']
-            ) {
+            if (!isset($row['password']) || strlen($row['password']) <= 1)
+                return FALSE;
+
+            if (password_verify($password, $row['password'])) {
+                return TRUE;
+            }
+
+            if (Users::verifyLegacyPassword($password, $row['password'], $row['salt'])) {
+                $hash = Users::createPassword($password);
+                $this->page->db->query(
+                    "UPDATE dns_users SET password = ?, salt = '' WHERE username = ?",
+                    $hash,
+                    $this->username
+                );
                 return TRUE;
             }
         }
@@ -183,41 +192,33 @@ class User
 
     public function requestPasswordUpdate($password)
     {
-        $get = $this->page->db->query(
-            "SELECT salt FROM dns_users WHERE username = ?",
-            $this->page->currentUser->getUserName()
+        $hash = Users::createPassword($password);
+        return $this->page->email->createUpdate(
+            _('Confirm the change of password'),
+            sprintf(
+                _(
+                    'Please confirm the requested change of your password for your account on
+                    %1$s for the user %2$s'
+                ) . "\n\n",
+                $_SERVER['SERVER_NAME'],
+                $this->page->currentUser->getUserName()
+            ),
+            'password',
+            $hash
         );
-        if ($get && $row = $get->fetch()) {
-            $p = Users::createPassword($password, $row['salt']);
-            return $this->page->email->createUpdate(
-                _('Confirm the change of password'),
-                sprintf(
-                    _(
-                        'Please confirm the requested change of your password for your account on
-                        %1$s for the user %2$s'
-                    ) . "\n\n",
-                    $_SERVER['HTTP_HOST'],
-                    $this->page->currentUser->getUserName()
-                ),
-                'password',
-                $p['hashed']
-            );
-        }
-        return FALSE;
     }
 
-    public function confirmPasswordUpdate($user, $password)
+    public function confirmPasswordUpdate($user, $password, $alreadyHashed = false)
     {
-        $pass = Users::createPassword($password);
+        $hash = $alreadyHashed ? $password : Users::createPassword($password);
         $set = $this->page->db->query("
             UPDATE dns_users
             SET
               password = ?,
-              salt = ?
+              salt = ''
             WHERE username = ?
         ",
-            $pass['hashed'],
-            $pass['salt'],
+            $hash,
             $user
         );
         return ($set->rowCount() > 0);
@@ -232,7 +233,7 @@ class User
                     'Please confirm the requested change of your email address for your account on
                      %1$s for the user %2$s'
                 ) . "\n\n",
-                $_SERVER['HTTP_HOST'],
+                $_SERVER['SERVER_NAME'],
                 $this->page->currentUser->getUserName()
             ),
             'email',
@@ -307,12 +308,12 @@ class User
                     ", $value, $this->getUserName());
                     break;
                 case 'password':
-                    $password = Users::createPassword($value);
+                    $hash = Users::createPassword($value);
                     $set = $this->page->db->query("
                         UPDATE dns_users
-                        SET password = ?, salt = ?
+                        SET password = ?, salt = ''
                         WHERE username = ?
-                    ", $password['password'], $password['hash'], $this->getUserName());
+                    ", $hash, $this->getUserName());
                     break;
             }
 
@@ -323,9 +324,21 @@ class User
 
     public function login($username, $password)
     {
+        $ip = $_SERVER['REMOTE_ADDR'];
+        $check = $this->page->db->query(
+            "SELECT COUNT(*) AS c FROM dns_login_attempts WHERE ip = ? AND attempt_time > DATE_SUB(NOW(), INTERVAL 1 MINUTE)",
+            $ip
+        );
+        if ($check && $row = $check->fetch()) {
+            if ($row['c'] >= 10)
+                return FALSE;
+        }
+
         $u = $this->page->users->getUserByName($username);
         if ($u->checkLogin($password)) {
+            $this->page->db->query("DELETE FROM dns_login_attempts WHERE ip = ?", $ip);
             $this->loadUserByName($username);
+            session_regenerate_id(true);
             $this->page->db->query(
                 "UPDATE dns_users SET sessionid = ? WHERE username = ?",
                 session_id(),
@@ -334,6 +347,11 @@ class User
             $_SESSION['username'] = $u->getUserName();
             return TRUE;
         }
+
+        $this->page->db->query(
+            "INSERT INTO dns_login_attempts (ip, username, attempt_time) VALUES (?, ?, NOW())",
+            $ip, $username
+        );
         return FALSE;
     }
 

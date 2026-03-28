@@ -126,7 +126,7 @@ class Domains
     {
         if ($recordType == 'SOA') {
             $content = trim($content);
-            preg_replace('/\s+/', ' ', $content);
+            $content = preg_replace('/\s+/', ' ', $content);
             if (count(explode(' ', $content)) != 2)
                 return FALSE;
             $content = sprintf("%s %u", $content, time());
@@ -355,7 +355,8 @@ class Domains
             return FALSE;
         if (!in_array($recordType, array('A', 'AAAA', 'CNAME')))
             return FALSE;
-        if (strlen($name) == 0 || strlen($content) == 0 || !preg_match('/^\d+$/', $ttl))
+        $ttl = intval($ttl);
+        if (strlen($name) == 0 || strlen($content) == 0 || $ttl < 1 || $ttl > 2147483647)
             return FALSE;
         if (!$this->testRecordType($name, $recordType))
             return FALSE;
@@ -363,15 +364,21 @@ class Domains
             return FALSE;
         if (!$this->isValidDomainName($name))
             return FALSE;
-        $set = $this->page->db->query("
-            INSERT INTO records
-              (domain_id, name, type, content, ttl, change_date)
-            VALUES
-			  (?, ?, ?, ?, ?, UNIX_TIMESTAMP())
-		",
-            $domainId, $name, $recordType, $content, $ttl
-        );
-        if ($set->rowCount() > 0) {
+        $this->page->db->handle->beginTransaction();
+        try {
+            $set = $this->page->db->query("
+                INSERT INTO records
+                  (domain_id, name, type, content, ttl, change_date)
+                VALUES
+                  (?, ?, ?, ?, ?, UNIX_TIMESTAMP())
+            ",
+                $domainId, $name, $recordType, $content, $ttl
+            );
+            if ($set->rowCount() == 0) {
+                $this->page->db->handle->rollBack();
+                return FALSE;
+            }
+
             $recordId = $this->page->db->getLastInsertId();
             $this->page->db->query("
                 INSERT INTO dns_records_users
@@ -380,6 +387,7 @@ class Domains
             ",
                 $recordId, $password, $this->page->currentUser->getUserName()
             );
+
             $ptr = $this->getPTRName($recordType, $content);
             $pid = $this->getPTRDomainID($ptr);
 
@@ -393,16 +401,14 @@ class Domains
                     $pid, $ptr, 'PTR', $name, $ttl
                 );
 
-            //		$this->page->email->sendToCurrent(
-            //			"Neuer Record: $name",
-            //			"Für Ihren Nutzer wurde ein neuer Record angelegt:
-            //Name:    $name
-            //Typ:     $recordType
-            //Content: $content"
-            //		);
-            return $this->updateSOARecord($domainId);
+            $result = $this->updateSOARecord($domainId);
+            $this->page->db->handle->commit();
+            return $result;
+        } catch (Exception $e) {
+            $this->page->db->handle->rollBack();
+            error_log("addRecord transaction failed: " . $e->getMessage());
+            return FALSE;
         }
-        return FALSE;
     }
 
     /**
@@ -420,7 +426,7 @@ class Domains
         $dom = $dom['name'];
         if (!preg_match("/$dom\$/", $recordName))
             $recordName = sprintf("%s.%s", $recordName, $dom);
-        preg_replace('/\.\.+/', '.', $recordName);
+        $recordName = preg_replace('/\.\.+/', '.', $recordName);
         return $recordName;
     }
 
@@ -468,13 +474,23 @@ class Domains
      */
     public function isValidDomainName($name)
     {
-        return (
-            !preg_match('/^\./', $name) && // darf nicht mit einem punkt beginnen
-            !preg_match('/\.$/', $name) && // darf nicht mit einem punkt aufhören
-            !preg_match('/(^|\.)-/', $name) && // darf kein - am anfang einer subdomain haben
-            !preg_match('/-(\.|$)/', $name) && // darf kein - am ende einer subdomain haben
-            preg_match('/^[0-9a-zA-Z.-]+$/', $name) // darf nur diese zeichen beinhalten
-        );
+        if (
+            preg_match('/^\./', $name) ||
+            preg_match('/\.$/', $name) ||
+            preg_match('/(^|\.)-/', $name) ||
+            preg_match('/-(\.|$)/', $name) ||
+            !preg_match('/^[0-9a-zA-Z.-]+$/', $name) ||
+            preg_match('/\.\./', $name) ||
+            strlen($name) > 253
+        )
+            return FALSE;
+
+        foreach (explode('.', $name) as $label) {
+            if (strlen($label) > 63 || strlen($label) == 0)
+                return FALSE;
+        }
+
+        return TRUE;
     }
 
     /**
@@ -653,41 +669,34 @@ class Domains
     /**
      * Update the content field of a record with a specific ID.
      *
-     * @param array $args Array containing DomainID, Password, Content.
+     * @param int $recordId The record ID.
+     * @param string $password The update password.
+     * @param string|null $content The content, or null to auto-detect IP.
      * @return bool Whether the record is set correctly.
      */
-    public function recordUpdateIP($args)
+    public function recordUpdateIP($recordId, $password, $content = NULL)
     {
-        if (count($args) < 2 || count($args) > 3)
-            return FALSE;
-        $get = $this->page->db->query("SELECT name, type FROM records WHERE id = ?", $args[0]);
+        $get = $this->page->db->query("SELECT name, type FROM records WHERE id = ?", $recordId);
         if ($get && $row = $get->fetch()) {
-            return $this->recordUpdateIPx($row['name'], $args[1], $row['type'], isset($args[2]) ? $args[2] : NULL);
-        } else {
-            return FALSE;
+            return $this->recordUpdateIPx($row['name'], $password, $row['type'], $content);
         }
+        return FALSE;
     }
 
     /**
-     * Update the content field of a IPv4 record with the specified name.
+     * Update the content field of a record by name and type.
      *
-     * @param array $args Array containing DomainName, Password, Content.
+     * @param string $recordName The record name.
+     * @param string $password The update password.
+     * @param string $recordType The record type ('A' or 'AAAA').
+     * @param string|null $content The content, or null to auto-detect IP.
      * @return bool Whether the record is set correctly.
      */
-    public function recordUpdateIP4($args)
+    public function recordUpdateByName($recordName, $password, $recordType, $content = NULL)
     {
-        return $this->recordUpdateIPx($args[0], $args[1], 'A', isset($args[2]) ? $args[2] : NULL);
-    }
-
-    /**
-     * Update the content field of a IPv6 record with the specified name.
-     *
-     * @param array $args Array containing DomainName, Password, Content.
-     * @return bool Whether the record is set correctly.
-     */
-    public function recordUpdateIP6($args)
-    {
-        return $this->recordUpdateIPx($args[0], $args[1], 'AAAA', isset($args[2]) ? $args[2] : NULL);
+        if (!in_array($recordType, array('A', 'AAAA')))
+            return FALSE;
+        return $this->recordUpdateIPx($recordName, $password, $recordType, $content);
     }
 
     /**
@@ -701,6 +710,16 @@ class Domains
      */
     private function recordUpdateIPx($recordName, $password, $recordType, $content = NULL)
     {
+        $ip = $_SERVER['REMOTE_ADDR'];
+        $check = $this->page->db->query(
+            "SELECT COUNT(*) AS c FROM dns_login_attempts WHERE ip = ? AND attempt_time > DATE_SUB(NOW(), INTERVAL 1 MINUTE)",
+            $ip
+        );
+        if ($check && $row = $check->fetch()) {
+            if ($row['c'] >= 10)
+                return FALSE;
+        }
+
         if ($content == NULL)
             if (in_array($recordType, array('A', 'AAAA'))) {
                 $ips = $this->page->currentUser->getIPs();
@@ -743,6 +762,8 @@ class Domains
         );
 
         if ($check->rowCount() > 0) {
+            $this->page->db->query("DELETE FROM dns_login_attempts WHERE ip = ?", $ip);
+
             $ptr = $this->getPTRName($recordType, $content);
 
             if (isset($ptr))
@@ -783,8 +804,15 @@ class Domains
             ",
                 $recordName, $password, $recordType
             );
-            if ($get && $row = $get->fetch())
-                return ($row['c'] == 1);
+            if ($get && $row = $get->fetch()) {
+                if ($row['c'] == 1)
+                    return TRUE;
+            }
+
+            $this->page->db->query(
+                "INSERT INTO dns_login_attempts (ip, username, attempt_time) VALUES (?, ?, NOW())",
+                $ip, $recordName
+            );
         }
         return FALSE;
     }

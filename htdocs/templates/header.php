@@ -20,7 +20,7 @@
 
 <?php IF (!isset($_SERVER['HTTPS'])): ?>
     <div id="unverschluesselt"><?php echo _("This page is currently not encrypted!"); ?> -> <a
-            href="https://<?php echo $_SERVER['HTTP_HOST']; ?><?php echo $_SERVER['REQUEST_URI']; ?>">SSL</a></div>
+            href="https://<?php echo htmlspecialchars($_SERVER['SERVER_NAME']); ?><?php echo htmlspecialchars($_SERVER['REQUEST_URI']); ?>">SSL</a></div>
 <?php ENDIF ?>
 
 <div id="user"><?php include 'login.php'; ?></div>
