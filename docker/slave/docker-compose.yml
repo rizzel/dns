@@ -1,0 +1,62 @@
+version: "3.8"
+
+services:
+  wireguard:
+    image: linuxserver/wireguard
+    container_name: dns-wireguard
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+    volumes:
+      - ./wireguard/wg0.conf:/config/wg_confs/wg0.conf:ro
+      - /lib/modules:/lib/modules:ro
+    ports:
+      - "53:53/tcp"    # PowerDNS
+      - "53:53/udp"    # PowerDNS
+    restart: unless-stopped
+
+  mariadb:
+    image: mariadb:11
+    container_name: dns-mariadb-slave
+    network_mode: "service:wireguard"
+    depends_on:
+      - wireguard
+    environment:
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+      MARIADB_DATABASE: ${MARIADB_DATABASE:-pdns}
+      MARIADB_USER: ${MARIADB_USER}
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD}
+      REPL_PASSWORD: ${REPL_PASSWORD}
+    volumes:
+      - mariadb-data:/var/lib/mysql
+      - ./mariadb/slave.cnf:/etc/mysql/mariadb.conf.d/99-slave.cnf:ro
+      - ./mariadb/init/:/docker-entrypoint-initdb.d/:ro
+    restart: unless-stopped
+
+  pdns:
+    image: powerdns/pdns-auth-49:latest
+    container_name: dns-pdns
+    network_mode: "service:wireguard"
+    depends_on:
+      - mariadb
+    environment:
+      PDNS_gmysql_host: 127.0.0.1
+      PDNS_gmysql_port: "3306"
+      PDNS_gmysql_user: ${MARIADB_USER}
+      PDNS_gmysql_password: ${MARIADB_PASSWORD}
+      PDNS_gmysql_dbname: ${MARIADB_DATABASE:-pdns}
+      PDNS_gmysql_dnssec: "no"
+      PDNS_launch: gmysql
+      PDNS_local_address: 0.0.0.0
+      PDNS_local_port: "53"
+      PDNS_api: "no"
+      PDNS_webserver: "no"
+      PDNS_daemon: "no"
+      PDNS_guardian: "no"
+      PDNS_loglevel: "4"
+    restart: unless-stopped
+
+volumes:
+  mariadb-data:

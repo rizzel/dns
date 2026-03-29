@@ -1,0 +1,8 @@
+[mysqld]
+server-id           = 1
+log-bin             = mysql-bin
+binlog-format       = ROW
+binlog-do-db        = pdns
+bind-address        = 0.0.0.0
+gtid_strict_mode    = ON
+log-slave-updates   = ON

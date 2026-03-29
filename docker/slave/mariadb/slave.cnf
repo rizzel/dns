@@ -1,0 +1,9 @@
+[mysqld]
+# server-id is set dynamically via init script
+read-only           = ON
+relay-log           = relay-bin
+log-bin             = mysql-bin
+binlog-format       = ROW
+bind-address        = 0.0.0.0
+gtid_strict_mode    = ON
+log-slave-updates   = ON

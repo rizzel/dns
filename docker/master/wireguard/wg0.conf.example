@@ -1,0 +1,14 @@
+[Interface]
+Address = 10.100.0.1/24
+ListenPort = 51820
+PrivateKey = <master private key - generate with: wg genkey>
+
+# Slave 1
+[Peer]
+PublicKey = <slave1 public key>
+AllowedIPs = 10.100.0.2/32
+
+# Slave 2 (add more peers as needed)
+# [Peer]
+# PublicKey = <slave2 public key>
+# AllowedIPs = 10.100.0.3/32

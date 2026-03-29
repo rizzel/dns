@@ -1,0 +1,88 @@
+version: "3.8"
+
+services:
+  wireguard:
+    image: linuxserver/wireguard
+    container_name: dns-wireguard
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    sysctls:
+      - net.ipv4.conf.all.src_valid_mark=1
+      - net.ipv4.ip_forward=1
+    volumes:
+      - ./wireguard/wg0.conf:/config/wg_confs/wg0.conf:ro
+      - /lib/modules:/lib/modules:ro
+    ports:
+      - "${WG_PORT:-51820}:51820/udp"   # WireGuard
+      - "53:53/tcp"                      # PowerDNS
+      - "53:53/udp"                      # PowerDNS
+      - "${HTTP_PORT:-8080}:80/tcp"      # PHP/Apache (for HAProxy)
+    restart: unless-stopped
+
+  mariadb:
+    image: mariadb:11
+    container_name: dns-mariadb-master
+    network_mode: "service:wireguard"
+    depends_on:
+      - wireguard
+    environment:
+      MARIADB_ROOT_PASSWORD: ${MARIADB_ROOT_PASSWORD}
+      MARIADB_DATABASE: ${MARIADB_DATABASE:-pdns}
+      MARIADB_USER: ${MARIADB_USER}
+      MARIADB_PASSWORD: ${MARIADB_PASSWORD}
+    volumes:
+      - mariadb-data:/var/lib/mysql
+      - ./mariadb/master.cnf:/etc/mysql/mariadb.conf.d/99-master.cnf:ro
+      - ./mariadb/init/:/docker-entrypoint-initdb.d/:ro
+    restart: unless-stopped
+
+  pdns:
+    image: powerdns/pdns-auth-49:latest
+    container_name: dns-pdns
+    network_mode: "service:wireguard"
+    depends_on:
+      - mariadb
+    environment:
+      PDNS_gmysql_host: 127.0.0.1
+      PDNS_gmysql_port: "3306"
+      PDNS_gmysql_user: ${MARIADB_USER}
+      PDNS_gmysql_password: ${MARIADB_PASSWORD}
+      PDNS_gmysql_dbname: ${MARIADB_DATABASE:-pdns}
+      PDNS_gmysql_dnssec: "no"
+      PDNS_launch: gmysql
+      PDNS_local_address: 0.0.0.0
+      PDNS_local_port: "53"
+      PDNS_api: "no"
+      PDNS_webserver: "no"
+      PDNS_daemon: "no"
+      PDNS_guardian: "no"
+      PDNS_loglevel: "4"
+    restart: unless-stopped
+
+  php:
+    build: ./php
+    container_name: dns-php
+    network_mode: "service:wireguard"
+    depends_on:
+      - mariadb
+    environment:
+      DB_HOST: 127.0.0.1
+      DB_PORT: "3306"
+      DB_USER: ${MARIADB_USER}
+      DB_PASS: ${MARIADB_PASSWORD}
+      DB_NAME: ${MARIADB_DATABASE:-pdns}
+      MAIL_FROM: ${MAIL_FROM:-}
+      USE_PEAR_MAIL: ${USE_PEAR_MAIL:-false}
+      PEAR_BACKEND: ${PEAR_BACKEND:-}
+      PEAR_HOST: ${PEAR_HOST:-}
+      PEAR_USERNAME: ${PEAR_USERNAME:-}
+      PEAR_PASSWORD: ${PEAR_PASSWORD:-}
+      PEAR_AUTH: ${PEAR_AUTH:-LOGIN}
+      PEAR_PORT: ${PEAR_PORT:-25}
+    volumes:
+      - ../../htdocs:/var/www/html/htdocs
+    restart: unless-stopped
+
+volumes:
+  mariadb-data:

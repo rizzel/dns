@@ -1,0 +1,9 @@
+[Interface]
+Address = 10.100.0.2/24
+PrivateKey = <slave private key - generate with: wg genkey>
+
+[Peer]
+PublicKey = <master public key>
+Endpoint = <master_public_ip>:51820
+AllowedIPs = 10.100.0.0/24
+PersistentKeepalive = 25
