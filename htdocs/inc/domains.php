@@ -706,12 +706,14 @@ class Domains
                 return FALSE;
         }
 
-        if ($content === NULL)
-            if (in_array($recordType, array('A', 'AAAA'))) {
-                $ips = $this->page->currentUser->getIPs();
-                $content = $ips[0];
-            } else
+        if ($content === NULL) {
+            if ($recordType === 'A')
+                $content = $this->page->currentUser->getIPv4();
+            elseif ($recordType === 'AAAA')
+                $content = $this->page->currentUser->getIPv6();
+            if ($content === NULL)
                 return FALSE;
+        }
 
         switch ($recordType) {
             case 'A':

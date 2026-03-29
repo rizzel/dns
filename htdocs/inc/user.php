@@ -382,10 +382,34 @@ class User
 
     public function getIPs()
     {
-        $ret = array($_SERVER['REMOTE_ADDR']);
-        if (array_key_exists('HTTP_X_FORWARDED_FOR', $_SERVER))
-            array_unshift($ret, $_SERVER['HTTP_X_FORWARDED_FOR']);
-        return $ret;
+        $ret = array();
+        if (array_key_exists('HTTP_X_FORWARDED_FOR', $_SERVER)) {
+            foreach (explode(',', $_SERVER['HTTP_X_FORWARDED_FOR']) as $ip) {
+                $ip = trim($ip);
+                if (filter_var($ip, FILTER_VALIDATE_IP))
+                    $ret[] = $ip;
+            }
+        }
+        $ret[] = $_SERVER['REMOTE_ADDR'];
+        return array_unique($ret);
+    }
+
+    public function getIPv4()
+    {
+        foreach ($this->getIPs() as $ip) {
+            if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4))
+                return $ip;
+        }
+        return null;
+    }
+
+    public function getIPv6()
+    {
+        foreach ($this->getIPs() as $ip) {
+            if (filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6))
+                return $ip;
+        }
+        return null;
     }
 
     public function setLocale($locale)
