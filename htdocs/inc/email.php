@@ -123,7 +123,7 @@ class Email
         if ($user->getUserName() == 'anonymous')
             return FALSE;
 
-        $token = bin2hex(random_bytes(32));
+        $token = bin2hex(openssl_random_pseudo_bytes(32));
 
         $url = sprintf("%s://%s/u?u=%s&t=%s",
             isset($_SERVER['HTTPS']) ? 'https' : 'http',

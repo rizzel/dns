@@ -116,7 +116,7 @@
             <option>TXT</option>
         </select>
         <span><?php echo pgettext("ReferenceToDocumenationPrefix", "See"); ?> <a
-                href="http://doc.powerdns.com/html/types.html"
+                href="https://doc.powerdns.com/html/types.html"
                 target="_blank"><?php echo pgettext("ReferenceToDocumentationLink", "here"); ?></a>
             <?php echo pgettext("ReferenceToDocumentationSuffix", "."); ?>
         </span>

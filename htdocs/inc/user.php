@@ -164,14 +164,10 @@ class User
 
     public function startSession()
     {
-        session_set_cookie_params([
-            'httponly' => true,
-            'secure' => isset($_SERVER['HTTPS']),
-            'samesite' => 'Lax'
-        ]);
+        session_set_cookie_params(0, '/; samesite=Lax', '', isset($_SERVER['HTTPS']), true);
         session_start();
         if (empty($_SESSION['csrf_token']))
-            $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+            $_SESSION['csrf_token'] = bin2hex(openssl_random_pseudo_bytes(32));
         if (array_key_exists('username', $_SESSION) && isset($_SESSION['username'])) {
             $q = $this->page->db->query("
                 SELECT username, email, level

@@ -15,7 +15,7 @@
 
 	if (count($split) == 3 && strlen($split[2]) > 0) {
 		if (!isset($_SERVER['HTTP_X_CSRF_TOKEN']) ||
-			!hash_equals($_SESSION['csrf_token'] ?? '', $_SERVER['HTTP_X_CSRF_TOKEN'])) {
+			!hash_equals(isset($_SESSION['csrf_token']) ? $_SESSION['csrf_token'] : '', $_SERVER['HTTP_X_CSRF_TOKEN'])) {
 			header("HTTP/1.0 403 Forbidden");
 			exit(0);
 		}
