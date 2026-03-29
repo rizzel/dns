@@ -24,12 +24,7 @@ class Email
 
         set_include_path(get_include_path() . PATH_SEPARATOR . "/usr/share/php");
 
-        $e = ini_get('error_reporting');
-        ini_set('error_reporting', 0);
-        if (include("Mail.php")) {
-            $this->hasPearMail = true;
-        }
-        ini_set('error_reporting', $e);
+        $this->hasPearMail = @include_once("Mail.php");
     }
 
     /**

@@ -17,8 +17,10 @@ function initPage()
 	{
 		var ret = [];
 		var possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+		var values = new Uint32Array(length);
+		crypto.getRandomValues(values);
 		for (var i = 0; i < length; i++)
-			ret.push(possible.charAt(Math.floor(Math.random() * possible.length)));
+			ret.push(possible.charAt(values[i] % possible.length));
 		return ret.join('');
 	};
 

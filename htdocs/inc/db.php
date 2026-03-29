@@ -21,11 +21,9 @@ class DB
     {
         $this->page = $page;
         $config = $page->settings->db;
-        $s = sprintf("mysql:host=%s;port=%d;dbname=%s", $config['dbHost'], $config['dbPort'], $config['dbName']);
+        $s = sprintf("mysql:host=%s;port=%d;dbname=%s;charset=utf8mb4", $config['dbHost'], $config['dbPort'], $config['dbName']);
         $this->handle = new PDO($s, $config['dbUser'], $config['dbPass']);
         $this->handle->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-        $this->handle->query("SET NAMES 'utf-8'");
-        $this->handle->query("SET CHARACTER SET 'utf-8'");
     }
 
     /**

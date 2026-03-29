@@ -9,4 +9,4 @@ CREATE TABLE IF NOT EXISTS dns_login_attempts (
   username VARCHAR(45) NOT NULL,
   attempt_time DATETIME NOT NULL,
   INDEX ip_time (ip, attempt_time)
-) DEFAULT CHARSET "utf8";
+) DEFAULT CHARSET "utf8mb4";

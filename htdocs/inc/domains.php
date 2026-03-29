@@ -28,7 +28,7 @@ class Domains
 			SELECT * FROM domains d ORDER BY name
 		");
         $result = $get->fetchall();
-        foreach ($result AS &$r) {
+        foreach ($result as &$r) {
             $get = $this->page->db->query("
                 SELECT
                   r.id,
@@ -77,8 +77,8 @@ class Domains
             return FALSE;
         $set = $this->page->db->query("INSERT INTO domains (name, type) VALUES (?, ?)", $name, $domainType);
         if ($set->rowCount() > 0) {
-            $recordId = $this->page->db->getLastInsertId();
-            $this->insertSpecialRecord($recordId, $name, 'SOA', $soa);
+            $domainId = $this->page->db->getLastInsertId();
+            $this->insertSpecialRecord($domainId, $name, 'SOA', $soa);
         }
         return TRUE;
     }
@@ -519,14 +519,7 @@ class Domains
      */
     private function isValidIPv4($ip)
     {
-        if (function_exists("filter_var")) {
-            if (!filter_var($ip, FILTER_VALIDATE_IP, array('flags' => FILTER_FLAG_IPV4)))
-                return FALSE;
-        } else {
-            if (inet_pton($ip) === FALSE || strchr($ip, ":") !== FALSE)
-                return FALSE;
-        }
-        return TRUE;
+        return filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== FALSE;
     }
 
     /**
@@ -537,14 +530,7 @@ class Domains
      */
     private function isValidIPv6($ip)
     {
-        if (function_exists("filter_var")) {
-            if (!filter_var($ip, FILTER_VALIDATE_IP, array('flags' => FILTER_FLAG_IPV6)))
-                return FALSE;
-        } else {
-            if (inet_pton($ip) === FALSE || strchr($ip, ':') === FALSE)
-                return FALSE;
-        }
-        return TRUE;
+        return filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) !== FALSE;
     }
 
     /**
@@ -720,7 +706,7 @@ class Domains
                 return FALSE;
         }
 
-        if ($content == NULL)
+        if ($content === NULL)
             if (in_array($recordType, array('A', 'AAAA'))) {
                 $ips = $this->page->currentUser->getIPs();
                 $content = $ips[0];

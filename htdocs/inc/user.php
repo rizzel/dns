@@ -164,6 +164,11 @@ class User
 
     public function startSession()
     {
+        session_set_cookie_params([
+            'httponly' => true,
+            'secure' => isset($_SERVER['HTTPS']),
+            'samesite' => 'Lax'
+        ]);
         session_start();
         if (array_key_exists('username', $_SESSION) && isset($_SESSION['username'])) {
             $q = $this->page->db->query("
@@ -247,8 +252,8 @@ class User
         if ($set->rowCount() > 0) {
             $this->page->email->sendTo(
                 $email,
-                pgettext("emailUpdate", "password set"),
-                sprintf(_("The password has been successfully changed for user %s."), $user)
+                pgettext("emailUpdate", "email updated"),
+                sprintf(_("The email address has been successfully changed for user %s."), $user)
             );
             return TRUE;
         }
@@ -409,7 +414,7 @@ class User
     public static function getCurrentLocale()
     {
         $locales = User::getAvailableLocales();
-	if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
+        if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
             foreach (explode(',', $_SERVER['HTTP_ACCEPT_LANGUAGE']) as $lang) {
                 $langLower = strtolower($lang);
                 list($langLower) = explode(';', $langLower);
