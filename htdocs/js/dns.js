@@ -181,9 +181,13 @@ class LoadRemote {
             setTimeout(() => controller.abort(), settings.timeout);
         }
 
+        const csrfMeta = document.querySelector('meta[name="csrf-token"]');
+        const headers = csrfMeta ? { 'X-CSRF-Token': csrfMeta.content } : {};
+
         fetch('rpc.php/' + module, {
             method: 'POST',
             body,
+            headers,
             signal: controller.signal
         }).then((response) => {
             return response.json();

@@ -170,6 +170,8 @@ class User
             'samesite' => 'Lax'
         ]);
         session_start();
+        if (empty($_SESSION['csrf_token']))
+            $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
         if (array_key_exists('username', $_SESSION) && isset($_SESSION['username'])) {
             $q = $this->page->db->query("
                 SELECT username, email, level

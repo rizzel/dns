@@ -3,6 +3,7 @@
 <head>
     <title><?php echo $page->header['title']; ?></title>
     <meta name="robots" content="noindex,nofollow"/>
+    <meta name="csrf-token" content="<?php echo htmlspecialchars($_SESSION['csrf_token'] ?? ''); ?>"/>
     <?php FOREACH ($page->header['metadata'] as $meta => $data): ?>
         <meta name="<?php echo $meta; ?>" content="<?php echo $data; ?>"/>
     <?php ENDFOREACH ?>
