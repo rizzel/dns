@@ -178,11 +178,11 @@ class Email
 
             switch ($row['key']) {
                 case 'password':
-                    if (!$this->page->user->confirmPasswordUpdate($user, $row['value'], true))
+                    if (!$this->page->users->confirmPasswordUpdate($user, $row['value'], true))
                         return FALSE;
                     break;
                 case 'email':
-                    if (!$this->page->user->confirmEmailUpdate($user, $row['value']))
+                    if (!$this->page->users->confirmEmailUpdate($user, $row['value']))
                         return FALSE;
                     break;
             }
