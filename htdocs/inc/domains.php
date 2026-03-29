@@ -698,7 +698,7 @@ class Domains
     {
         $ip = $_SERVER['REMOTE_ADDR'];
         $check = $this->page->db->query(
-            "SELECT COUNT(*) AS c FROM dns_login_attempts WHERE ip = ? AND attempt_time > DATE_SUB(NOW(), INTERVAL 1 MINUTE)",
+            "SELECT COUNT(*) AS c FROM dns_login_attempts WHERE ip = ? AND attempt_time > DATE_SUB(NOW(), INTERVAL 15 MINUTE)",
             $ip
         );
         if ($check && $row = $check->fetch()) {
