@@ -1,46 +1,42 @@
-window.initPageSpecific = function () {
-    var ps = $$('#user_add_password1, #user_add_password2');
-    var p1 = $('#user_add_password1');
-    var p2 = $('#user_add_password2');
-    var pDef = $('#user_add_password_default');
+window.initPageSpecific = () => {
+    const ps = $$('#user_add_password1, #user_add_password2');
+    const p1 = $('#user_add_password1');
+    const p2 = $('#user_add_password2');
+    const pDef = $('#user_add_password_default');
 
     function showPopup(popup, anchor, offsetLeft, offsetTop) {
-        $$('.popup').forEach(function (p) { p.style.display = 'none'; });
-        var rect = anchor.getBoundingClientRect();
+        $$('.popup').forEach((p) => { p.style.display = 'none'; });
+        const rect = anchor.getBoundingClientRect();
         popup.style.left = (rect.left + window.scrollX + (offsetLeft || -60)) + 'px';
         popup.style.top = (rect.top + window.scrollY + (offsetTop || 20)) + 'px';
         popup.style.display = '';
     }
 
     dns.admin = {
-        'users': {
-            'add': function (name, password, level, email) {
+        users: {
+            add(name, password, level, email) {
                 dns.loadRemote.loadRemote('user/add',
                     [name, password, level, email],
-                    function (data, success) {
+                    (data, success) => {
                         dns.admin.users.list();
                         if (success)
                             $('#user_add_button').click();
                     },
-                    {
-                        insertInDiv: $('#loadProgresses')
-                    }
+                    { insertInDiv: $('#loadProgresses') }
                 );
             },
-            'list': function () {
+
+            list() {
                 dns.loadRemote.loadRemote('user/get',
                     [],
-                    function (data, success) {
+                    (data, success) => {
                         if (!success)
                             return;
-                        var table = $('#users');
-                        table.querySelectorAll('tr:not(:first-child)').forEach(function (el) { el.remove(); });
-                        for (var i in data.data) {
-                            if (!data.data.hasOwnProperty(i)) continue;
-                            var records = [];
-                            for (var ri in data.data[i].records) {
-                                if (!data.data[i].records.hasOwnProperty(ri)) continue;
-                                var r = data.data[i].records[ri];
+                        const table = $('#users');
+                        table.querySelectorAll('tr:not(:first-child)').forEach((el) => el.remove());
+                        for (const user of data.data) {
+                            const records = [];
+                            for (const r of user.records) {
                                 records.push("%s: %s (%s)".format(
                                     r.type,
                                     r.name,
@@ -48,24 +44,24 @@ window.initPageSpecific = function () {
                                 ));
                             }
                             table.insertAdjacentHTML('beforeend', '<tr data-uid="%q" data-level="%q"> \
-									<td>%h</td> \
-									<td>%h</td> \
-									<td>%s</td> \
-									<td> \
-										<span class="userListZeigen">%s</span> \
-										<span class="userListZeigen" style="display: none">%s</span> \
-									</td> \
-									<td> \
-										<a href="#" class="userListLevel">%s</a> \
-										<a href="#" class="userListDel">%s</a> \
-									</td> \
-								</tr>'.format(
-                                data.data[i].username,
-                                data.data[i].level,
-                                data.data[i].username,
-                                data.data[i].level,
-                                data.data[i].email.length > 0 ? '<a href="mailto:%q">%h</a>'.format(
-                                    data.data[i].email, data.data[i].email) : i18n.pgettext('MailToUnknown', 'unknown'),
+                                <td>%h</td> \
+                                <td>%h</td> \
+                                <td>%s</td> \
+                                <td> \
+                                    <span class="userListZeigen">%s</span> \
+                                    <span class="userListZeigen" style="display: none">%s</span> \
+                                </td> \
+                                <td> \
+                                    <a href="#" class="userListLevel">%s</a> \
+                                    <a href="#" class="userListDel">%s</a> \
+                                </td> \
+                            </tr>'.format(
+                                user.username,
+                                user.level,
+                                user.username,
+                                user.level,
+                                user.email.length > 0 ? '<a href="mailto:%q">%h</a>'.format(
+                                    user.email, user.email) : i18n.pgettext('MailToUnknown', 'unknown'),
                                 records.length,
                                 records.join('<br />'),
                                 i18n.pgettext('UserList', 'Level'),
@@ -73,115 +69,105 @@ window.initPageSpecific = function () {
                             ));
                         }
 
-                        table.querySelectorAll('.userListDel').forEach(function (el) {
+                        table.querySelectorAll('.userListDel').forEach((el) => {
                             el.addEventListener('click', function (e) {
                                 e.preventDefault();
-                                var u = this.closest('tr').getAttribute('data-uid');
+                                const u = this.closest('tr').getAttribute('data-uid');
                                 if (confirm(i18n.pgettext("Really delete user %s?").format(u)))
                                     dns.admin.users.del(u);
                             });
                         });
 
-                        table.querySelectorAll('.userListLevel').forEach(function (el) {
+                        table.querySelectorAll('.userListLevel').forEach((el) => {
                             el.addEventListener('click', function (e) {
                                 e.preventDefault();
-                                var tr = this.closest('tr');
-                                var u = tr.getAttribute('data-uid');
+                                const tr = this.closest('tr');
+                                const u = tr.getAttribute('data-uid');
                                 $('#userListLevel').value = tr.getAttribute('data-level');
-                                var popup = $('#userListLevelPopup');
+                                const popup = $('#userListLevelPopup');
                                 popup.setAttribute('data-uid', u);
                                 showPopup(popup, this);
                             });
                         });
 
-                        table.querySelectorAll('.userListZeigen').forEach(function (el) {
+                        table.querySelectorAll('.userListZeigen').forEach((el) => {
                             el.addEventListener('click', function () {
-                                this.parentElement.querySelectorAll('.userListZeigen').forEach(function (s) {
+                                this.parentElement.querySelectorAll('.userListZeigen').forEach((s) => {
                                     s.style.display = s.style.display === 'none' ? '' : 'none';
                                 });
                             });
                         });
                     },
-                    {
-                        insertInDiv: $('#loadProgresses')
-                    }
+                    { insertInDiv: $('#loadProgresses') }
                 );
             },
-            'del': function (userName) {
+
+            del(userName) {
                 dns.loadRemote.loadRemote('user/delete',
                     [userName],
-                    function () {
-                        dns.admin.users.list();
-                    },
-                    {
-                        insertInDiv: $('#loadProgresses')
-                    }
+                    () => dns.admin.users.list(),
+                    { insertInDiv: $('#loadProgresses') }
                 );
             },
-            'changeLevel': function (userName, level) {
+
+            changeLevel(userName, level) {
                 dns.loadRemote.loadRemote('user/update',
-                    [
-                        userName, level
-                    ],
-                    function (data, success) {
+                    [userName, level],
+                    (data, success) => {
                         if (success)
                             $('#userListLevelPopup').style.display = 'none';
                         dns.admin.users.list();
                     },
-                    {
-                        insertInDiv: $('#loadProgresses')
-                    }
+                    { insertInDiv: $('#loadProgresses') }
                 );
             }
         },
 
-        'domains': {
-            'add': function (name, type, soa) {
+        domains: {
+            add(name, type, soa) {
                 dns.loadRemote.loadRemote('domains/add',
                     [name, type, soa],
-                    function (data, success) {
+                    (data, success) => {
                         dns.admin.domains.list();
                         if (success)
                             $('#domain_add_button').click();
                     },
-                    {
-                        insertInDiv: $('#loadProgresses')
-                    }
+                    { insertInDiv: $('#loadProgresses') }
                 );
             },
-            'list': function () {
+
+            list() {
                 dns.loadRemote.loadRemote('domains/get',
                     [],
-                    function (data) {
-                        var table = $('#domains');
-                        table.querySelectorAll('tr:not(:first-child)').forEach(function (el) { el.remove(); });
-                        for (var i in data.data) {
-                            if (!data.data.hasOwnProperty(i)) continue;
-                            var tpl = document.createElement('template');
+                    (data) => {
+                        const table = $('#domains');
+                        table.querySelectorAll('tr:not(:first-child)').forEach((el) => el.remove());
+                        for (const domain of data.data) {
+                            const tpl = document.createElement('template');
                             tpl.innerHTML = '<tr data-did="%d" data-dname="%q"> \
-									<td>%d</td> \
-									<td>%h</td> \
-									<td>%h</td> \
-									<td>%d</td> \
-									<td class="specialRecords"></td> \
-									<td> \
-										<a href="#" class="domainListName">%s</a> \
-										<a href="#" class="domainListRecordAdd">%s</a> \
-										<a href="#" class="domainListDel">%s</a> \
-									</td> \
-								</tr>'.format(
-                                data.data[i].id,
-                                data.data[i].name,
-                                data.data[i].id,
-                                data.data[i].name,
-                                data.data[i].type,
-                                data.data[i].last_check,
+                                <td>%d</td> \
+                                <td>%h</td> \
+                                <td>%h</td> \
+                                <td>%d</td> \
+                                <td class="specialRecords"></td> \
+                                <td> \
+                                    <a href="#" class="domainListName">%s</a> \
+                                    <a href="#" class="domainListRecordAdd">%s</a> \
+                                    <a href="#" class="domainListDel">%s</a> \
+                                </td> \
+                            </tr>'.format(
+                                domain.id,
+                                domain.name,
+                                domain.id,
+                                domain.name,
+                                domain.type,
+                                domain.last_check,
                                 i18n.pgettext('DomainList', 'Name'),
                                 i18n.pgettext('DomainList', '+Record'),
                                 i18n.pgettext('DomainList', 'Remove')
                             );
-                            var row = tpl.content.firstElementChild;
-                            var special = row.querySelector('.specialRecords');
+                            const row = tpl.content.firstElementChild;
+                            const special = row.querySelector('.specialRecords');
                             special.insertAdjacentHTML('beforeend',
                                 '<table border="1"><tr><th>%s</th><th>%s</th><th>%s</th><th>%s</th><th>%s</th><th>%s</th></tr></table>'
                                     .format(
@@ -192,85 +178,83 @@ window.initPageSpecific = function () {
                                     i18n.pgettext('DomainListHeader', 'TTL'),
                                     i18n.pgettext('DomainListHeader', 'OP')
                                 ));
-                            var innerTable = special.querySelector('table');
-                            for (var j in data.data[i].records) {
-                                if (!data.data[i].records.hasOwnProperty(j)) continue;
-                                var r = data.data[i].records[j];
+                            const innerTable = special.querySelector('table');
+                            for (const r of domain.records) {
                                 innerTable.insertAdjacentHTML('beforeend', '<tr data-rid="%d" data-rName="%q" data-rType="%q" data-rContent="%q" data-rTtl="%q"> \
-																  <td>%d</td><td>%h</td><td>%h</td><td class="content">%h</td><td>%d</td> \
-																  <td> \
-																  <a href="#" title="%s" class="domainListRecordEdit">#</a> \
-																  <a href="#" title="%s" class="domainListRecordDelete">-</a> \
-																  </td> \
-																  </tr>'.format(
-                                    r.id, r.name, r.type, r.content, r.ttl,
-                                    r.id, r.name, r.type, r.content, r.ttl,
-                                    i18n.pgettext('DomainListRecordButtons', 'Edit'),
-                                    i18n.pgettext('DomainListRecordButtons', 'Remove')
-                                ));
+                                    <td>%d</td><td>%h</td><td>%h</td><td class="content">%h</td><td>%d</td> \
+                                    <td> \
+                                    <a href="#" title="%s" class="domainListRecordEdit">#</a> \
+                                    <a href="#" title="%s" class="domainListRecordDelete">-</a> \
+                                    </td> \
+                                    </tr>'.format(
+                                        r.id, r.name, r.type, r.content, r.ttl,
+                                        r.id, r.name, r.type, r.content, r.ttl,
+                                        i18n.pgettext('DomainListRecordButtons', 'Edit'),
+                                        i18n.pgettext('DomainListRecordButtons', 'Remove')
+                                    ));
                             }
                             table.appendChild(row);
                         }
 
-                        table.querySelectorAll('.domainListDel').forEach(function (el) {
+                        table.querySelectorAll('.domainListDel').forEach((el) => {
                             el.addEventListener('click', function (e) {
                                 e.preventDefault();
-                                var tr = this.closest('tr[data-did]');
-                                var did = tr.getAttribute('data-did');
-                                var dName = tr.getAttribute('data-dname');
+                                const tr = this.closest('tr[data-did]');
+                                const did = tr.getAttribute('data-did');
+                                const dName = tr.getAttribute('data-dname');
                                 if (confirm(i18n.pgettext('RemoveDomain', "Remove domain %s?").format(dName)))
                                     dns.admin.domains.del(did);
                             });
                         });
-                        table.querySelectorAll('.domainListName').forEach(function (el) {
+                        table.querySelectorAll('.domainListName').forEach((el) => {
                             el.addEventListener('click', function (e) {
                                 e.preventDefault();
-                                var tr = this.closest('tr[data-did]');
-                                var d = tr.getAttribute('data-did');
+                                const tr = this.closest('tr[data-did]');
+                                const d = tr.getAttribute('data-did');
                                 $('#domainsListName').value = tr.getAttribute('data-dname');
-                                var popup = $('#domainsListNamePopup');
+                                const popup = $('#domainsListNamePopup');
                                 popup.setAttribute('data-did', d);
                                 showPopup(popup, this);
                             });
                         });
 
-                        table.querySelectorAll('.domainListRecordAdd').forEach(function (el) {
+                        table.querySelectorAll('.domainListRecordAdd').forEach((el) => {
                             el.addEventListener('click', function (e) {
                                 e.preventDefault();
-                                var tr = this.closest('tr[data-did]');
+                                const tr = this.closest('tr[data-did]');
                                 $('#domainsListRecordName').value = tr.getAttribute('data-dname');
                                 $('#domainsListRecordType').selectedIndex = 0;
                                 $('#domainsListRecordContent').value = '';
                                 $('#domainsListRecordTTL').value = '86400';
-                                var popup = $('#domainsListRecordPopup');
+                                const popup = $('#domainsListRecordPopup');
                                 popup.removeAttribute('data-rid');
                                 popup.setAttribute('data-did', tr.getAttribute('data-did'));
                                 showPopup(popup, this);
                             });
                         });
 
-                        table.querySelectorAll('.domainListRecordEdit').forEach(function (el) {
+                        table.querySelectorAll('.domainListRecordEdit').forEach((el) => {
                             el.addEventListener('click', function (e) {
                                 e.preventDefault();
-                                var tr = this.closest('tr[data-rid]');
-                                var r = tr.getAttribute('data-rid');
+                                const tr = this.closest('tr[data-rid]');
+                                const r = tr.getAttribute('data-rid');
                                 $('#domainsListRecordName').value = tr.getAttribute('data-rName');
                                 $('#domainsListRecordType').value = tr.getAttribute('data-rType');
                                 $('#domainsListRecordContent').value = tr.getAttribute('data-rContent');
                                 $('#domainsListRecordTTL').value = tr.getAttribute('data-rTtl');
-                                var popup = $('#domainsListRecordPopup');
+                                const popup = $('#domainsListRecordPopup');
                                 popup.setAttribute('data-rid', r);
                                 showPopup(popup, this);
                             });
                         });
-                        table.querySelectorAll('.domainListRecordDelete').forEach(function (el) {
+                        table.querySelectorAll('.domainListRecordDelete').forEach((el) => {
                             el.addEventListener('click', function (e) {
                                 e.preventDefault();
-                                var tr = this.closest('tr[data-rid]');
-                                var rid = tr.getAttribute('data-rid');
-                                var rName = tr.getAttribute('data-rName');
-                                var rType = tr.getAttribute('data-rType');
-                                var dName = tr.closest('tr[data-dname]').getAttribute('data-dname');
+                                const tr = this.closest('tr[data-rid]');
+                                const rid = tr.getAttribute('data-rid');
+                                const rName = tr.getAttribute('data-rName');
+                                const rType = tr.getAttribute('data-rType');
+                                const dName = tr.closest('tr[data-dname]').getAttribute('data-dname');
                                 if (confirm(Jed.sprintf(i18n.pgettext(
                                         'RemoveRecordFromDomainConfirmation',
                                         "Really remove record %1$s (%2$s) on domain %3$s?"),
@@ -280,55 +264,52 @@ window.initPageSpecific = function () {
                             });
                         });
                     },
-                    {
-                        insertInDiv: $('#loadProgresses')
-                    }
+                    { insertInDiv: $('#loadProgresses') }
                 );
             },
-            'del': function (did) {
+
+            del(did) {
                 dns.loadRemote.loadRemote('domains/delete',
                     [did],
-                    function () {
-                        dns.admin.domains.list();
-                    },
-                    {
-                        insertInDiv: $('#loadProgresses')
-                    }
+                    () => dns.admin.domains.list(),
+                    { insertInDiv: $('#loadProgresses') }
                 );
             },
-            'recordDel': function (rid) {
+
+            recordDel(rid) {
                 dns.loadRemote.loadRemote('domains/deleteDomainRecord',
                     [rid],
-                    function () {
-                        dns.admin.domains.list();
-                    }
+                    () => dns.admin.domains.list()
                 );
             },
-            'updateName': function (did, name) {
+
+            updateName(did, name) {
                 dns.loadRemote.loadRemote('domains/updateName',
                     [did, name],
-                    function (data, success) {
+                    (data, success) => {
                         if (success)
                             $('#domainsListNamePopup').style.display = 'none';
                         dns.admin.domains.list();
                     },
-                    {insertInDiv: $('#loadProgresses')}
+                    { insertInDiv: $('#loadProgresses') }
                 );
             },
-            'recordAdd': function (did, rName, rType, rContent, rTtl) {
+
+            recordAdd(did, rName, rType, rContent, rTtl) {
                 dns.loadRemote.loadRemote('domains/addDomainRecord',
                     [did, rName, rType, rContent, rTtl],
-                    function (data, success) {
+                    (data, success) => {
                         if (success)
                             $('#domainsListRecordPopup').style.display = 'none';
                         dns.admin.domains.list();
                     }
                 );
             },
-            'recordUpdate': function (rid, rName, rType, rContent, rTtl) {
+
+            recordUpdate(rid, rName, rType, rContent, rTtl) {
                 dns.loadRemote.loadRemote('domains/updateDomainRecord',
                     [rid, rName, rType, rContent, rTtl],
-                    function (data, success) {
+                    (data, success) => {
                         if (success)
                             $('#domainsListRecordPopup').style.display = 'none';
                         dns.admin.domains.list();
@@ -338,53 +319,48 @@ window.initPageSpecific = function () {
         }
     };
 
-    $('#user_add_button').addEventListener('click', function () {
-        var div = $('#user_add');
+    $('#user_add_button').addEventListener('click', () => {
+        const div = $('#user_add');
         div.classList.toggle('active');
         if (div.classList.contains('active')) {
             $('#user_add_username').value = '';
-            var r = dns.createRandomString(12);
-            ps.forEach(function (el) { el.value = r; });
+            const r = dns.createRandomString(12);
+            ps.forEach((el) => { el.value = r; });
             pDef.textContent = r;
             $('#user_add_default').style.display = '';
             $('#user_add_level').value = 'user';
         }
     });
 
-    ps.forEach(function (el) {
-        el.addEventListener('focus', function () {
-            if (p1.value == pDef.textContent)
+    ps.forEach((el) => {
+        el.addEventListener('focus', () => {
+            if (p1.value === pDef.textContent)
                 p1.value = '';
-            if (p2.value == pDef.textContent)
+            if (p2.value === pDef.textContent)
                 p2.value = '';
             $('#user_add_default').style.display = 'none';
         });
-        el.addEventListener('blur', function () {
-            if (p1.value.length == 0 && p2.value.length == 0) {
-                ps.forEach(function (p) { p.value = pDef.textContent; });
+        el.addEventListener('blur', () => {
+            if (p1.value.length === 0 && p2.value.length === 0) {
+                ps.forEach((p) => { p.value = pDef.textContent; });
                 $('#user_add_default').style.display = '';
                 $('#user_add_nomatch').style.display = 'none';
             }
         });
-        el.addEventListener('keyup', function () {
-            if (p1.value != p2.value) {
-                $('#user_add_nomatch').style.display = '';
-            }
-            else {
-                $('#user_add_nomatch').style.display = 'none';
-            }
+        el.addEventListener('keyup', () => {
+            $('#user_add_nomatch').style.display = p1.value !== p2.value ? '' : 'none';
         });
     });
 
-    $('#user_add_submit').addEventListener('click', function () {
-        var nameEl = $('#user_add_username');
-        var emailEl = $('#user_add_email');
-        var ok = true;
-        if (nameEl.value.length == 0) {
+    $('#user_add_submit').addEventListener('click', () => {
+        const nameEl = $('#user_add_username');
+        const emailEl = $('#user_add_email');
+        let ok = true;
+        if (nameEl.value.length === 0) {
             dns.fehler(nameEl);
             ok = false;
         }
-        if (p1.value != p2.value) {
+        if (p1.value !== p2.value) {
             dns.fehler(p1);
             dns.fehler(p2);
             ok = false;
@@ -403,16 +379,15 @@ window.initPageSpecific = function () {
         );
     });
 
-    $('#userListLevelSubmit').addEventListener('click', function () {
-        var u = $('#userListLevelPopup').getAttribute('data-uid');
+    $('#userListLevelSubmit').addEventListener('click', () => {
+        const u = $('#userListLevelPopup').getAttribute('data-uid');
         dns.admin.users.changeLevel(u, $('#userListLevel').value);
     });
 
     $('#userListReload').addEventListener('click', dns.admin.users.list);
 
-
-    $('#domain_add_button').addEventListener('click', function () {
-        var div = $('#domain_add');
+    $('#domain_add_button').addEventListener('click', () => {
+        const div = $('#domain_add');
         div.classList.toggle('active');
         if (div.classList.contains('active')) {
             $('#domain_add_name').value = '';
@@ -420,15 +395,12 @@ window.initPageSpecific = function () {
         }
     });
 
-    $('#domain_add_submit').addEventListener('click', function () {
-        var nameEl = $('#domain_add_name');
-        var ok = true;
-        if (nameEl.value.length == 0) {
+    $('#domain_add_submit').addEventListener('click', () => {
+        const nameEl = $('#domain_add_name');
+        if (nameEl.value.length === 0) {
             dns.fehler(nameEl);
-            ok = false;
-        }
-        if (!ok)
             return;
+        }
         dns.admin.domains.add(
             nameEl.value,
             $('#domain_add_type').value,
@@ -438,23 +410,22 @@ window.initPageSpecific = function () {
 
     $('#domainListReload').addEventListener('click', dns.admin.domains.list);
 
-    $('#domainsListNameSubmit').addEventListener('click', function () {
-        var d = $('#domainsListNamePopup').getAttribute('data-did');
+    $('#domainsListNameSubmit').addEventListener('click', () => {
+        const d = $('#domainsListNamePopup').getAttribute('data-did');
         dns.admin.domains.updateName(d, $('#domainsListName').value);
     });
 
-    $('#domainsListRecordSubmit').addEventListener('click', function () {
-        var popup = $('#domainsListRecordPopup');
-        var d = popup.getAttribute('data-did');
-        var r = popup.getAttribute('data-rid');
-        var rName = $('#domainsListRecordName').value;
-        var rType = $('#domainsListRecordType').value;
-        var rContent = $('#domainsListRecordContent').value;
-        var rTtl = $('#domainsListRecordTTL').value;
-        if (r === null) { // new record
+    $('#domainsListRecordSubmit').addEventListener('click', () => {
+        const popup = $('#domainsListRecordPopup');
+        const d = popup.getAttribute('data-did');
+        const r = popup.getAttribute('data-rid');
+        const rName = $('#domainsListRecordName').value;
+        const rType = $('#domainsListRecordType').value;
+        const rContent = $('#domainsListRecordContent').value;
+        const rTtl = $('#domainsListRecordTTL').value;
+        if (r === null) {
             dns.admin.domains.recordAdd(d, rName, rType, rContent, rTtl);
-        }
-        else {
+        } else {
             dns.admin.domains.recordUpdate(r, rName, rType, rContent, rTtl);
         }
     });

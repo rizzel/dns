@@ -1,94 +1,73 @@
-window.initPageSpecific = function ()
-{
-	var p1 = $('#password1');
-	var p2 = $('#password2');
-	var email = $('#email');
-	var token = $('#token');
+window.initPageSpecific = () => {
+    const p1 = $('#password1');
+    const p2 = $('#password2');
+    const email = $('#email');
+    const token = $('#token');
 
-	dns.user = {
-		updatePassword: function (password) {
-			dns.loadRemote.loadRemote('user/updatePasswordSelf',
-				[password],
-				function (data, success)
-				{
-					if (success)
-						alert(i18n.pgettext('EmailVerification', "Verification email has been sent."));
-				}
-			);
-		},
-		updateEmail: function (email) {
-			dns.loadRemote.loadRemote('user/updateEmailSelf',
-				[email],
-				function (data, success)
-				{
-					if (success)
-						alert(i18n.pgettext('EmailVerification', "Verification email has been sent."));
-				}
-			);
-		},
-		verifyToken: function (token) {
-			dns.loadRemote.loadRemote('user/verifyToken',
-				[token],
-				function (data, success)
-				{
-					if (success)
-					{
-						alert(i18n.pgettext('EmailVerification', "Token successfully verified."));
-						window.location.reload();
-					}
-					else
-					{
-						alert(i18n.pgettext('EmailVerification', "Error verifying token - token invalid"));
-					}
-				}
-			);
-		}
-	};
+    dns.user = {
+        updatePassword(password) {
+            dns.loadRemote.loadRemote('user/updatePasswordSelf',
+                [password],
+                (data, success) => {
+                    if (success)
+                        alert(i18n.pgettext('EmailVerification', "Verification email has been sent."));
+                }
+            );
+        },
 
-	[p1, p2].forEach(function (el) {
-		el.addEventListener('keyup', function () {
-			if (p1.value != p2.value)
-			{
-				$('#user_add_nomatch').style.display = '';
-			}
-			else
-			{
-				$('#user_add_nomatch').style.display = 'none';
-			}
-		});
-	});
+        updateEmail(email) {
+            dns.loadRemote.loadRemote('user/updateEmailSelf',
+                [email],
+                (data, success) => {
+                    if (success)
+                        alert(i18n.pgettext('EmailVerification', "Verification email has been sent."));
+                }
+            );
+        },
 
-	$('#password_submit').addEventListener('click', function () {
-		var ok = true;
-		if (p1.value != p2.value)
-		{
-			dns.fehler(p1);
-			dns.fehler(p2);
-			ok = false;
-		}
-		if (ok)
-			dns.user.updatePassword(p1.value);
-	});
+        verifyToken(token) {
+            dns.loadRemote.loadRemote('user/verifyToken',
+                [token],
+                (data, success) => {
+                    if (success) {
+                        alert(i18n.pgettext('EmailVerification', "Token successfully verified."));
+                        window.location.reload();
+                    } else {
+                        alert(i18n.pgettext('EmailVerification', "Error verifying token - token invalid"));
+                    }
+                }
+            );
+        }
+    };
 
-	$('#email_submit').addEventListener('click', function () {
-		var ok = true;
-		if (!email.value.match(/@/) || email.value.length <= 3)
-		{
-			dns.fehler(email);
-			ok = false;
-		}
-		if (ok)
-			dns.user.updateEmail(email.value);
-	});
+    [p1, p2].forEach((el) => {
+        el.addEventListener('keyup', () => {
+            $('#user_add_nomatch').style.display = p1.value !== p2.value ? '' : 'none';
+        });
+    });
 
-	$('#token_submit').addEventListener('click', function () {
-		var ok = true;
-		if (token.value.length == 0)
-		{
-			dns.fehler(token);
-			ok = false;
-		}
-		if (ok)
-			dns.user.verifyToken(token.value);
-	});
+    $('#password_submit').addEventListener('click', () => {
+        if (p1.value !== p2.value) {
+            dns.fehler(p1);
+            dns.fehler(p2);
+            return;
+        }
+        dns.user.updatePassword(p1.value);
+    });
+
+    $('#email_submit').addEventListener('click', () => {
+        if (!email.value.match(/@/) || email.value.length <= 3) {
+            dns.fehler(email);
+            return;
+        }
+        dns.user.updateEmail(email.value);
+    });
+
+    $('#token_submit').addEventListener('click', () => {
+        if (token.value.length === 0) {
+            dns.fehler(token);
+            return;
+        }
+        dns.user.verifyToken(token.value);
+    });
 };

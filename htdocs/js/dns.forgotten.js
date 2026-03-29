@@ -1,95 +1,79 @@
-window.initPageSpecific = function ()
-{
-	var $p = $('#forgotten2_password1, #forgotten2_password2');
-	var $p1 = $('#forgotten2_password1');
-	var $p2 = $('#forgotten2_password2');
-	var $name = $('#forgotten_name');
-	var $email = $('#forgotten_email');
-	var $token = $('#forgotten2_token');
+window.initPageSpecific = () => {
+    const p1 = $('#forgotten2_password1');
+    const p2 = $('#forgotten2_password2');
+    const nameEl = $('#forgotten_name');
+    const emailEl = $('#forgotten_email');
+    const tokenEl = $('#forgotten2_token');
 
-	dns.user = {
-		requestToken: function (name, email) {
-			dns.loadRemote.loadRemote('user/forgottenRequest',
-				[name, email],
-				function ()
-				{
-					$('#forgotten2').show();
-				}
-			);
-		},
-		verifyToken: function (token, password) {
-			if (typeof(dns.user.name) == 'undefined')
-			{
-				alert(i18n.pgettext('VerifyToken', "Please try again."));
-				return;
-			}
-			dns.loadRemote.loadRemote('user/forgottenResponse',
-				[dns.user.name, token, password],
-				function (data, success)
-				{
-					if (success)
-					{
-						alert(i18n.pgettext('VerifyToken', "Password has been reset"));
-						window.location = '/index.php';
-					}
-					else
-					{
-						alert(i18n.pgettext('VerifyToken', "Error setting the password"));
-						window.location.reload(false);
-					}
-				}
-			);
-		}
-	};
+    dns.user = {
+        name: undefined,
 
-	$p.on('keyup', function () {
-		if ($p1.val() != $p2.val())
-		{
-			$('#user_add_nomatch').show();
-		}
-		else
-		{
-			$('#user_add_nomatch').hide();
-		}
-	});
+        requestToken(name, email) {
+            dns.loadRemote.loadRemote('user/forgottenRequest',
+                [name, email],
+                () => {
+                    $('#forgotten2').style.display = '';
+                }
+            );
+        },
 
-	$('#forgotten2_submit').on('click', function () {
-		var ok = true;
-		if ($token.val().length < 3)
-		{
-			dns.fehler($token);
-			ok = false;
-		}
-		if ($p1.val() != $p2.val())
-		{
-			dns.fehler($p1);
-			dns.fehler($p2);
-			ok = false;
-		}
-		if (ok)
-		{
-			if (typeof(dns.user.name) == 'undefined' && $name.val().length > 0)
-				dns.user.name = $name.val();
-			dns.user.verifyToken($token.val(), $p1.val());
-		}
-	});
+        verifyToken(token, password) {
+            if (dns.user.name === undefined) {
+                alert(i18n.pgettext('VerifyToken', "Please try again."));
+                return;
+            }
+            dns.loadRemote.loadRemote('user/forgottenResponse',
+                [dns.user.name, token, password],
+                (data, success) => {
+                    if (success) {
+                        alert(i18n.pgettext('VerifyToken', "Password has been reset"));
+                        window.location = '/index.php';
+                    } else {
+                        alert(i18n.pgettext('VerifyToken', "Error setting the password"));
+                        window.location.reload();
+                    }
+                }
+            );
+        }
+    };
 
-	$('#forgotten_submit').on('click', function () {
-		var ok = true;
-		if ($name.val().length < 1)
-		{
-			dns.fehler($name);
-			ok = false;
-		}
-		if (!$email.val().match(/@/) || $email.val().length <= 3)
-		{
-			dns.fehler($email);
-			ok = false;
-		}
-		if (ok)
-		{
-			dns.user.name = $name.val();
-			dns.user.requestToken($name.val(), $email.val());
-		}
-	});
+    [p1, p2].forEach((el) => {
+        el.addEventListener('keyup', () => {
+            $('#user_add_nomatch').style.display = p1.value !== p2.value ? '' : 'none';
+        });
+    });
+
+    $('#forgotten2_submit').addEventListener('click', () => {
+        let ok = true;
+        if (tokenEl.value.length < 3) {
+            dns.fehler(tokenEl);
+            ok = false;
+        }
+        if (p1.value !== p2.value) {
+            dns.fehler(p1);
+            dns.fehler(p2);
+            ok = false;
+        }
+        if (!ok)
+            return;
+        if (dns.user.name === undefined && nameEl.value.length > 0)
+            dns.user.name = nameEl.value;
+        dns.user.verifyToken(tokenEl.value, p1.value);
+    });
+
+    $('#forgotten_submit').addEventListener('click', () => {
+        let ok = true;
+        if (nameEl.value.length < 1) {
+            dns.fehler(nameEl);
+            ok = false;
+        }
+        if (!emailEl.value.match(/@/) || emailEl.value.length <= 3) {
+            dns.fehler(emailEl);
+            ok = false;
+        }
+        if (!ok)
+            return;
+        dns.user.name = nameEl.value;
+        dns.user.requestToken(nameEl.value, emailEl.value);
+    });
 };
