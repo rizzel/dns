@@ -52,13 +52,23 @@ The first line of output is the private key (put it in the master's `wg0.conf`),
 
 Add a `[Peer]` block for each slave with its public key and WireGuard IP.
 
-### 3. Start the stack
+### 3. Configure `settings.php`
+
+The PHP web interface requires a `settings.php` file. A template is provided in the repository:
+
+```sh
+cp ../../htdocs/inc/settings.php.default ../../htdocs/inc/settings.php
+```
+
+Edit `htdocs/inc/settings.php` and adjust database credentials, mail settings, etc. The PHP container will refuse to start if this file is missing.
+
+### 4. Start the stack
 
 ```sh
 docker compose up -d
 ```
 
-### 4. Verify
+### 5. Verify
 
 - DNS: `dig @localhost example.com`
 - Web UI: `http://<host>:<HTTP_PORT>`
