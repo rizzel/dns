@@ -1,6 +1,6 @@
 [Interface]
 Address = 10.100.0.2/24
-PrivateKey = <slave private key - generate with: wg genkey>
+PrivateKey = <slave private key - generate with: docker run --rm -it --entrypoint wg linuxserver/wireguard genkey>
 
 [Peer]
 PublicKey = <master public key>

@@ -1,0 +1,78 @@
+# DNS Master Instance
+
+This runs the master PowerDNS authoritative server with MariaDB, a PHP web interface, and a WireGuard tunnel for database replication to slave instances.
+
+## Services
+
+| Service    | Purpose                                              |
+|------------|------------------------------------------------------|
+| mariadb    | Primary database (binlog enabled for replication)    |
+| wireguard  | VPN tunnel for slave replication (shares mariadb network namespace) |
+| pdns       | PowerDNS authoritative server (port 53)              |
+| php        | Web management interface (Apache)                    |
+
+## Prerequisites
+
+- Docker and Docker Compose
+- The WireGuard kernel module loaded on the host (`/lib/modules` is bind-mounted)
+
+## Setup
+
+### 1. Create the `.env` file
+
+```sh
+cp .env.example .env
+```
+
+Edit `.env` and set **at minimum**:
+
+- `MARIADB_ROOT_PASSWORD` - MariaDB root password
+- `MARIADB_PASSWORD` - password for the application database user
+- `REPL_PASSWORD` - password for the replication user (must match on all slaves)
+
+Optional settings:
+
+- `WG_PORT` - WireGuard listen port (default: `51820`)
+- `HTTP_PORT` - PHP web interface port (default: `8080`)
+- `MAIL_FROM`, `USE_PEAR_MAIL`, `PEAR_*` - mail delivery settings
+
+### 2. Configure WireGuard
+
+```sh
+cp wireguard/wg0.conf.example wireguard/wg0.conf
+```
+
+Generate a keypair:
+
+```sh
+docker run --rm -it --entrypoint wg linuxserver/wireguard genkey | tee /dev/stderr | docker run --rm -i --entrypoint wg linuxserver/wireguard pubkey
+```
+
+The first line of output is the private key (put it in the master's `wg0.conf`), the second is the public key (give it to each slave).
+
+Add a `[Peer]` block for each slave with its public key and WireGuard IP.
+
+### 3. Start the stack
+
+```sh
+docker compose up -d
+```
+
+### 4. Verify
+
+- DNS: `dig @localhost example.com`
+- Web UI: `http://<host>:<HTTP_PORT>`
+- WireGuard: `docker exec dns-wireguard wg show`
+- Replication user: `docker exec dns-mariadb-master mysql -u root -p<password> -e "SELECT user, host FROM mysql.user WHERE user='replicator'"`
+
+## Network Architecture
+
+Only the mariadb container has access to the WireGuard tunnel (wireguard shares its network namespace). PowerDNS and PHP reach MariaDB over an internal Docker network. Slaves connect to the master's MariaDB on `10.100.0.1:3306` through the WireGuard tunnel.
+
+## Exposed Ports
+
+| Port                    | Service    |
+|-------------------------|------------|
+| `WG_PORT` (51820/udp)  | WireGuard  |
+| 53/tcp+udp             | PowerDNS   |
+| `HTTP_PORT` (8080/tcp) | PHP/Apache |

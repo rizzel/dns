@@ -1,7 +1,7 @@
 [Interface]
 Address = 10.100.0.1/24
 ListenPort = 51820
-PrivateKey = <master private key - generate with: wg genkey>
+PrivateKey = <master private key - generate with: docker run --rm -it --entrypoint wg linuxserver/wireguard genkey>
 
 # Slave 1
 [Peer]
