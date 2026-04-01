@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: dns\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2015-07-09 10:55+0200\n"
-"PO-Revision-Date: 2015-07-09 09:14+0100\n"
+"POT-Creation-Date: 2026-04-01 13:34+0200\n"
+"PO-Revision-Date: 2026-04-01 13:36+0200\n"
 "Last-Translator: Philipp Zimmer <pz@ggdns.de>\n"
 "Language-Team: German\n"
 "Language: de\n"
@@ -16,37 +16,69 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
-"X-Generator: Poedit 1.5.5\n"
+"X-Generator: Poedit 3.8\n"
 "X-Poedit-SourceCharset: UTF-8\n"
 
-#: u.php:5
-msgctxt "PageTitle"
-msgid "DNS - Update Response"
-msgstr "DNS - Update verifikation"
+#: inc/email.php:141
+msgid "This token can be inserted on the Settings page."
+msgstr "Dieses Token kann in der Einstellungs-Seite eingegeben werden."
 
-#: vergessen.php:5
-msgctxt "PageTitle"
-msgid "DNS - Forgot password"
-msgstr "DNS - Passwort vergessen"
+#: inc/feed.domains.php:129
+msgctxt "domainRecord"
+msgid "Invalid name"
+msgstr "Name ungültig"
 
-#: index.php:7
-msgctxt "PageTitle"
-msgid "DNS"
-msgstr "DNS"
+#: inc/feed.domains.php:131
+msgctxt "domainRecord"
+msgid "Domain taken by someone else"
+msgstr "Domain nicht mehr frei"
 
-#: user.php:7
-msgctxt "PageTitle"
-msgid "DNS - Settings"
-msgstr "DNS - Einstellungen"
+#: inc/feed.domains.php:133
+msgctxt "domainRecord"
+msgid "Domain available"
+msgstr "Domain verfügbar"
 
-#: admin.php:10
-msgctxt "PageTitle"
-msgid "DNS - Administration"
-msgstr "DNS - Administration"
+#: inc/user.php:204
+msgid "Confirm the change of password"
+msgstr "Passwortänderung bitte bestätigen"
 
-#: templates/header.php:22
-msgid "This page is currently not encrypted!"
-msgstr "Diese Seite ist zur Zeit nicht verschlüsselt!"
+#: inc/user.php:207
+#, php-format
+msgid ""
+"Please confirm the requested change of your password for your account on\n"
+"                    %1$s for the user %2$s"
+msgstr "Bitte bestätigen Sie die angeforderte Änderunge des Passwortes für Ihren Account auf %1$s für den Benutzer %2$s"
+
+#: inc/user.php:237
+msgid "Confirm the change of email"
+msgstr "Emailänderung bitte bestätigen"
+
+#: inc/user.php:240
+#, php-format
+msgid ""
+"Please confirm the requested change of your email address for your account on\n"
+"                     %1$s for the user %2$s"
+msgstr ""
+"Bitte bestätigen Sie die Änderung Ihrer Email-Adresse für den Benutzer\n"
+"%2$s auf %1$s"
+
+#: inc/user.php:257
+msgctxt "emailUpdate"
+msgid "email updated"
+msgstr "E-Mail aktualisiert"
+
+#: inc/user.php:258
+#, php-format
+msgid "The email address has been successfully changed for user %s."
+msgstr "Die E-Mail-Adresse für den Nutzer %s wurde erfolgreich aktualisiert."
+
+#: inc/user.php:270
+msgid "Password reset token"
+msgstr "Passwort reset token"
+
+#: inc/user.php:271
+msgid "Please use the following token to reset your password."
+msgstr "Bitte nutzen Sie das folgende Token um Ihr Passwort zurück zu setzen."
 
 #: templates/sites/vergessen.php:2
 msgctxt "TemplateHeader"
@@ -81,22 +113,17 @@ msgstr "Password zurücksetzen - Schritt 2"
 #: templates/sites/vergessen.php:19
 msgctxt "PasswordResetInfo"
 msgid "You have received an email with a token to reset your password."
-msgstr ""
-"Sie haben eine Email mit einem Token erhalten um Ihr Passwort zurück zu "
-"setzen."
+msgstr "Sie haben eine Email mit einem Token erhalten um Ihr Passwort zurück zu setzen."
 
 #: templates/sites/vergessen.php:21
 msgctxt "PasswordResetInfo"
 msgid "Please keep this page open until you finished resetting your password."
-msgstr ""
-"Bitte schliessen Sie diese Seite erst nachdem Sie Ihr Passwort zurückgesetzt "
-"haben."
+msgstr "Bitte schliessen Sie diese Seite erst nachdem Sie Ihr Passwort zurückgesetzt haben."
 
 #: templates/sites/vergessen.php:23
 msgctxt "PasswordResetInfo"
 msgid "Please insert the token from the email and your new password:"
-msgstr ""
-"Bitte geben Sie das mit der Email erhaltene Token und ein neues Passwort ein."
+msgstr "Bitte geben Sie das mit der Email erhaltene Token und ein neues Passwort ein:"
 
 #: templates/sites/vergessen.php:26
 msgctxt "PasswordReset"
@@ -118,63 +145,218 @@ msgctxt "PasswordResetConfirm"
 msgid "Set password"
 msgstr "Passwort setzen"
 
-#: templates/sites/user.php:7
-msgctxt "TemplateHeader"
-msgid "User Management"
-msgstr "Benutzer Verwaltung"
+#: templates/sites/admin.php:2
+msgctxt "TemplateHeading"
+msgid "Administration"
+msgstr "Administration"
 
-#: templates/sites/user.php:10
-msgctxt "UpdateUser"
-msgid "New Password"
-msgstr "Neues Passwort"
+#: templates/sites/admin.php:3
+msgctxt "TemplateHeading"
+msgid "Users"
+msgstr "Benutzer"
 
-#: templates/sites/user.php:13 templates/sites/user.php:19
-msgctxt "UpdateUser"
-msgid "Update"
-msgstr "Aktualisieren"
+#: templates/sites/admin.php:4
+msgctxt "Button"
+msgid "Add User"
+msgstr "Nutzer hinzufügen"
 
-#: templates/sites/user.php:14
-msgctxt "UpdateUserPassword"
+#: templates/sites/admin.php:7
+msgctxt "AddUser"
+msgid "Name"
+msgstr "Name"
+
+#: templates/sites/admin.php:10
+msgctxt "AddUser"
+msgid "Password"
+msgstr "Passwort"
+
+#: templates/sites/admin.php:14
+msgctxt "AddUserDefaultPassword"
+msgid "Default"
+msgstr "Default"
+
+#: templates/sites/admin.php:17
+msgctxt "AddUserPasswordNoMatch"
 msgid "passwords differ"
 msgstr "unterschiedliche Passwörter"
 
-#: templates/sites/user.php:17
-msgctxt "UpdateUser"
-msgid "New Email"
-msgstr "Neue Email"
+#: templates/sites/admin.php:19
+msgctxt "AddUser"
+msgid "Email"
+msgstr "Email"
 
-#: templates/sites/user.php:22 templates/sites/user.php:36
-msgid "Token to verify"
-msgstr "zu überprüfendes Token"
+#: templates/sites/admin.php:22 templates/sites/admin.php:43
+msgctxt "AddUser"
+msgid "Level"
+msgstr "Berechtigung"
 
-#: templates/sites/user.php:24
-msgctxt "VerifyToken"
-msgid "Verify Token"
-msgstr "Token überprüfen"
+#: templates/sites/admin.php:24 templates/sites/admin.php:45
+msgctxt "UserLevel"
+msgid "nobody"
+msgstr "nobody"
 
-#: templates/sites/user.php:27
-msgctxt "DescriptionTokensHeader"
-msgid "Tokens"
-msgstr "Tokens"
+#: templates/sites/admin.php:25 templates/sites/admin.php:46
+msgctxt "UserLevel"
+msgid "user"
+msgstr "user"
 
-#: templates/sites/user.php:31
-msgctxt "DescriptionTokens"
-msgid ""
-"Changing the password or the email address requires a confirmation via a "
-"token\n"
-"            sent to your current email address."
-msgstr ""
-"Wenn das Passwort oder die Email geändert werden sollen wird ein Token\n"
-"an ihre aktuelle Email-Adresse gesandt."
+#: templates/sites/admin.php:26 templates/sites/admin.php:47
+msgctxt "UserLevel"
+msgid "admin"
+msgstr "admin"
 
-#: templates/sites/user.php:38
-msgctxt "DescriptionTokens"
-msgid "The token is valid for at least one day."
-msgstr "Das Token ist für mindestens einen Tag gültig."
+#: templates/sites/admin.php:29
+msgctxt "UserAddConfirm"
+msgid "Add"
+msgstr "Hinzufügen"
 
-#: templates/sites/user.php:42 templates/sites/main.php:95
-msgid "Log in, please."
-msgstr "Bitte einloggen."
+#: templates/sites/admin.php:33
+msgctxt "UserListTableHeader"
+msgid "User"
+msgstr "Benutzer"
+
+#: templates/sites/admin.php:34
+msgctxt "UserListTableHeader"
+msgid "Level"
+msgstr "Level"
+
+#: templates/sites/admin.php:35
+msgctxt "UserListTableHeader"
+msgid "Email"
+msgstr "Email"
+
+#: templates/sites/admin.php:36
+msgctxt "UserListTableHeader"
+msgid "Records"
+msgstr "Records"
+
+#: templates/sites/admin.php:37
+msgctxt "UserListTableHeader"
+msgid "Operation"
+msgstr "Operation"
+
+#: templates/sites/admin.php:40
+msgctxt "UserList"
+msgid "Reload list"
+msgstr "Liste neu laden"
+
+#: templates/sites/admin.php:50 templates/sites/admin.php:87
+#: templates/sites/admin.php:130 templates/sites/main.php:62
+#: templates/sites/main.php:69 templates/sites/main.php:76
+#: templates/sites/main.php:83
+msgid "OK"
+msgstr "OK"
+
+#: templates/sites/admin.php:51 templates/sites/admin.php:88
+#: templates/sites/admin.php:131 templates/sites/main.php:63
+#: templates/sites/main.php:70 templates/sites/main.php:77
+#: templates/sites/main.php:84
+msgid "Abort"
+msgstr "Abbruch"
+
+#: templates/sites/admin.php:54
+msgctxt "TemplateHeading"
+msgid "Domains"
+msgstr "Domains"
+
+#: templates/sites/admin.php:55
+msgctxt "AddDomain"
+msgid "Add Domain"
+msgstr "Domain hinzufügen"
+
+#: templates/sites/admin.php:58
+msgctxt "AddDomain"
+msgid "Name"
+msgstr "Name"
+
+#: templates/sites/admin.php:61
+msgctxt "AddDomain"
+msgid "Type"
+msgstr "Typ"
+
+#: templates/sites/admin.php:66
+msgid "Soa line containing '%MasterDNS% %Email%'"
+msgstr "SOA Zeile bestehend aus '%MasterDNS% %Email%'"
+
+#: templates/sites/admin.php:69
+msgctxt "AddDomain"
+msgid "Add"
+msgstr "Hinzufügen"
+
+#: templates/sites/admin.php:73
+msgctxt "DomainListTableHeader"
+msgid "ID"
+msgstr "ID"
+
+#: templates/sites/admin.php:74
+msgctxt "DomainListTableHeader"
+msgid "Name"
+msgstr "Name"
+
+#: templates/sites/admin.php:75
+msgctxt "DomainListTableHeader"
+msgid "Type"
+msgstr "Typ"
+
+#: templates/sites/admin.php:76
+msgctxt "DomainListTableHeader"
+msgid "Last Check"
+msgstr "Zuletzt benutzt"
+
+#: templates/sites/admin.php:77
+msgctxt "DomainListTableHeader"
+msgid "Special Records"
+msgstr "Spezielle Records"
+
+#: templates/sites/admin.php:78
+msgctxt "DomainListTableHeader"
+msgid "Operation"
+msgstr "Operation"
+
+#: templates/sites/admin.php:81
+msgctxt "DomainList"
+msgid "Reload List"
+msgstr "List neu laden"
+
+#: templates/sites/admin.php:84
+msgctxt "DomainModify"
+msgid "Name"
+msgstr "Name"
+
+#: templates/sites/admin.php:91
+msgctxt "RecordAdd"
+msgid "Name"
+msgstr "Name"
+
+#: templates/sites/admin.php:94
+msgctxt "RecordAdd"
+msgid "Type"
+msgstr "Typ"
+
+#: templates/sites/admin.php:118
+msgctxt "ReferenceToDocumenationPrefix"
+msgid "See"
+msgstr "Siehe"
+
+#: templates/sites/admin.php:120
+msgctxt "ReferenceToDocumentationLink"
+msgid "here"
+msgstr "hier"
+
+#: templates/sites/admin.php:121
+msgctxt "ReferenceToDocumentationSuffix"
+msgid "."
+msgstr "."
+
+#: templates/sites/admin.php:124
+msgctxt "RecordAdd"
+msgid "Content"
+msgstr "Content"
+
+#: templates/sites/admin.php:127
+msgctxt "RecordAdd"
+msgid "TTL"
+msgstr "TTL"
 
 #: templates/sites/main.php:7
 msgctxt "TemplateHeading"
@@ -281,20 +463,6 @@ msgctxt "RecordModify"
 msgid "Name"
 msgstr "Name"
 
-#: templates/sites/main.php:62 templates/sites/main.php:69
-#: templates/sites/main.php:76 templates/sites/main.php:83
-#: templates/sites/admin.php:50 templates/sites/admin.php:87
-#: templates/sites/admin.php:130
-msgid "OK"
-msgstr "OK"
-
-#: templates/sites/main.php:63 templates/sites/main.php:70
-#: templates/sites/main.php:77 templates/sites/main.php:84
-#: templates/sites/admin.php:51 templates/sites/admin.php:88
-#: templates/sites/admin.php:131
-msgid "Abort"
-msgstr "Abbruch"
-
 #: templates/sites/main.php:66
 msgctxt "RecordModify"
 msgid "Content"
@@ -310,204 +478,9 @@ msgctxt "RecordModify"
 msgid "TTL (s)"
 msgstr "TTL (s)"
 
-#: templates/sites/admin.php:2
-msgctxt "TemplateHeading"
-msgid "Administration"
-msgstr "Administration"
-
-#: templates/sites/admin.php:3
-msgctxt "TemplateHeading"
-msgid "Users"
-msgstr "Benutzer"
-
-#: templates/sites/admin.php:4
-msgctxt "Button"
-msgid "Add User"
-msgstr "Nutzer hinzufügen"
-
-#: templates/sites/admin.php:7
-msgctxt "AddUser"
-msgid "Name"
-msgstr "Name"
-
-#: templates/sites/admin.php:10
-msgctxt "AddUser"
-msgid "Password"
-msgstr "Passwort"
-
-#: templates/sites/admin.php:14
-msgctxt "AddUserDefaultPassword"
-msgid "Default"
-msgstr "Default"
-
-#: templates/sites/admin.php:17
-msgctxt "AddUserPasswordNoMatch"
-msgid "passwords differ"
-msgstr "unterschiedliche Passwörter"
-
-#: templates/sites/admin.php:19
-msgctxt "AddUser"
-msgid "Email"
-msgstr "Email"
-
-#: templates/sites/admin.php:22 templates/sites/admin.php:43
-msgctxt "AddUser"
-msgid "Level"
-msgstr "Berechtigung"
-
-#: templates/sites/admin.php:24 templates/sites/admin.php:45
-msgctxt "UserLevel"
-msgid "nobody"
-msgstr "nobody"
-
-#: templates/sites/admin.php:25 templates/sites/admin.php:46
-msgctxt "UserLevel"
-msgid "user"
-msgstr "user"
-
-#: templates/sites/admin.php:26 templates/sites/admin.php:47
-msgctxt "UserLevel"
-msgid "admin"
-msgstr "admin"
-
-#: templates/sites/admin.php:29
-msgctxt "UserAddConfirm"
-msgid "Add"
-msgstr "Hinzufügen"
-
-#: templates/sites/admin.php:33
-msgctxt "UserListTableHeader"
-msgid "User"
-msgstr "Benutzer"
-
-#: templates/sites/admin.php:34
-msgctxt "UserListTableHeader"
-msgid "Level"
-msgstr "Level"
-
-#: templates/sites/admin.php:35
-msgctxt "UserListTableHeader"
-msgid "Email"
-msgstr "Email"
-
-#: templates/sites/admin.php:36
-msgctxt "UserListTableHeader"
-msgid "Records"
-msgstr "Records"
-
-#: templates/sites/admin.php:37
-msgctxt "UserListTableHeader"
-msgid "Operation"
-msgstr "Operation"
-
-#: templates/sites/admin.php:40
-msgctxt "UserList"
-msgid "Reload list"
-msgstr "Liste neu laden"
-
-#: templates/sites/admin.php:54
-msgctxt "TemplateHeading"
-msgid "Domains"
-msgstr "Domains"
-
-#: templates/sites/admin.php:55
-msgctxt "AddDomain"
-msgid "Add Domain"
-msgstr "Domain hinzufügen"
-
-#: templates/sites/admin.php:58
-msgctxt "AddDomain"
-msgid "Name"
-msgstr "Name"
-
-#: templates/sites/admin.php:61
-msgctxt "AddDomain"
-msgid "Type"
-msgstr "Typ"
-
-#: templates/sites/admin.php:66
-msgid "Soa line containing '%MasterDNS% %Email%'"
-msgstr "SOA Zeile bestehend aus '%MasterDNS% %Email%'"
-
-#: templates/sites/admin.php:69
-msgctxt "AddDomain"
-msgid "Add"
-msgstr "Hinzufügen"
-
-#: templates/sites/admin.php:73
-msgctxt "DomainListTableHeader"
-msgid "ID"
-msgstr "ID"
-
-#: templates/sites/admin.php:74
-msgctxt "DomainListTableHeader"
-msgid "Name"
-msgstr "Name"
-
-#: templates/sites/admin.php:75
-msgctxt "DomainListTableHeader"
-msgid "Type"
-msgstr "Typ"
-
-#: templates/sites/admin.php:76
-msgctxt "DomainListTableHeader"
-msgid "Last Check"
-msgstr "Zuletzt benutzt"
-
-#: templates/sites/admin.php:77
-msgctxt "DomainListTableHeader"
-msgid "Special Records"
-msgstr "Spezielle Records"
-
-#: templates/sites/admin.php:78
-msgctxt "DomainListTableHeader"
-msgid "Operation"
-msgstr "Operation"
-
-#: templates/sites/admin.php:81
-msgctxt "DomainList"
-msgid "Reload List"
-msgstr "List neu laden"
-
-#: templates/sites/admin.php:84
-msgctxt "DomainModify"
-msgid "Name"
-msgstr "Name"
-
-#: templates/sites/admin.php:91
-msgctxt "RecordAdd"
-msgid "Name"
-msgstr "Name"
-
-#: templates/sites/admin.php:94
-msgctxt "RecordAdd"
-msgid "Type"
-msgstr "Typ"
-
-#: templates/sites/admin.php:118
-msgctxt "ReferenceToDocumenationPrefix"
-msgid "See"
-msgstr "Siehe"
-
-#: templates/sites/admin.php:120
-msgctxt "ReferenceToDocumentationLink"
-msgid "here"
-msgstr "hier"
-
-#: templates/sites/admin.php:121
-msgctxt "ReferenceToDocumentationSuffix"
-msgid "."
-msgstr "."
-
-#: templates/sites/admin.php:124
-msgctxt "RecordAdd"
-msgid "Content"
-msgstr "Content"
-
-#: templates/sites/admin.php:127
-msgctxt "RecordAdd"
-msgid "TTL"
-msgstr "TTL"
+#: templates/sites/main.php:96 templates/sites/user.php:42
+msgid "Log in, please."
+msgstr "Bitte einloggen."
 
 #: templates/sites/update.php:11
 msgctxt "TokenUpdate"
@@ -529,9 +502,66 @@ msgctxt "TokenUpdate"
 msgid "Back to Home"
 msgstr "Zurück zum Start"
 
+#: templates/sites/user.php:7
+msgctxt "TemplateHeader"
+msgid "User Management"
+msgstr "Benutzer Verwaltung"
+
+#: templates/sites/user.php:10
+msgctxt "UpdateUser"
+msgid "New Password"
+msgstr "Neues Passwort"
+
+#: templates/sites/user.php:13 templates/sites/user.php:19
+msgctxt "UpdateUser"
+msgid "Update"
+msgstr "Aktualisieren"
+
+#: templates/sites/user.php:14
+msgctxt "UpdateUserPassword"
+msgid "passwords differ"
+msgstr "unterschiedliche Passwörter"
+
+#: templates/sites/user.php:17
+msgctxt "UpdateUser"
+msgid "New Email"
+msgstr "Neue Email"
+
+#: templates/sites/user.php:22 templates/sites/user.php:36
+msgid "Token to verify"
+msgstr "zu überprüfendes Token"
+
+#: templates/sites/user.php:24
+msgctxt "VerifyToken"
+msgid "Verify Token"
+msgstr "Token überprüfen"
+
+#: templates/sites/user.php:27
+msgctxt "DescriptionTokensHeader"
+msgid "Tokens"
+msgstr "Tokens"
+
+#: templates/sites/user.php:31
+msgctxt "DescriptionTokens"
+msgid ""
+"Changing the password or the email address requires a confirmation via a token\n"
+"            sent to your current email address."
+msgstr ""
+"Wenn das Passwort oder die Email geändert werden sollen wird ein Token\n"
+"an ihre aktuelle Email-Adresse gesandt."
+
+#: templates/sites/user.php:38
+msgctxt "DescriptionTokens"
+msgid "The token is valid for at least one day."
+msgstr "Das Token ist für mindestens einen Tag gültig."
+
 #: templates/footer.php:23
 msgid "Certificates for this Domain"
 msgstr "Zertifikate für diese Domain"
+
+#: templates/header.php:23
+msgid "This page is currently not encrypted!"
+msgstr "Diese Seite ist zur Zeit nicht verschlüsselt!"
 
 #: templates/login.php:8
 msgctxt "LoggedInGreeting"
@@ -583,81 +613,56 @@ msgctxt "Menu"
 msgid "Forgot password"
 msgstr "Passwort vergessen"
 
-#: inc/email.php:142
-msgid "This token can be inserted on the Settings page."
-msgstr "Dieses Token kann in der Einstellungs-Seite eingegeben werden."
+#: admin.php:10
+msgctxt "PageTitle"
+msgid "DNS - Administration"
+msgstr "DNS - Administration"
 
-#: inc/user.php:189
-msgid "Confirm the change of password"
-msgstr "Passwortänderung bitte bestätigen"
+#: index.php:7
+msgctxt "PageTitle"
+msgid "DNS"
+msgstr "DNS"
 
-#: inc/user.php:192
+#: u.php:5
+msgctxt "PageTitle"
+msgid "DNS - Update Response"
+msgstr "DNS - Update verifikation"
+
+#: user.php:7
+msgctxt "PageTitle"
+msgid "DNS - Settings"
+msgstr "DNS - Einstellungen"
+
+#: vergessen.php:5
+msgctxt "PageTitle"
+msgid "DNS - Forgot password"
+msgstr "DNS - Passwort vergessen"
+
 #, php-format
-msgid ""
-"Please confirm the requested change of your password for your account on\n"
-"                        %1$s for the user %2$s"
-msgstr ""
-"Bitte bestätigen Sie die Änderung Ihres Passwortes für den Benutzer\n"
-"%2$s auf %1$s."
+#~ msgid ""
+#~ "Please confirm the requested change of your password for your account on\n"
+#~ "                        %1$s for the user %2$s"
+#~ msgstr ""
+#~ "Bitte bestätigen Sie die Änderung Ihres Passwortes für den Benutzer\n"
+#~ "%2$s auf %1$s."
 
-#: inc/user.php:222
-msgid "Confirm the change of email"
-msgstr "Emailänderung bitte bestätigen"
+#~ msgctxt "emailUpdate"
+#~ msgid "password set"
+#~ msgstr "Password gesetzt"
 
-#: inc/user.php:225
 #, php-format
-msgid ""
-"Please confirm the requested change of your email address for your account "
-"on\n"
-"                     %1$s for the user %2$s"
-msgstr ""
-"Bitte bestätigen Sie die Änderung Ihrer Email-Adresse für den Benutzer\n"
-"%2$s auf %1$s."
-
-#: inc/user.php:242
-msgctxt "emailUpdate"
-msgid "password set"
-msgstr "Password gesetzt"
-
-#: inc/user.php:243
-#, php-format
-msgid "The password has been successfully changed for user %s."
-msgstr "Das Passwort wurde für den Benutzer %s erfolgreich geändert."
-
-#: inc/user.php:255
-msgid "Password reset token"
-msgstr "Passwort reset token"
-
-#: inc/user.php:256
-msgid "Please use the following token to reset your password."
-msgstr "Bitte nutzen Sie das folgende Token um Ihr Passwort zurück zu setzen."
-
-#: inc/feed.domains.php:129
-msgctxt "domainRecord"
-msgid "Invalid name"
-msgstr "Name ungültig"
-
-#: inc/feed.domains.php:131
-msgctxt "domainRecord"
-msgid "Domain taken by someone else"
-msgstr "Domain nicht mehr frei"
-
-#: inc/feed.domains.php:133
-msgctxt "domainRecord"
-msgid "Domain available"
-msgstr "Domain verfügbar"
+#~ msgid "The password has been successfully changed for user %s."
+#~ msgstr "Das Passwort wurde für den Benutzer %s erfolgreich geändert."
 
 #~ msgid ""
-#~ "Please confirm the requested change of your email address for your "
-#~ "account on\n"
+#~ "Please confirm the requested change of your email address for your account on\n"
 #~ "                     %1$s for the user %1$s"
 #~ msgstr ""
 #~ "Bitte bestätigen Sie die Änderung Ihrer Email-Adresse für den Benutzer\n"
 #~ "%2$s auf %1$s."
 
 #~ msgid "Pleasen use the following token to reset your password."
-#~ msgstr ""
-#~ "Bitte nutzen Sie das folgende token um Ihr Passwort zurück zu setzen."
+#~ msgstr "Bitte nutzen Sie das folgende token um Ihr Passwort zurück zu setzen."
 
 #~ msgctxt "AddDomain"
 #~ msgid "Typ"
