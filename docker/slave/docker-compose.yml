@@ -38,8 +38,8 @@ services:
     networks:
       - internal
     ports:
-      - "53:53/tcp"
-      - "53:53/udp"
+      - "${DNS_PORT:-53}:53/tcp"
+      - "${DNS_PORT:-53}:53/udp"
     depends_on:
       - mariadb
     environment:
