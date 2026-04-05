@@ -15,6 +15,11 @@ services:
       - mariadb-data:/var/lib/mysql
       - ./mariadb/master.cnf:/etc/mysql/mariadb.conf.d/99-master.cnf:ro
       - ./mariadb/init/:/docker-entrypoint-initdb.d/:ro
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     restart: unless-stopped
 
   wireguard:
@@ -22,7 +27,8 @@ services:
     container_name: dns-wireguard
     network_mode: "service:mariadb"
     depends_on:
-      - mariadb
+      mariadb:
+        condition: service_healthy
     cap_add:
       - NET_ADMIN
       - SYS_MODULE
@@ -32,6 +38,11 @@ services:
     volumes:
       - ./wireguard/wg0.conf:/config/wg_confs/wg0.conf:ro
       - /lib/modules:/lib/modules:ro
+    healthcheck:
+      test: ["CMD", "wg", "show", "wg0"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     restart: unless-stopped
 
   pdns:
@@ -43,7 +54,8 @@ services:
       - "${DNS_PORT:-53}:53/tcp"
       - "${DNS_PORT:-53}:53/udp"
     depends_on:
-      - mariadb
+      mariadb:
+        condition: service_healthy
     environment:
       PDNS_gmysql_host: mariadb
       PDNS_gmysql_port: "3306"
@@ -69,7 +81,8 @@ services:
     ports:
       - "${HTTP_PORT:-8080}:80/tcp"
     depends_on:
-      - mariadb
+      mariadb:
+        condition: service_healthy
     environment:
       DB_HOST: mariadb
       DB_PORT: "3306"
