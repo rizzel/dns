@@ -3,3 +3,4 @@
 /htdocs/*.crt
 /.idea
 *.po~
+.env
