@@ -76,3 +76,7 @@ GET /ip4?<record_name>;<password>;<ip_address>
 ## Configuration
 
 The application configuration is in `htdocs/inc/settings.php`. The Docker setup populates this from environment variables defined in `.env`.
+
+# TODOs
+
+- [ ] create a script to generate easy backups of the database
