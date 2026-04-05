@@ -33,6 +33,7 @@ Edit `.env` and set:
 Optional settings:
 
 - `DNS_PORT` - PowerDNS listen port (default: `53`)
+- `WG_PORT` - WireGuard listen port (default: `51821`)
 
 ### 2. Configure MariaDB
 
@@ -92,6 +93,7 @@ Only the mariadb container has access to the WireGuard tunnel (wireguard shares 
 
 ## Exposed Ports
 
-| Port        | Service  |
-|-------------|----------|
-| `DNS_PORT` (53/tcp+udp) | PowerDNS |
+| Port                     | Service    |
+|--------------------------|------------|
+| `WG_PORT` (51821/udp)   | WireGuard  |
+| `DNS_PORT` (53/tcp+udp) | PowerDNS   |

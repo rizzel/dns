@@ -93,6 +93,30 @@ docker logs dns-php
 
 Only the mariadb container has access to the WireGuard tunnel (wireguard shares its network namespace). PowerDNS and PHP reach MariaDB over an internal Docker network. Slaves connect to the master's MariaDB on `10.100.0.1:3306` through the WireGuard tunnel.
 
+## Backups
+
+A backup script is provided that creates gzipped SQL dumps:
+
+```sh
+source .env && ./backup.sh
+```
+
+Backups are saved to `backups/` (gitignored). Old backups are automatically deleted after the retention period.
+
+| Variable         | Default | Description                          |
+|------------------|---------|--------------------------------------|
+| `RETENTION_DAYS` | `30`    | Days to keep backups before deletion |
+| `CONTAINER_NAME` | `dns-mariadb-master` | MariaDB container name  |
+
+To schedule a daily backup via cron:
+
+```sh
+# Run daily at 3am
+0 3 * * * cd /path/to/dns/docker/master && source .env && ./backup.sh
+```
+
+Backups include GTID positions and can be used to bootstrap a new slave (see [`../slave/BOOTSTRAP.md`](../slave/BOOTSTRAP.md)).
+
 ## Exposed Ports
 
 | Port                    | Service    |
