@@ -26,7 +26,6 @@ cp .env.example .env
 
 Edit `.env` and set **at minimum**:
 
-- `MARIADB_ROOT_PASSWORD` - MariaDB root password
 - `MARIADB_PASSWORD` - password for the application database user
 - `REPL_PASSWORD` - password for the replication user (must match on all slaves)
 
@@ -73,7 +72,7 @@ docker compose up -d
 - DNS: `dig @localhost example.com`
 - Web UI: `http://<host>:<HTTP_PORT>`
 - WireGuard: `docker exec dns-wireguard wg show`
-- Replication user: `docker exec dns-mariadb-master mysql -u root -p<password> -e "SELECT user, host FROM mysql.user WHERE user='replicator'"`
+- Replication user: `docker exec dns-mariadb-master mysql -u root -e "SELECT user, host FROM mysql.user WHERE user='replicator'"`
 
 ## Network Architecture
 
