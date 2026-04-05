@@ -89,6 +89,7 @@ services:
       DB_USER: ${MARIADB_USER}
       DB_PASS: ${MARIADB_PASSWORD}
       DB_NAME: ${MARIADB_DATABASE:-pdns}
+      DEBUG: ${DEBUG:-0}
       DNS_ADMIN_USER: ${DNS_ADMIN_USER:-admin}
       DNS_ADMIN_EMAIL: ${DNS_ADMIN_EMAIL:-admin@localhost}
       MAIL_FROM: ${MAIL_FROM:-}

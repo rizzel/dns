@@ -4,6 +4,7 @@ $mailFrom = getenv('MAIL_FROM');
 $pearBackend = getenv('PEAR_BACKEND');
 
 return array(
+    'debug' => filter_var(getenv('DEBUG'), FILTER_VALIDATE_BOOLEAN),
     'db' => array(
         'host' => getenv('DB_HOST') ?: 'localhost',
         'port' => (int) (getenv('DB_PORT') ?: 3306),

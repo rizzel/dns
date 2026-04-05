@@ -286,7 +286,7 @@ class Domains
      * @param string $address The address to convert.
      * @return null|string The PTR-name for the address, or NULL on error.
      */
-    private function getPTRName($recordType = 'A', $address)
+    private function getPTRName($recordType, $address)
     {
         switch ($recordType) {
             case 'A':

@@ -8,7 +8,8 @@ CREATE TABLE dns_users
     email     VARCHAR(100)                                    NOT NULL,
     locale    VARCHAR(10),
     UNIQUE email (email),
-    UNIQUE username (username)
+    UNIQUE username (username),
+    INDEX sessionid (sessionid)
 ) DEFAULT CHARSET "utf8mb4";
 
 CREATE TABLE dns_users_update
@@ -26,7 +27,8 @@ CREATE TABLE dns_records_users
 (
     records_id INT         NOT NULL PRIMARY KEY,
     password   VARCHAR(128),
-    user       VARCHAR(45) NOT NULL
+    user       VARCHAR(45) NOT NULL,
+    INDEX user_idx(user)
 ) CHARSET "utf8";
 
 CREATE TABLE IF NOT EXISTS dns_login_attempts

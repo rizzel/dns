@@ -1,7 +1,7 @@
 #!/bin/bash
 set -e
 
-mysql -u root <<-EOF
+docker_process_sql <<-EOF
     SET GLOBAL server_id = ${SERVER_ID:-2};
     CHANGE MASTER TO
         MASTER_HOST='10.100.0.1',

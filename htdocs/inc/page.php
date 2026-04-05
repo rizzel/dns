@@ -84,6 +84,12 @@ class Page {
 	function __construct() {
 		$this->settings = require(__DIR__ . '/settings.php');
 
+		if ($this->settings['debug']) {
+			error_reporting(E_ALL);
+			ini_set('display_errors', '1');
+			ini_set('display_startup_errors', '1');
+		}
+
         require_once(__DIR__ . '/db.php');
 		$this->db = new DB($this);
 
