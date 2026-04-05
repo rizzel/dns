@@ -896,7 +896,7 @@ class Domains
     {
         $get = $this->page->db->query("SELECT domain_id FROM records WHERE id = ?", $recordId);
         if ($row = $get->fetch())
-            return (int) $row['domain_id'];
+            return $row['domain_id'];
         return null;
     }
 
