@@ -1,53 +1,35 @@
 <?php
 
-class Settings {
-    /**
-     * @var array The used database connection.
-     */
-	public $db = array(
-		'dbHost' => "localhost",
-		'dbPort' => 3306,
-		'dbUser' => "",
-		'dbPass' => "",
-		'dbName' => ""
-	);
+$mailFrom = getenv('MAIL_FROM');
+$pearBackend = getenv('PEAR_BACKEND');
 
-    /**
-     * @var array The default javascript files to include.
-     */
-	public $defaultScripts = array(
-		'js/spin.min.js',
-		'js/string.js',
-		'js/md5.js',
-		'js/dns.js'
-	);
-
-    /**
-     * @var array The default CSS styles to include.
-     */
-	public $defaultStyles = array(
-		'css/dns.css'
-	);
-
-    // default value when not set: sprintf('dns@%s', $_SERVER['HTTP_HOST'])
-    public $mailFrom = 'dns@example.com';
-
-    /**
-     * @var bool Whether to use PEAR::Mail to send emails.
-     */
-    public $usePearMail = FALSE;
-
-    /**
-     * @var string|null The PEAR::Mail backend to use or NULL.
-     */
-    public $pearBackend = NULL;
-
-    // A Mail configuration for PEAR::Mail::factory has to be set
-    public $pearConfig = array(
-        'host' => 'mail.example.com',
-        'username' => 'mail@mail.example.com',
-        'password' => 'mail password',
-        'auth' => 'LOGIN',
-        'port' => 25
-    );
-}
+return array(
+    'db' => array(
+        'host' => getenv('DB_HOST') ?: 'localhost',
+        'port' => (int) (getenv('DB_PORT') ?: 3306),
+        'user' => getenv('DB_USER') ?: '',
+        'pass' => getenv('DB_PASS') ?: '',
+        'name' => getenv('DB_NAME') ?: ''
+    ),
+    'scripts' => array(
+        'js/spin.min.js',
+        'js/string.js',
+        'js/md5.js',
+        'js/dns.js'
+    ),
+    'styles' => array(
+        'css/dns.css'
+    ),
+    'mail' => array(
+        'from' => $mailFrom ?: sprintf('dns@%s', $_SERVER['HTTP_HOST'] ?? 'localhost'),
+        'usePear' => filter_var(getenv('USE_PEAR_MAIL'), FILTER_VALIDATE_BOOLEAN),
+        'pearBackend' => $pearBackend ?: null,
+        'pearConfig' => array(
+            'host' => getenv('PEAR_HOST') ?: '',
+            'username' => getenv('PEAR_USERNAME') ?: '',
+            'password' => getenv('PEAR_PASSWORD') ?: '',
+            'auth' => getenv('PEAR_AUTH') ?: 'LOGIN',
+            'port' => (int) (getenv('PEAR_PORT') ?: 25)
+        )
+    )
+);

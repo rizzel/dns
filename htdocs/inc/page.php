@@ -42,7 +42,7 @@ class Page {
      */
 	public $db;
     /**
-     * @var Settings The Settings instance.
+     * @var array The settings array.
      */
 	public $settings;
     /**
@@ -82,8 +82,7 @@ class Page {
 	public $t;
 
 	function __construct() {
-		require_once(__DIR__ . '/settings.php');
-		$this->settings = new Settings();
+		$this->settings = require(__DIR__ . '/settings.php');
 
         require_once(__DIR__ . '/db.php');
 		$this->db = new DB($this);
@@ -106,8 +105,8 @@ class Page {
 		require_once(__DIR__ . '/feed.domains.php');
 		$this->feeds['domains'] = new FeedsDomains($this);
 
-		$this->scripts = $this->settings->defaultScripts;
-		$this->styles = $this->settings->defaultStyles;
+		$this->scripts = $this->settings['scripts'];
+		$this->styles = $this->settings['styles'];
 
 		header('X-Content-Type-Options: nosniff');
 		header('X-Frame-Options: SAMEORIGIN');

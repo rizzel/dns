@@ -61,21 +61,21 @@ class Email
         if (!filter_var($to, FILTER_VALIDATE_EMAIL))
             return FALSE;
 
-        if (!isset($this->page->settings->mailFrom))
+        $mailSettings = $this->page->settings['mail'];
+        if (!isset($mailSettings['from']))
             return FALSE;
-        $from = $this->page->settings->mailFrom;
+        $from = $mailSettings['from'];
         $subject = "=?UTF-8?B?" . base64_encode($subject) . "?=";
 
         if (
             $this->hasPearMail &&
-            isset($this->page->settings->usePearMail) &&
-            isset($this->page->settings->pearConfig) &&
-            isset($this->page->settings->pearBackend)
+            $mailSettings['usePear'] &&
+            $mailSettings['pearBackend']
         ) {
             $e = ini_get('error_reporting');
             ini_set('error_reporting', 0);
 
-            $mail = &Mail::factory($this->page->settings->pearBackend, $this->page->settings->pearConfig);
+            $mail = &Mail::factory($mailSettings['pearBackend'], $mailSettings['pearConfig']);
 
             $mail->send(
                 $to,

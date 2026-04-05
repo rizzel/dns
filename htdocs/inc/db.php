@@ -20,9 +20,9 @@ class DB
     function __construct($page)
     {
         $this->page = $page;
-        $config = $page->settings->db;
-        $s = sprintf("mysql:host=%s;port=%d;dbname=%s;charset=utf8mb4", $config['dbHost'], $config['dbPort'], $config['dbName']);
-        $this->handle = new PDO($s, $config['dbUser'], $config['dbPass']);
+        $config = $page->settings['db'];
+        $s = sprintf("mysql:host=%s;port=%d;dbname=%s;charset=utf8mb4", $config['host'], $config['port'], $config['name']);
+        $this->handle = new PDO($s, $config['user'], $config['pass']);
         $this->handle->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
     }
 
