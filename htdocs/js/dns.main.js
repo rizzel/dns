@@ -29,9 +29,10 @@ window.initPageSpecific = () => {
                     if (!success)
                         return;
                     const table = $('#recordList');
-                    table.querySelectorAll('tr:not(:first-child)').forEach((el) => el.remove());
+                    const tbody = table.tBodies[0] || table;
+                    tbody.querySelectorAll('tr:not(:first-child)').forEach((el) => el.remove());
                     for (const rec of data.data) {
-                        table.insertAdjacentHTML('beforeend', '<tr data-rid="%d" data-rName="%q" data-rContent="%q" data-rTtl="%d"> \
+                        tbody.insertAdjacentHTML('beforeend', '<tr data-rid="%d" data-rName="%q" data-rContent="%q" data-rTtl="%d"> \
                             <td>%d</td> \
                             <td>%h</td> \
                             <td>%h</td> \

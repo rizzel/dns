@@ -21,7 +21,7 @@ class Users
 
     public function getUserList(): ?array
     {
-        if ($this->page != 'admin')
+        if ($this->page->currentUser->level != 'admin')
             return null;
         $q = $this->page->db->query("SELECT username FROM dns_users ORDER BY username");
         $result = array();
@@ -35,7 +35,7 @@ class Users
 
     public function registerUser(string $username, string $password, int $level, string $email): bool
     {
-        if ($this->page == 'admin') {
+        if ($this->page->currentUser->level == 'admin') {
             $hash = $this::createPassword($password);
 
             $q = $this->page->db->query("
@@ -49,7 +49,7 @@ class Users
                 $level,
                 $email
             );
-            return ($q->errorCode() === '00000');
+            return $q->rowCount() > 0;
         }
         return false;
     }
@@ -60,8 +60,8 @@ class Users
         if ($u->isAnonymous())
             return false;
 
-        if (($this->page == $userName && $this->page == 'user') ||
-            $this->page == 'admin'
+        if (($this->page->currentUser->username == $userName && $this->page->currentUser->level == 'user') ||
+            $this->page->currentUser->level == 'admin'
         ) {
             $this->page->db->query("DELETE FROM dns_users WHERE username=?", $userName);
             return true;

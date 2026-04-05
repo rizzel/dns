@@ -5,8 +5,8 @@ use JetBrains\PhpStorm\NoReturn;
 if (!function_exists('pgettext')) {
     function pgettext($context, $msgId)
     {
-        $contextString = "{$context}\004{$msgId}";
-        $translation = dcgettext(textdomain(null), $contextString, LC_MESSAGES);
+        $contextString = "$context\004$msgId";
+        $translation = dcgettext(textdomain(), $contextString, LC_MESSAGES);
         if ($translation == $contextString)
             return $msgId;
         else
@@ -33,11 +33,11 @@ class Page {
     /**
      * @var array Used css styles.
      */
-	private array $styles = array();
+	private array $styles;
     /**
      * @var array Used javascript.
      */
-	private array $scripts = array();
+	private array $scripts;
 
     /**
      * @var DB The DB instance.

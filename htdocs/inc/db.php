@@ -10,7 +10,7 @@ class DB
     /**
      * @var PDO The used database handle.
      */
-    public PDO $handle;
+    private PDO $handle;
 
     /**
      * @var int Transaction nesting depth.
@@ -38,7 +38,7 @@ class DB
     public function query(string $sql, mixed ...$params): PDOStatement
     {
         $q = $this->handle->prepare($sql);
-        $q->execute($params ?: null);
+        $q->execute($params);
         return $q;
     }
 
@@ -49,7 +49,7 @@ class DB
      */
     public function getLastInsertId(): int
     {
-        return $this->handle->lastInsertId();
+        return (int) $this->handle->lastInsertId();
     }
 
     public function beginTransaction(): void
@@ -68,8 +68,9 @@ class DB
 
     public function rollBack(): void
     {
-        if ($this->transactionDepth === 1)
+        if ($this->transactionDepth > 0) {
             $this->handle->rollBack();
-        $this->transactionDepth--;
+            $this->transactionDepth = 0;
+        }
     }
 }

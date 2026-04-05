@@ -7,6 +7,7 @@ if (!String.prototype.format) {
         const quotEsc = [/"/g, '&#34;', /'/g, '&#39;'];
 
         const esc = (s, r) => {
+            s = String(s);
             for (let i = 0; i < r.length; i += 2)
                 s = s.replace(r[i], r[i + 1]);
             return s;

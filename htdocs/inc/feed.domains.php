@@ -22,47 +22,47 @@ class FeedsDomains extends Feeds
 			$this->setResult();
 	}
 
-	public function domains_delete(int $id): void
+	public function domains_delete(string $id): void
 	{
-		if ($this->page->domains->deleteDomain($id))
+		if ($this->page->domains->deleteDomain(intval($id)))
 			$this->setResult();
 	}
 
-	public function domains_updateName(int $id, string $name): void
+	public function domains_updateName(string $id, string $name): void
 	{
-		if ($this->page->domains->updateDomainName($id, $name))
+		if ($this->page->domains->updateDomainName(intval($id), $name))
 			$this->setResult();
 	}
 
-	public function domains_deleteDomainRecord(int $rid): void
+	public function domains_deleteDomainRecord(string $rid): void
 	{
-		if ($this->page->domains->deleteSpecialRecord($rid))
+		if ($this->page->domains->deleteSpecialRecord(intval($rid)))
 			$this->setResult();
 	}
 
-	public function domains_addDomainRecord(int $did, string $rname, string $rtype, string $rcontent, int $rttl): void
+	public function domains_addDomainRecord(string $did, string $rname, string $rtype, string $rcontent, string $rttl): void
 	{
-		if ($this->page->domains->insertSpecialRecord($did, $rname, $rtype, $rcontent, $rttl))
+		if ($this->page->domains->insertSpecialRecord(intval($did), $rname, $rtype, $rcontent, intval($rttl)))
 			$this->setResult();
 	}
 
-	public function domains_updateDomainRecord(string $rid, string $rname, string $rtype, string $rcontent, int $rttl): void
+	public function domains_updateDomainRecord(string $rid, string $rname, string $rtype, string $rcontent, string $rttl): void
 	{
-		if ($this->page->domains->updateSpecialRecord($rid, $rname, $rtype, $rcontent, $rttl))
+		if ($this->page->domains->updateSpecialRecord($rid, $rname, $rtype, $rcontent, intval($rttl)))
 			$this->setResult();
 	}
 
-	public function domains_updateSOA(int $id, string $soa): void
+	public function domains_updateSOA(string $id, string $soa): void
 	{
-		if ($this->page->domains->deleteSpecialRecords($id, 'SOA') &&
-			$this->page->domains->insertSpecialRecord($id, null, 'SOA', $soa))
+		if ($this->page->domains->deleteSpecialRecords(intval($id), 'SOA') &&
+			$this->page->domains->insertSpecialRecord(intval($id), null, 'SOA', $soa))
 			$this->setResult();
 	}
 
-	public function domains_updateMX(int $id, string $mx): void
+	public function domains_updateMX(string $id, string $mx): void
 	{
-		if ($this->page->domains->deleteSpecialRecords($id, 'MX') &&
-			$this->page->domains->insertSpecialRecord($id, null, 'MX', $mx))
+		if ($this->page->domains->deleteSpecialRecords(intval($id), 'MX') &&
+			$this->page->domains->insertSpecialRecord(intval($id), null, 'MX', $mx))
 			$this->setResult();
 	}
 
@@ -73,9 +73,9 @@ class FeedsDomains extends Feeds
 			$this->setResult($d);
 	}
 
-	public function domains_addRecord(int $domain, string $type, string $name, string $content, string $password, int $ttl): void
+	public function domains_addRecord(string $domain, string $type, string $name, string $content, string $password, string $ttl): void
 	{
-		if ($this->page->domains->addRecord($domain, $type, $name, $content, $password, $ttl))
+		if ($this->page->domains->addRecord(intval($domain), $type, $name, $content, $password, intval($ttl)))
 			$this->setResult();
 	}
 
@@ -86,44 +86,44 @@ class FeedsDomains extends Feeds
 			$this->setResult($r);
 	}
 
-	public function domains_deleteRecord(int $recordID): void
+	public function domains_deleteRecord(string $recordID): void
 	{
-		if ($this->page->domains->deleteRecord($recordID))
+		if ($this->page->domains->deleteRecord(intval($recordID)))
 			$this->setResult();
 	}
 
-	public function domains_updateRecordName(int $recordid, string $name): void
+	public function domains_updateRecordName(string $recordid, string $name): void
 	{
-		if ($this->page->domains->updateRecord($recordid, 'name', $name))
+		if ($this->page->domains->updateRecord(intval($recordid), 'name', $name))
 			$this->setResult();
 	}
 
-	public function domains_updateRecordContent(int $recordid, string $content): void
+	public function domains_updateRecordContent(string $recordid, string $content): void
 	{
-		if ($this->page->domains->updateRecord($recordid, 'content', $content))
+		if ($this->page->domains->updateRecord(intval($recordid), 'content', $content))
 			$this->setResult();
 	}
 
-	public function domains_updateRecordPassword(int $recordid, string $password): void
+	public function domains_updateRecordPassword(string $recordid, string $password): void
 	{
-		if ($this->page->domains->updateRecord($recordid, 'password', $password))
+		if ($this->page->domains->updateRecord(intval($recordid), 'password', $password))
 			$this->setResult();
 	}
 
-	public function domains_updateRecordTTL(int $recordid, string $ttl): void
+	public function domains_updateRecordTTL(string $recordid, string $ttl): void
 	{
-		if ($this->page->domains->updateRecord($recordid, 'ttl', $ttl))
+		if ($this->page->domains->updateRecord(intval($recordid), 'ttl', $ttl))
 			$this->setResult();
 	}
 
-	public function domains_recordTest(int $domainid, string $record, string $type): void
+	public function domains_recordTest(string $domainid, string $record, string $type): void
 	{
 		if (strlen($record) == 0)
 		{
 			$this->setResult();
 			return;
 		}
-		if (($record = $this->page->domains->fixRecordName($domainid, $record)) === null)
+		if (($record = $this->page->domains->fixRecordName(intval($domainid), $record)) === null)
 			return;
 		if (!$this->page->domains->isValidDomainName($record))
 			$this->setResult(array('domain' => $record, 'type' => $type, 'status' => pgettext('domainRecord', 'Invalid name'), 'invalid' => true));

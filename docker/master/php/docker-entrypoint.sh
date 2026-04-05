@@ -41,4 +41,9 @@ php -r '
     echo "\n";
 '
 
+# Disable opcache in debug mode
+if [ "${DEBUG:-0}" = "1" ] || [ "${DEBUG:-0}" = "true" ]; then
+    echo "opcache.enable=0" > /usr/local/etc/php/conf.d/99-debug.ini
+fi
+
 exec "$@"

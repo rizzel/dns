@@ -7,6 +7,8 @@ beginning. In that case, bootstrap the slave with a dump from the master first.
 
 - The master must be running (`dns-mariadb-master` container).
 - The slave's MariaDB data volume should be fresh (or you're okay overwriting it).
+- Each slave must have a unique `server-id` in `mariadb/slave.cnf`. The default is `2`.
+  Change it before starting if you run multiple slaves (e.g., `3`, `4`, ...).
 
 ## Steps
 

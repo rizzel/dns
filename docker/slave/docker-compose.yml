@@ -1,9 +1,13 @@
 services:
   mariadb:
     image: mariadb:11
-    container_name: dns-mariadb-slave
+    container_name: dns-slave-mariadb
     networks:
       - internal
+    ports:
+      - "${WG_PORT:-51821}:51820/udp"   # WireGuard (mariadb owns the network namespace)
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     environment:
       MARIADB_RANDOM_ROOT_PASSWORD: "yes"
       MARIADB_DATABASE: ${MARIADB_DATABASE:-pdns}
@@ -23,7 +27,7 @@ services:
 
   wireguard:
     image: linuxserver/wireguard
-    container_name: dns-wireguard
+    container_name: dns-slave-wireguard
     network_mode: "service:mariadb"
     depends_on:
       mariadb:
@@ -45,7 +49,7 @@ services:
 
   pdns:
     image: powerdns/pdns-auth-49:latest
-    container_name: dns-pdns
+    container_name: dns-slave-pdns
     networks:
       - internal
     ports:

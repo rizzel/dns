@@ -15,7 +15,7 @@ class Email
     /**
      * @var bool Whether this host has PEAR mail support (detect on instantiation).
      */
-    private bool $hasPearMail = false;
+    private bool $hasPearMail;
 
     function __construct(Page $page)
     {
@@ -45,7 +45,7 @@ class Email
      */
     public function sendToCurrent(string $subject, string $body): bool
     {
-        return $this->sendTo($this->page, $subject, $body);
+        return $this->sendTo($this->page->currentUser->email, $subject, $body);
     }
 
     /**
@@ -155,17 +155,17 @@ class Email
     /**
      * Verify an update token.
      *
-     * @param string $user The user the update belongs to.
+     * @param string $username The user the update belongs to.
      * @param string $token The token to verify.
      * @return array|null The key and value to update, or null on failure.
      */
-    public function verifyUpdate(string $user, string $token): ?array
+    public function verifyUpdate(string $username, string $token): ?array
     {
         $get = $this->page->db->query("
             SELECT * FROM dns_users_update
             WHERE username = ? AND token = ?
         ",
-            $user, $token
+            $username, $token
         );
 
         if ($row = $get->fetch()) {
@@ -173,16 +173,16 @@ class Email
                 DELETE FROM dns_users_update
                 WHERE username = ? AND token = ?
             ",
-                $user, $token
+                $username, $token
             );
 
             switch ($row['key']) {
                 case 'password':
-                    if (!$this->page->users->confirmPasswordUpdate($user, $row['value'], true))
+                    if (!$this->page->currentUser->confirmPasswordUpdate($username, $row['value'], true))
                         return null;
                     break;
                 case 'email':
-                    if (!$this->page->users->confirmEmailUpdate($user, $row['value']))
+                    if (!$this->page->currentUser->confirmEmailUpdate($username, $row['value']))
                         return null;
                     break;
             }

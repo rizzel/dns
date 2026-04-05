@@ -10,6 +10,6 @@ $page->addScript('js/dns.main.js');
 
 $page->renderHeader();
 
-$page->renderTemplate('sites/main.php', array());
+$page->renderTemplate('sites/main.php');
 
 $page->renderFooter();

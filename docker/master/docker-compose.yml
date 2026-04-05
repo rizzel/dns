@@ -11,6 +11,7 @@ services:
       MARIADB_DATABASE: ${MARIADB_DATABASE:-pdns}
       MARIADB_USER: ${MARIADB_USER}
       MARIADB_PASSWORD: ${MARIADB_PASSWORD}
+      REPL_PASSWORD: ${REPL_PASSWORD}
     volumes:
       - mariadb-data:/var/lib/mysql
       - ./mariadb/master.cnf:/etc/mysql/mariadb.conf.d/99-master.cnf:ro

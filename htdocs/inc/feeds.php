@@ -24,7 +24,7 @@ abstract class Feeds {
     /**
      * @var bool Whether this is a raw result.
      */
-    protected bool $rawResult;
+    protected bool $rawResult = false;
 
     function __construct(Page $page) {
         $this->page = $page;

@@ -195,12 +195,14 @@ class LoadRemote {
         }).then((data) => {
             const success = (data && data.status === 'ok');
             this._displayComplete(fakeXhr, success);
-            if (typeof callback === 'function')
-                callback(data, success);
-        }).catch(() => {
+            return { data, success };
+        }, (err) => {
+            console.error('loadRemote error:', err);
             this._displayComplete(fakeXhr, 0);
+            return { data: undefined, success: false };
+        }).then((result) => {
             if (typeof callback === 'function')
-                callback(undefined, 0);
+                callback(result.data, result.success);
         });
     }
 }

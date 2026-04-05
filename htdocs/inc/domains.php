@@ -30,7 +30,7 @@ class Domains
      */
     public function getDomains(): ?array
     {
-        if ($this->page != 'admin')
+        if ($this->page->currentUser->level != 'admin')
             return null;
         $get = $this->page->db->query("
 			SELECT * FROM domains d ORDER BY name
@@ -81,7 +81,7 @@ class Domains
      */
     public function addDomain(string $name, string $domainType, string $soa): bool
     {
-        if ($this->page != 'admin')
+        if ($this->page->currentUser->level != 'admin')
             return false;
         $this->page->db->beginTransaction();
         try {
@@ -105,7 +105,7 @@ class Domains
      */
     public function deleteSpecialRecord(int $recordId): bool
     {
-        if ($this->page != 'admin')
+        if ($this->page->currentUser->level != 'admin')
             return false;
         $this->page->db->beginTransaction();
         try {
@@ -134,7 +134,7 @@ class Domains
      */
     public function deleteSpecialRecords(int $domainId, string $recordType): bool
     {
-        if ($this->page != 'admin')
+        if ($this->page->currentUser->level != 'admin')
             return false;
         $this->page->db->beginTransaction();
         try {
@@ -154,7 +154,9 @@ class Domains
     }
 
     /**
-     * This fixes records of type SOA and appends the timestamp to the record.
+     * This fixes records of type SOA.
+     * Accepts "primary-ns email" from the user and appends serial + sane defaults.
+     * If more fields are provided (e.g. during update), they are preserved.
      *
      * @param string $recordType The type of the record.
      * @param string $content The content string to verify.
@@ -165,9 +167,14 @@ class Domains
         if ($recordType == 'SOA') {
             $content = trim($content);
             $content = preg_replace('/\s+/', ' ', $content);
-            if (count(explode(' ', $content)) != 2)
+            $parts = explode(' ', $content);
+            $count = count($parts);
+            if ($count < 2)
                 return null;
-            $content = sprintf("%s %u", $content, time());
+            if ($count == 2) {
+                // New SOA: add serial, refresh (60s), retry (30s), expire (24h), minimum (60s)
+                $content = sprintf("%s %u 60 30 86400 60", $content, time());
+            }
         }
         return $content;
     }
@@ -176,15 +183,15 @@ class Domains
      * Inserts a special (admin-only) record for a specific domain.
      *
      * @param int $domainId The ID of the domain.
-     * @param string $name The name of the record to add.
+     * @param string|null $name The name of the record to add.
      * @param string $recordType The type of the record to add.
      * @param string $content The content of the record to add.
      * @param int $ttl The TTL of the record to add.
      * @return bool Return success.
      */
-    public function insertSpecialRecord(int $domainId, string $name, string $recordType, string $content, int $ttl = 86400): bool
+    public function insertSpecialRecord(int $domainId, ?string $name, string $recordType, string $content, int $ttl = 86400): bool
     {
-        if ($this->page != 'admin')
+        if ($this->page->currentUser->level != 'admin')
             return false;
         if ($content && strlen($content) > 0) {
             if ($name === null)
@@ -234,7 +241,10 @@ class Domains
      */
     public function updateSpecialRecord(string $recordId, string $name, string $recordType, string $content, int $ttl): bool
     {
-        if ($this->page != 'admin')
+        if ($this->page->currentUser->level != 'admin')
+            return false;
+        $content = $this->getSOAContent($recordType, $content);
+        if ($content === null)
             return false;
         $this->page->db->beginTransaction();
         try {
@@ -268,7 +278,7 @@ class Domains
      */
     public function deleteDomain(int $domainId): bool
     {
-        if ($this->page != 'admin')
+        if ($this->page->currentUser->level != 'admin')
             return false;
         $del = $this->page->db->query("
             DELETE d, r, ptr
@@ -293,7 +303,7 @@ class Domains
      */
     public function updateDomainName(int $domainId, string $domainName): bool
     {
-        if ($this->page != 'admin' ||
+        if ($this->page->currentUser->level != 'admin' ||
             strlen($domainName) < 1 || strlen($domainName) > 255
         )
             return false;
@@ -317,7 +327,7 @@ class Domains
      */
     public function getDomainsMini(): ?array
     {
-        if ($this->page == 'nobody')
+        if ($this->page->currentUser->level == 'nobody')
             return null;
         $get = $this->page->db->query("
 			SELECT id, name
@@ -397,11 +407,10 @@ class Domains
      */
     public function addRecord(int $domainId, string $recordType, string $name, string $content, string $password, int $ttl): bool
     {
-        if ($this->page == 'nobody')
+        if ($this->page->currentUser->level == 'nobody')
             return false;
         if (!in_array($recordType, array('A', 'AAAA', 'CNAME')))
             return false;
-        $ttl = intval($ttl);
         if (strlen($name) == 0 || strlen($content) == 0 || $ttl < 1 || $ttl > 2147483647)
             return false;
         if (!$this->testRecordType($name, $recordType))
@@ -432,7 +441,7 @@ class Domains
                 VALUES
                 (?, ?, ?)
             ",
-                $recordId, $password, $this->page
+                $recordId, $password, $this->page->currentUser->username
             );
 
             $ptr = $this->getPTRName($recordType, $content);
@@ -499,7 +508,7 @@ class Domains
               (r.name = ? AND r.type IN ('A', 'AAAA') AND ? = 'CNAME')
         ",
             $recordName,
-            $this->page,
+            $this->page->currentUser->username,
             $recordName,
             $recordType,
             $recordName,
@@ -542,13 +551,11 @@ class Domains
      */
     private function isValidIP(string $ip, string $type): bool
     {
-        switch ($type) {
-            case 'A':
-                return $this->isValidIPv4($ip);
-            case 'AAAA':
-                return $this->isValidIPv6($ip);
-        }
-        return false;
+        return match ($type) {
+            'A' => $this->isValidIPv4($ip),
+            'AAAA' => $this->isValidIPv6($ip),
+            default => false,
+        };
     }
 
     /**
@@ -580,7 +587,7 @@ class Domains
      */
     public function getMyRecords(): ?array
     {
-        if ($this->page == 'nobody')
+        if ($this->page->currentUser->level == 'nobody')
             return null;
         $get = $this->page->db->query("
             SELECT
@@ -606,7 +613,7 @@ class Domains
               r.type IN ('A', 'AAAA', 'CNAME')
             ORDER BY d.name, r.type, r.name, r.content
         ",
-            $this->page
+            $this->page->currentUser->username
         );
         return $get->fetchall();
     }
@@ -633,8 +640,8 @@ class Domains
                   (? = 'admin' OR user = ?)
             ",
                 $recordId,
-                $this->page,
-                $this->page
+                $this->page->currentUser->level,
+                $this->page->currentUser->username
             );
             if ($set->rowCount() > 0) {
                 $result = $this->updateSOARecord($did);
@@ -695,8 +702,8 @@ class Domains
             ",
                 $value,
                 $recordId,
-                $this->page,
-                $this->page
+                $this->page->currentUser->level,
+                $this->page->currentUser->username
             );
 
             if ($set->rowCount() > 0) {
@@ -887,6 +894,20 @@ class Domains
     }
 
     /**
+     * Returns the name of a domain by its ID.
+     *
+     * @param int $domainId The ID of the domain.
+     * @return string|null The domain name, or null on error.
+     */
+    private function getDomainName(int $domainId): ?string
+    {
+        $get = $this->page->db->query("SELECT name FROM domains WHERE id = ?", $domainId);
+        if ($row = $get->fetch())
+            return $row['name'];
+        return null;
+    }
+
+    /**
      * Returns the ID of the domain for a specific record ID.
      *
      * @param int $recordId The ID of a record.
@@ -910,7 +931,7 @@ class Domains
      * @param int|null $recordId The ID of a record.
      * @return bool Whether successful.
      */
-    private function testRecordType(string $recordName, string $recordType, ?int $recordId = null): bool
+    private function testRecordType(string $recordName, ?string $recordType, ?int $recordId = null): bool
     {
         if ($recordType == null) {
             $get = $this->page->db->query("SELECT type FROM records WHERE id = ?", $recordId);

@@ -8,31 +8,19 @@ class User
     private Page $page;
 
     /**
-     * @var string The name of the user.
+     * @var string|null The name of the user.
      */
-    public string $username {
-        get {
-            return $this->username;
-        }
-    }
+    public ?string $username = null;
 
     /**
-     * @var string The level of the user.
+     * @var string|null The level of the user.
      */
-    public string $level {
-        get {
-            return $this->level;
-        }
-    }
+    public ?string $level = null;
 
     /**
-     * @var string|null The name of the user or null for session-loading.
+     * @var string|null The email of the user.
      */
-    public ?string $email {
-        get {
-            return $this->email;
-        }
-    }
+    public ?string $email = null;
 
     public string $locale;
     public ?string $textDomainFolder;
@@ -209,7 +197,7 @@ class User
                     %1$s for the user %2$s'
                 ) . "\n\n",
                 $_SERVER['SERVER_NAME'],
-                $this->page
+                $this->page->currentUser->username
             ),
             'password',
             $hash
@@ -242,7 +230,7 @@ class User
                      %1$s for the user %2$s'
                 ) . "\n\n",
                 $_SERVER['SERVER_NAME'],
-                $this->page
+                $this->page->currentUser->username
             ),
             'email',
             $email
@@ -296,12 +284,12 @@ class User
 
         if (
             (
-                $this->page == $this->username &&
-                $this->page == 'user' &&
+                $this->page->currentUser->username == $this->username &&
+                $this->page->currentUser->level == 'user' &&
                 in_array($key, array('username', 'password', 'email'))
             ) ||
             (
-                $this->page == 'admin'
+                $this->page->currentUser->level == 'admin'
             )
         ) {
             $set = null;

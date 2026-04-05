@@ -55,7 +55,7 @@ class FeedsUsers extends Feeds
 
     public function user_verifyToken(string $token): void
     {
-        if ($this->page->email->verifyUpdate($this->page, $token))
+        if ($this->page->email->verifyUpdate($this->page->currentUser->username, $token))
             $this->setResult();
     }
 
