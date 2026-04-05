@@ -44,10 +44,10 @@ cp wireguard/wg0.conf.example wireguard/wg0.conf
 Generate a keypair:
 
 ```sh
-docker run --rm -it --entrypoint wg linuxserver/wireguard genkey | tee /dev/stderr | docker run --rm -i --entrypoint wg linuxserver/wireguard pubkey
+docker run --rm --entrypoint wg linuxserver/wireguard genkey | tee wireguard/wg0.private_key | docker run --rm -i --entrypoint wg linuxserver/wireguard pubkey > wireguard/wg0.public_key
 ```
 
-The first line of output is the private key (put it in the master's `wg0.conf`), the second is the public key (give it to each slave).
+This saves the private key to `wireguard/wg0.private_key` (put it in the master's `wg0.conf`) and the public key to `wireguard/wg0.public_key` (give it to each slave).
 
 Add a `[Peer]` block for each slave with its public key and WireGuard IP.
 

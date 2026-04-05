@@ -26,7 +26,6 @@ cp .env.example .env
 
 Edit `.env` and set:
 
-- `MARIADB_ROOT_PASSWORD` - MariaDB root password
 - `MARIADB_PASSWORD` - password for the application database user
 - `REPL_PASSWORD` - replication password (**must match the master**)
 - `SERVER_ID` - unique ID for this slave (2, 3, 4, ... - must not collide with master or other slaves)
@@ -40,10 +39,10 @@ cp wireguard/wg0.conf.example wireguard/wg0.conf
 Generate a keypair:
 
 ```sh
-docker run --rm -it --entrypoint wg linuxserver/wireguard genkey | tee /dev/stderr | docker run --rm -i --entrypoint wg linuxserver/wireguard pubkey
+docker run --rm --entrypoint wg linuxserver/wireguard genkey | tee wireguard/wg0.private_key | docker run --rm -i --entrypoint wg linuxserver/wireguard pubkey > wireguard/wg0.public_key
 ```
 
-The first line of output is the private key (put it in this slave's `wg0.conf`), the second is the public key (add it as a `[Peer]` on the master).
+This saves the private key to `wireguard/wg0.private_key` (put it in this slave's `wg0.conf`) and the public key to `wireguard/wg0.public_key` (add it as a `[Peer]` on the master).
 
 Edit `wg0.conf` and set:
 
@@ -75,7 +74,7 @@ On first start, the init script (`mariadb/init/01-start-replication.sh`) automat
 
 - DNS: `dig @localhost example.com`
 - WireGuard: `docker exec dns-wireguard wg show`
-- Replication status: `docker exec dns-mariadb-slave mysql -u root -p<password> -e "SHOW SLAVE STATUS\G"`
+- Replication status: `docker exec dns-mariadb-slave mysql -u root -e "SHOW SLAVE STATUS\G"`
 
 ## Network Architecture
 
