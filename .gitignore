@@ -7,3 +7,4 @@
 wg0.conf
 wg0.private_key
 wg0.public_key
+**/mariadb/*.cnf

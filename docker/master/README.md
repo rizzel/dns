@@ -31,11 +31,20 @@ Edit `.env` and set **at minimum**:
 
 Optional settings:
 
+- `DNS_PORT` - PowerDNS listen port (default: `53`)
 - `WG_PORT` - WireGuard listen port (default: `51820`)
 - `HTTP_PORT` - PHP web interface port (default: `8080`)
+- `DNS_ADMIN_USER` - initial admin username (default: `admin`)
+- `DNS_ADMIN_EMAIL` - initial admin email (default: `admin@localhost`)
 - `MAIL_FROM`, `USE_PEAR_MAIL`, `PEAR_*` - mail delivery settings
 
-### 2. Configure WireGuard
+### 2. Configure MariaDB
+
+```sh
+cp mariadb/master.cnf.example mariadb/master.cnf
+```
+
+### 3. Configure WireGuard
 
 ```sh
 cp wireguard/wg0.conf.example wireguard/wg0.conf
@@ -51,7 +60,7 @@ This saves the private key to `wireguard/wg0.private_key` (put it in the master'
 
 Add a `[Peer]` block for each slave with its public key and WireGuard IP.
 
-### 3. Configure `settings.php`
+### 4. Configure `settings.php`
 
 The PHP web interface requires a `settings.php` file. A template is provided in the repository:
 
@@ -61,13 +70,19 @@ cp ../../htdocs/inc/settings.php.default ../../htdocs/inc/settings.php
 
 Edit `htdocs/inc/settings.php` and adjust database credentials, mail settings, etc. The PHP container will refuse to start if this file is missing.
 
-### 4. Start the stack
+### 5. Start the stack
 
 ```sh
 docker compose up -d
 ```
 
-### 5. Verify
+On first start, the PHP container creates an initial admin user and prints the generated password to the logs:
+
+```sh
+docker logs dns-php
+```
+
+### 6. Verify
 
 - DNS: `dig @localhost example.com`
 - Web UI: `http://<host>:<HTTP_PORT>`
@@ -83,5 +98,5 @@ Only the mariadb container has access to the WireGuard tunnel (wireguard shares 
 | Port                    | Service    |
 |-------------------------|------------|
 | `WG_PORT` (51820/udp)  | WireGuard  |
-| 53/tcp+udp             | PowerDNS   |
+| `DNS_PORT` (53/tcp+udp)| PowerDNS   |
 | `HTTP_PORT` (8080/tcp) | PHP/Apache |

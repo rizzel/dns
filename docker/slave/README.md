@@ -30,7 +30,17 @@ Edit `.env` and set:
 - `REPL_PASSWORD` - replication password (**must match the master**)
 - `SERVER_ID` - unique ID for this slave (2, 3, 4, ... - must not collide with master or other slaves)
 
-### 2. Configure WireGuard
+Optional settings:
+
+- `DNS_PORT` - PowerDNS listen port (default: `53`)
+
+### 2. Configure MariaDB
+
+```sh
+cp mariadb/slave.cnf.example mariadb/slave.cnf
+```
+
+### 3. Configure WireGuard
 
 ```sh
 cp wireguard/wg0.conf.example wireguard/wg0.conf
@@ -50,7 +60,7 @@ Edit `wg0.conf` and set:
 - `PublicKey` - the master's public key
 - `Endpoint` - the master's public IP and WireGuard port (e.g. `203.0.113.1:51820`)
 
-### 3. Add this slave as a peer on the master
+### 4. Add this slave as a peer on the master
 
 On the master, add a `[Peer]` block to `wireguard/wg0.conf`:
 
@@ -62,7 +72,7 @@ AllowedIPs = 10.100.0.X/32
 
 Restart the master's WireGuard container after adding the peer.
 
-### 4. Start the stack
+### 5. Start the stack
 
 ```sh
 docker compose up -d
@@ -70,7 +80,7 @@ docker compose up -d
 
 On first start, the init script (`mariadb/init/01-start-replication.sh`) automatically configures replication to the master at `10.100.0.1:3306` using GTID.
 
-### 5. Verify
+### 6. Verify
 
 - DNS: `dig @localhost example.com`
 - WireGuard: `docker exec dns-wireguard wg show`
@@ -84,4 +94,4 @@ Only the mariadb container has access to the WireGuard tunnel (wireguard shares 
 
 | Port        | Service  |
 |-------------|----------|
-| 53/tcp+udp  | PowerDNS |
+| `DNS_PORT` (53/tcp+udp) | PowerDNS |

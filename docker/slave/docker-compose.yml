@@ -54,8 +54,6 @@ services:
     depends_on:
       mariadb:
         condition: service_healthy
-      wireguard:
-        condition: service_healthy
     environment:
       PDNS_gmysql_host: mariadb
       PDNS_gmysql_port: "3306"
