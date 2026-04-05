@@ -4,7 +4,7 @@
 require_once(__DIR__ . "/inc/page.php");
 $page = new Page();
 
-if ($page->currentUser->getLevel() != 'admin')
+if ($page->currentUser != 'admin')
 	$page->redirectIndex();
 
 $page->setTitle(pgettext("PageTitle", "DNS - Administration"));

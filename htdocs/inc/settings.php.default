@@ -16,6 +16,7 @@ return array(
         'js/spin.min.js',
         'js/string.js',
         'js/md5.js',
+        'js/jed.js',
         'js/dns.js'
     ),
     'styles' => array(

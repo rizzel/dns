@@ -20,23 +20,34 @@ CREATE TABLE dns_users_update
     `key`       VARCHAR(128) NOT NULL,
     value       LONGTEXT     NOT NULL,
     INDEX lookup (username, token),
-    INDEX `time` (requesttime)
+    INDEX `time` (requesttime),
+    FOREIGN KEY (username) REFERENCES dns_users(username) ON DELETE CASCADE
 ) DEFAULT CHARSET "utf8mb4";
 
 CREATE TABLE dns_records_users
 (
-    records_id INT         NOT NULL PRIMARY KEY,
+    records_id BIGINT       NOT NULL PRIMARY KEY,
     password   VARCHAR(128),
     user       VARCHAR(45) NOT NULL,
-    INDEX user_idx(user)
-) CHARSET "utf8";
+    INDEX user_idx(user),
+    FOREIGN KEY (records_id) REFERENCES records(id) ON DELETE CASCADE,
+    FOREIGN KEY (user) REFERENCES dns_users(username) ON DELETE CASCADE
+) DEFAULT CHARSET "utf8mb4";
+
+CREATE TABLE dns_records
+(
+    records_id  BIGINT   NOT NULL PRIMARY KEY,
+    change_date DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (records_id) REFERENCES records(id) ON DELETE CASCADE
+) DEFAULT CHARSET "utf8mb4";
 
 CREATE TABLE IF NOT EXISTS dns_login_attempts
 (
     ip           VARCHAR(45) NOT NULL,
     username     VARCHAR(45) NOT NULL,
     attempt_time DATETIME    NOT NULL,
-    INDEX ip_time (ip, attempt_time)
+    INDEX ip_time (ip, attempt_time),
+    FOREIGN KEY (username) REFERENCES dns_users(username) ON DELETE CASCADE
 ) DEFAULT CHARSET "utf8mb4";
 
 INSERT INTO dns_users

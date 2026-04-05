@@ -31,7 +31,8 @@ function initPage() {
     };
 
     dns.alsZeit = (t) => {
-        const d = new Date(parseInt(t) * 1000);
+        if (!t) return '';
+        const d = new Date(t.replace(' ', 'T'));
         return "%04d-%02d-%02d %02d:%02d:%02d".format(
             d.getFullYear(), d.getMonth() + 1, d.getDate(),
             d.getHours(), d.getMinutes(), d.getSeconds()
@@ -227,8 +228,10 @@ class User {
     }
 
     updateUserInfo() {
-        $('#usertext').textContent = this.user.username;
-        $('#userlevel').textContent = this.user.level;
+        const usertext = $('#usertext');
+        const userlevel = $('#userlevel');
+        if (usertext) usertext.textContent = this.user.username;
+        if (userlevel) userlevel.textContent = this.user.level;
     }
 
     doLogin(user, password) {

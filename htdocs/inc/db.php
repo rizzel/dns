@@ -8,18 +8,17 @@
 class DB
 {
     /**
-     * @var Page The base page instance
-     */
-    private $page;
-
-    /**
      * @var PDO The used database handle.
      */
-    public $handle;
+    public PDO $handle;
 
-    function __construct($page)
+    /**
+     * @var int Transaction nesting depth.
+     */
+    private int $transactionDepth = 0;
+
+    function __construct(Page $page)
     {
-        $this->page = $page;
         $config = $page->settings['db'];
         $s = sprintf("mysql:host=%s;port=%d;dbname=%s;charset=utf8mb4", $config['host'], $config['port'], $config['name']);
         $this->handle = new PDO($s, $config['user'], $config['pass']);
@@ -27,23 +26,12 @@ class DB
     }
 
     /**
-     * Quotes the strings using the db handle.
-     *
-     * @param string $x The string to quote.
-     * @return string The quoted string.
-     */
-    public function esc($x)
-    {
-        return $this->handle->quote($x);
-    }
-
-    /**
      * Returns the PDO type for a value.
      *
-     * @param $value The value.
+     * @param mixed $value The value.
      * @return int The PDO type for a value.
      */
-    public function getPDOType($value)
+    public function getPDOType(mixed $value): int
     {
         if (is_int($value)) return PDO::PARAM_INT;
         if (is_bool($value)) return PDO::PARAM_BOOL;
@@ -52,25 +40,18 @@ class DB
     }
 
     /**
-     * Prepares a PDO statement.
-     * The first argument is always a SQL query.
-     * The second parameter can be one of:
-     * a) an array containing all bind values.
-     * b) an assoc-array containing all bind values (with or without leading colon in key)
-     * c) separate parameters for the bind values.
+     * Prepares and executes a PDO statement.
      *
-     * @param string $0 The SQL query.
-     * @param array|string $1 Optional parameters.
-     * @return PDOStatement The prepared statement.
+     * @param string $sql The SQL query.
+     * @param mixed ...$params Bind values, either as separate arguments or a single array.
+     * @return PDOStatement The executed statement.
      */
-    public function query()
+    public function query(string $sql, mixed ...$params): PDOStatement
     {
-        $args = func_get_args();
-        $sql = array_shift($args);
         $q = $this->handle->prepare($sql);
-        if (count($args) > 0) {
-            if (is_array($args[0])) {
-                foreach ($args[0] as $key => $value) {
+        if (count($params) > 0) {
+            if (is_array($params[0])) {
+                foreach ($params[0] as $key => $value) {
                     if (is_int($key)) {
                         $q->bindValue($key + 1, $value, $this->getPDOType($value));
                     } else {
@@ -79,18 +60,12 @@ class DB
                 }
             } else {
                 $k = 0;
-                foreach ($args as $value) {
+                foreach ($params as $value) {
                     $q->bindValue(++$k, $value, $this->getPDOType($value));
                 }
             }
         }
-        if (!$q->execute()) {
-            error_log(sprintf("SQLERROR: %s %s (%s)",
-                $sql,
-                print_r($args, true),
-                print_r($q->errorInfo(), true)
-            ));
-        }
+        $q->execute();
         return $q;
     }
 
@@ -99,8 +74,29 @@ class DB
      *
      * @return int The last insert ID.
      */
-    public function getLastInsertId()
+    public function getLastInsertId(): int
     {
         return $this->handle->lastInsertId();
+    }
+
+    public function beginTransaction(): void
+    {
+        if ($this->transactionDepth === 0)
+            $this->handle->beginTransaction();
+        $this->transactionDepth++;
+    }
+
+    public function commit(): void
+    {
+        if ($this->transactionDepth === 1)
+            $this->handle->commit();
+        $this->transactionDepth--;
+    }
+
+    public function rollBack(): void
+    {
+        if ($this->transactionDepth === 1)
+            $this->handle->rollBack();
+        $this->transactionDepth--;
     }
 }

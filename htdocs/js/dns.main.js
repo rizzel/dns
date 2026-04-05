@@ -212,6 +212,9 @@ window.initPageSpecific = () => {
         );
     };
 
+    if (!$('#addRecord_button'))
+        return;
+
     $('#addRecord_button').addEventListener('click', () => {
         const div = $('#addRecord');
         div.classList.toggle('active');

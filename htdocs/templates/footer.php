@@ -4,15 +4,15 @@ global $page;
 
 $d = opendir(__DIR__ . '/..');
 $certs = array();
-$hasCrt = $hasDer = FALSE;
+$hasCrt = $hasDer = false;
 
 while ($f = readdir($d)) {
     $path = __DIR__ . "/../$f";
     if (!$hasDer && is_file($path) && preg_match('/\.der$/i', $f)) {
-        $hasDer = TRUE;
+        $hasDer = true;
         $certs[] = sprintf('<a href="http://%s/%s">DER</a>', htmlspecialchars($_SERVER['SERVER_NAME']), htmlspecialchars($f));
     } elseif (!$hasCrt && is_file($path) && preg_match('/\.crt$/i', $f)) {
-        $hasCrt = TRUE;
+        $hasCrt = true;
         $certs[] = sprintf('<a href="http://%s/%s">CRT</a>', htmlspecialchars($_SERVER['SERVER_NAME']), htmlspecialchars($f));
     }
 }

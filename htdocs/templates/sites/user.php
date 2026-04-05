@@ -15,7 +15,7 @@ global $page;
 	</div>
 	<div>
 		<label for="email"><?php echo pgettext("UpdateUser", "New Email"); ?>:</label>
-		<input type="text" id="email" value="<?php echo $page->currentUser->getEmail() ?>" size="64" />
+		<input type="text" id="email" value="<?php echo $page->currentUser ?>" size="64" />
 		<input type="button" id="email_submit" value="<?php echo pgettext("UpdateUser", "Update"); ?>" />
 	</div>
 	<div>

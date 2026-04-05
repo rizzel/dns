@@ -10,20 +10,28 @@ class Domains
     /**
      * @var Page The base page instance
      */
-    private $page;
+    private Page $page;
 
-    function __construct($page)
+    function __construct(Page $page)
     {
         $this->page = $page;
     }
 
-    /**
-     * @return array|bool Returns a list of all domains and their admin records, or FALSE on failure.
-     */
-    public function getDomains()
+    private function touchRecord(int $recordId): void
     {
-        if ($this->page->currentUser->getLevel() != 'admin')
-            return FALSE;
+        $this->page->db->query("
+            INSERT INTO dns_records (records_id, change_date) VALUES (?, NOW())
+            ON DUPLICATE KEY UPDATE change_date = NOW()
+        ", $recordId);
+    }
+
+    /**
+     * @return array|null Returns a list of all domains and their admin records, or null on failure.
+     */
+    public function getDomains(): ?array
+    {
+        if ($this->page != 'admin')
+            return null;
         $get = $this->page->db->query("
 			SELECT * FROM domains d ORDER BY name
 		");
@@ -53,7 +61,7 @@ class Domains
      * @param int $domainId The domain ID for which to update the SOA-record.
      * @return bool Return success.
      */
-    private function updateSOARecord($domainId)
+    private function updateSOARecord(int $domainId): bool
     {
         $set = $this->page->db->query("
             UPDATE records
@@ -71,31 +79,50 @@ class Domains
      * @param string $soa The SOA record for the domain (only containing primary DNS and email).
      * @return bool Returns success.
      */
-    public function addDomain($name, $domainType, $soa)
+    public function addDomain(string $name, string $domainType, string $soa): bool
     {
-        if ($this->page->currentUser->getLevel() != 'admin')
-            return FALSE;
-        $set = $this->page->db->query("INSERT INTO domains (name, type) VALUES (?, ?)", $name, $domainType);
-        if ($set->rowCount() > 0) {
-            $domainId = $this->page->db->getLastInsertId();
-            $this->insertSpecialRecord($domainId, $name, 'SOA', $soa);
+        if ($this->page != 'admin')
+            return false;
+        $this->page->db->beginTransaction();
+        try {
+            $set = $this->page->db->query("INSERT INTO domains (name, type) VALUES (?, ?)", $name, $domainType);
+            if ($set->rowCount() > 0) {
+                $domainId = $this->page->db->getLastInsertId();
+                $this->insertSpecialRecord($domainId, $name, 'SOA', $soa);
+            }
+            $this->page->db->commit();
+            return true;
+        } catch (Exception $e) {
+            $this->page->db->rollBack();
+            error_log("addDomain transaction failed: " . $e->getMessage());
+            return false;
         }
-        return TRUE;
     }
 
     /**
      * @param int $recordId The ID of the record to delete (for admins).
      * @return bool Returns success.
      */
-    public function deleteSpecialRecord($recordId)
+    public function deleteSpecialRecord(int $recordId): bool
     {
-        if ($this->page->currentUser->getLevel() != 'admin')
-            return FALSE;
-        $domainId = $this->getDomainIDForRecord($recordId);
-        $del = $this->page->db->query("DELETE FROM records WHERE id = ?", $recordId);
-        if ($del->rowCount() > 0)
-            return $this->updateSOARecord($domainId);
-        return FALSE;
+        if ($this->page != 'admin')
+            return false;
+        $this->page->db->beginTransaction();
+        try {
+            $domainId = $this->getDomainIDForRecord($recordId);
+            $del = $this->page->db->query("DELETE FROM records WHERE id = ?", $recordId);
+            if ($del->rowCount() > 0) {
+                $result = $this->updateSOARecord($domainId);
+                $this->page->db->commit();
+                return $result;
+            }
+            $this->page->db->commit();
+            return false;
+        } catch (Exception $e) {
+            $this->page->db->rollBack();
+            error_log("deleteSpecialRecord transaction failed: " . $e->getMessage());
+            return false;
+        }
     }
 
     /**
@@ -105,14 +132,25 @@ class Domains
      * @param string $recordType The record type to delete.
      * @return bool Returns success.
      */
-    public function deleteSpecialRecords($domainId, $recordType)
+    public function deleteSpecialRecords(int $domainId, string $recordType): bool
     {
-        if ($this->page->currentUser->getLevel() != 'admin')
-            return FALSE;
-        $del = $this->page->db->query("DELETE FROM records WHERE domain_id = ? AND type = ?", $domainId, $recordType);
-        if ($del->rowCount() > 0)
-            return $this->updateSOARecord($domainId);
-        return FALSE;
+        if ($this->page != 'admin')
+            return false;
+        $this->page->db->beginTransaction();
+        try {
+            $del = $this->page->db->query("DELETE FROM records WHERE domain_id = ? AND type = ?", $domainId, $recordType);
+            if ($del->rowCount() > 0) {
+                $result = $this->updateSOARecord($domainId);
+                $this->page->db->commit();
+                return $result;
+            }
+            $this->page->db->commit();
+            return false;
+        } catch (Exception $e) {
+            $this->page->db->rollBack();
+            error_log("deleteSpecialRecords transaction failed: " . $e->getMessage());
+            return false;
+        }
     }
 
     /**
@@ -120,15 +158,15 @@ class Domains
      *
      * @param string $recordType The type of the record.
      * @param string $content The content string to verify.
-     * @return bool|string Returns the SOA content-string, or FALSE on error.
+     * @return string|null Returns the SOA content-string, or null on error.
      */
-    private function getSOAContent($recordType, $content)
+    private function getSOAContent(string $recordType, string $content): ?string
     {
         if ($recordType == 'SOA') {
             $content = trim($content);
             $content = preg_replace('/\s+/', ' ', $content);
             if (count(explode(' ', $content)) != 2)
-                return FALSE;
+                return null;
             $content = sprintf("%s %u", $content, time());
         }
         return $content;
@@ -144,32 +182,44 @@ class Domains
      * @param int $ttl The TTL of the record to add.
      * @return bool Return success.
      */
-    public function insertSpecialRecord($domainId, $name, $recordType, $content, $ttl = 86400)
+    public function insertSpecialRecord(int $domainId, string $name, string $recordType, string $content, int $ttl = 86400): bool
     {
-        if ($this->page->currentUser->getLevel() != 'admin')
-            return FALSE;
+        if ($this->page != 'admin')
+            return false;
         if ($content && strlen($content) > 0) {
-            if ($name === NULL)
+            if ($name === null)
                 $name = $this->getDomainName($domainId);
             $content = $this->getSOAContent($recordType, $content);
-            if ($content === FALSE)
-                return FALSE;
-            $in = $this->page->db->query("
-                INSERT INTO records
-                  (domain_id, name, type, content, ttl, change_date)
-				VALUES
-                  (?, ?, ?, ?, ?, UNIX_TIMESTAMP())
-			",
-                $domainId,
-                $name,
-                $recordType,
-                $content,
-                $ttl
-            );
-            if ($in->rowCount() > 0)
-                return $this->updateSOARecord($domainId);
+            if ($content === null)
+                return false;
+            $this->page->db->beginTransaction();
+            try {
+                $in = $this->page->db->query("
+                    INSERT INTO records
+                      (domain_id, name, type, content, ttl)
+                    VALUES
+                      (?, ?, ?, ?, ?)
+                ",
+                    $domainId,
+                    $name,
+                    $recordType,
+                    $content,
+                    $ttl
+                );
+                if ($in->rowCount() > 0) {
+                    $this->touchRecord($this->page->db->getLastInsertId());
+                    $result = $this->updateSOARecord($domainId);
+                    $this->page->db->commit();
+                    return $result;
+                }
+                $this->page->db->commit();
+            } catch (Exception $e) {
+                $this->page->db->rollBack();
+                error_log("insertSpecialRecord transaction failed: " . $e->getMessage());
+                return false;
+            }
         }
-        return FALSE;
+        return false;
     }
 
     /**
@@ -182,20 +232,32 @@ class Domains
      * @param int $ttl The TTL of the record to add.
      * @return bool Returns success.
      */
-    public function updateSpecialRecord($recordId, $name, $recordType, $content, $ttl)
+    public function updateSpecialRecord(string $recordId, string $name, string $recordType, string $content, int $ttl): bool
     {
-        if ($this->page->currentUser->getLevel() != 'admin')
-            return FALSE;
-        $set = $this->page->db->query("
-            UPDATE records
-            SET name = ?, type = ?, content = ?, ttl = ?
-             WHERE id = ?
-        ",
-            $name, $recordType, $content, $ttl, $recordId
-        );
-        if ($set->rowCount() > 0)
-            return $this->updateSOARecord($this->getDomainIDForRecord($recordId));
-        return FALSE;
+        if ($this->page != 'admin')
+            return false;
+        $this->page->db->beginTransaction();
+        try {
+            $set = $this->page->db->query("
+                UPDATE records
+                SET name = ?, type = ?, content = ?, ttl = ?
+                 WHERE id = ?
+            ",
+                $name, $recordType, $content, $ttl, $recordId
+            );
+            if ($set->rowCount() > 0) {
+                $this->touchRecord($recordId);
+                $result = $this->updateSOARecord($this->getDomainIDForRecord($recordId));
+                $this->page->db->commit();
+                return $result;
+            }
+            $this->page->db->commit();
+            return false;
+        } catch (Exception $e) {
+            $this->page->db->rollBack();
+            error_log("updateSpecialRecord transaction failed: " . $e->getMessage());
+            return false;
+        }
     }
 
     /**
@@ -204,11 +266,11 @@ class Domains
      * @param int $domainId The ID of the domain to delete.
      * @return bool Returns success.
      */
-    public function deleteDomain($domainId)
+    public function deleteDomain(int $domainId): bool
     {
-        if ($this->page->currentUser->getLevel() != 'admin')
-            return FALSE;
-        $this->page->db->query("
+        if ($this->page != 'admin')
+            return false;
+        $del = $this->page->db->query("
             DELETE d, r, ptr
             FROM domains d
             LEFT JOIN records r
@@ -219,7 +281,7 @@ class Domains
         ",
             $domainId
         );
-        return $this->page->db->handle->errorCode() === '00000';
+        return $del->rowCount() > 0;
     }
 
     /**
@@ -229,12 +291,12 @@ class Domains
      * @param string $domainName The new name of the domain.
      * @return bool Returns success.
      */
-    public function updateDomainName($domainId, $domainName)
+    public function updateDomainName(int $domainId, string $domainName): bool
     {
-        if ($this->page->currentUser->getLevel() != 'admin' ||
+        if ($this->page != 'admin' ||
             strlen($domainName) < 1 || strlen($domainName) > 255
         )
-            return FALSE;
+            return false;
         $set = $this->page->db->query("
             UPDATE domains
             SET name = ?
@@ -244,32 +306,19 @@ class Domains
         );
         if ($set->rowCount() > 0)
             return $this->updateSOARecord($domainId);
-        return FALSE;
+        return false;
     }
 
-    /**
-     * Returns the name of a domain specified by its ID.
-     *
-     * @param int $domainId The ID of the domain.
-     * @return string|bool The name of the domain, or FALSE on error.
-     */
-    private function getDomainName($domainId)
-    {
-        $get = $this->page->db->query("SELECT name FROM domains WHERE id = ?", $domainId);
-        if ($get && $row = $get->fetch())
-            return $row['name'];
-        return FALSE;
-    }
 
     /**
      * Returns the list of all domain names and their corresponding ID.
      *
-     * @return array|bool The list of domains, or FALSE on error.
+     * @return array|null The list of domains, or null if unauthorized.
      */
-    public function getDomainsMini()
+    public function getDomainsMini(): ?array
     {
-        if ($this->page->currentUser->getLevel() == 'nobody')
-            return FALSE;
+        if ($this->page == 'nobody')
+            return null;
         $get = $this->page->db->query("
 			SELECT id, name
 			FROM domains
@@ -284,9 +333,9 @@ class Domains
      *
      * @param string $recordType The type of the record.
      * @param string $address The address to convert.
-     * @return null|string The PTR-name for the address, or NULL on error.
+     * @return null|string The PTR-name for the address, or null on error.
      */
-    private function getPTRName($recordType, $address)
+    private function getPTRName(string $recordType, string $address): ?string
     {
         switch ($recordType) {
             case 'A':
@@ -299,20 +348,17 @@ class Domains
                     implode('.', array_reverse(str_split($address))));
         }
 
-        return NULL;
+        return null;
     }
 
     /**
      * Returns the corresponding domain ID for a PTR address.
      *
      * @param string $ptr The PTR address.
-     * @return null|int The corresponding domain ID, or NULL on error.
+     * @return null|int The corresponding domain ID, or null on error.
      */
-    private function getPTRDomainID($ptr)
+    private function getPTRDomainID(string $ptr): ?int
     {
-        if (!isset($ptr))
-            return NULL;
-
         $q = $this->page->db->query("
 			SELECT id, name FROM domains
 			WHERE type = 'NATIVE' AND name LIKE '%.arpa'
@@ -320,7 +366,7 @@ class Domains
 
         $domains = array();
 
-        while ($q && $domain = $q->fetch())
+        while ($domain = $q->fetch())
             $domains[$domain['name']] = $domain['id'];
 
         $parts = explode('.', $ptr);
@@ -335,7 +381,7 @@ class Domains
             array_shift($parts);
         }
 
-        return NULL;
+        return null;
     }
 
     /**
@@ -349,85 +395,85 @@ class Domains
      * @param int $ttl The TTL of the record.
      * @return bool Returns success.
      */
-    public function addRecord($domainId, $recordType, $name, $content, $password, $ttl)
+    public function addRecord(int $domainId, string $recordType, string $name, string $content, string $password, int $ttl): bool
     {
-        if ($this->page->currentUser->getLevel() == 'nobody')
-            return FALSE;
+        if ($this->page == 'nobody')
+            return false;
         if (!in_array($recordType, array('A', 'AAAA', 'CNAME')))
-            return FALSE;
+            return false;
         $ttl = intval($ttl);
         if (strlen($name) == 0 || strlen($content) == 0 || $ttl < 1 || $ttl > 2147483647)
-            return FALSE;
+            return false;
         if (!$this->testRecordType($name, $recordType))
-            return FALSE;
-        if (($name = $this->fixRecordName($domainId, $name)) === FALSE)
-            return FALSE;
+            return false;
+        if (($name = $this->fixRecordName($domainId, $name)) === null)
+            return false;
         if (!$this->isValidDomainName($name))
-            return FALSE;
-        $this->page->db->handle->beginTransaction();
+            return false;
+        $this->page->db->beginTransaction();
         try {
             $set = $this->page->db->query("
                 INSERT INTO records
-                  (domain_id, name, type, content, ttl, change_date)
+                  (domain_id, name, type, content, ttl)
                 VALUES
-                  (?, ?, ?, ?, ?, UNIX_TIMESTAMP())
+                  (?, ?, ?, ?, ?)
             ",
                 $domainId, $name, $recordType, $content, $ttl
             );
             if ($set->rowCount() == 0) {
-                $this->page->db->handle->rollBack();
-                return FALSE;
+                $this->page->db->rollBack();
+                return false;
             }
 
             $recordId = $this->page->db->getLastInsertId();
+            $this->touchRecord($recordId);
             $this->page->db->query("
                 INSERT INTO dns_records_users
                 VALUES
                 (?, ?, ?)
             ",
-                $recordId, $password, $this->page->currentUser->getUserName()
+                $recordId, $password, $this->page
             );
 
             $ptr = $this->getPTRName($recordType, $content);
-            $pid = $this->getPTRDomainID($ptr);
+            $pid = $ptr !== null ? $this->getPTRDomainID($ptr) : null;
 
-            if (isset($pid) && isset($ptr))
+            if ($pid !== null && $ptr !== null)
                 $this->page->db->query("
                     INSERT INTO records
-                      (domain_id, name, type, content, ttl, change_date)
+                      (domain_id, name, type, content, ttl)
                     VALUES
-                      (?, ?, ?, ?, ?, UNIX_TIMESTAMP())
+                      (?, ?, ?, ?, ?)
                 ",
                     $pid, $ptr, 'PTR', $name, $ttl
                 );
 
             $result = $this->updateSOARecord($domainId);
-            $this->page->db->handle->commit();
+            $this->page->db->commit();
             return $result;
         } catch (Exception $e) {
-            $this->page->db->handle->rollBack();
+            $this->page->db->rollBack();
             error_log("addRecord transaction failed: " . $e->getMessage());
-            return FALSE;
+            return false;
         }
     }
 
     /**
      * Fixes a record name.
      *
-     * @param $domainId The ID of the domain.
-     * @param $recordName The name of the record.
-     * @return bool|string The fixed record name, or FALSE on error.
+     * @param int $domainId The ID of the domain.
+     * @param string $recordName The name of the record.
+     * @return string|null The fixed record name, or null on error.
      */
-    public function fixRecordName($domainId, $recordName)
+    public function fixRecordName(int $domainId, string $recordName): ?string
     {
         $domN = $this->page->db->query("SELECT name FROM domains WHERE id = ?", $domainId);
-        if (!$domN || !($dom = $domN->fetch()))
-            return FALSE;
+        if (!($dom = $domN->fetch()))
+            return null;
         $dom = $dom['name'];
         if (!preg_match("/$dom\$/", $recordName))
             $recordName = sprintf("%s.%s", $recordName, $dom);
-        $recordName = preg_replace('/\.\.+/', '.', $recordName);
-        return $recordName;
+        return preg_replace('/\.\.+/', '.', $recordName);
     }
 
     /**
@@ -436,9 +482,9 @@ class Domains
      *
      * @param string $recordName The name of the record.
      * @param string $recordType The type of the record.
-     * @return bool Whether this domain is free, or FALSE on error.
+     * @return bool Whether this domain is free, or false on error.
      */
-    public function isFreeDomain($recordName, $recordType)
+    public function isFreeDomain(string $recordName, string $recordType): bool
     {
         $dom = $this->page->db->query("
             SELECT
@@ -453,7 +499,7 @@ class Domains
               (r.name = ? AND r.type IN ('A', 'AAAA') AND ? = 'CNAME')
         ",
             $recordName,
-            $this->page->currentUser->getUserName(),
+            $this->page,
             $recordName,
             $recordType,
             $recordName,
@@ -461,9 +507,8 @@ class Domains
             $recordName,
             $recordType
         );
-        if ($dom && $row = $dom->fetch())
-            return ($row['c'] == 0);
-        return FALSE;
+        $row = $dom->fetch();
+        return $row && $row['c'] == 0;
     }
 
     /**
@@ -472,7 +517,7 @@ class Domains
      * @param string $name The name of the record.
      * @return bool Whether it is valid.
      */
-    public function isValidDomainName($name)
+    public function isValidDomainName(string $name): bool
     {
         if (
             preg_match('/^\./', $name) ||
@@ -483,14 +528,9 @@ class Domains
             preg_match('/\.\./', $name) ||
             strlen($name) > 253
         )
-            return FALSE;
+            return false;
 
-        foreach (explode('.', $name) as $label) {
-            if (strlen($label) > 63 || strlen($label) == 0)
-                return FALSE;
-        }
-
-        return TRUE;
+        return array_all(explode('.', $name), fn($label) => strlen($label) <= 63 && strlen($label) != 0);
     }
 
     /**
@@ -500,7 +540,7 @@ class Domains
      * @param string $type The type of the IP.
      * @return bool Whether the IP is valid.
      */
-    private function isValidIP($ip, $type)
+    private function isValidIP(string $ip, string $type): bool
     {
         switch ($type) {
             case 'A':
@@ -508,7 +548,7 @@ class Domains
             case 'AAAA':
                 return $this->isValidIPv6($ip);
         }
-        return FALSE;
+        return false;
     }
 
     /**
@@ -517,9 +557,9 @@ class Domains
      * @param string $ip TheIP.
      * @return bool Whether the IP is valid.
      */
-    private function isValidIPv4($ip)
+    private function isValidIPv4(string $ip): bool
     {
-        return filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== FALSE;
+        return filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV4) !== false;
     }
 
     /**
@@ -528,20 +568,20 @@ class Domains
      * @param string $ip TheIP.
      * @return bool Whether the IP is valid.
      */
-    private function isValidIPv6($ip)
+    private function isValidIPv6(string $ip): bool
     {
-        return filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) !== FALSE;
+        return filter_var($ip, FILTER_VALIDATE_IP, FILTER_FLAG_IPV6) !== false;
     }
 
     /**
      * Returns the list of records for the current user.
      *
-     * @return array|bool List of records, or FALSE on error.
+     * @return array|null List of records, or null if unauthorized.
      */
-    public function getMyRecords()
+    public function getMyRecords(): ?array
     {
-        if ($this->page->currentUser->getLevel() == 'nobody')
-            return FALSE;
+        if ($this->page == 'nobody')
+            return null;
         $get = $this->page->db->query("
             SELECT
               d.id AS domain_id,
@@ -552,11 +592,13 @@ class Domains
               r.content AS content,
               r.ttl AS ttl,
               r.prio AS prio,
-              r.change_date AS change_date,
+              dr.change_date AS change_date,
               dru.password AS password
 			FROM records r
             INNER JOIN domains d
               ON r.domain_id = d.id
+            LEFT JOIN dns_records dr
+              ON r.id = dr.records_id
             LEFT JOIN dns_records_users dru
               ON r.id = dru.records_id
             WHERE
@@ -564,7 +606,7 @@ class Domains
               r.type IN ('A', 'AAAA', 'CNAME')
             ORDER BY d.name, r.type, r.name, r.content
         ",
-            $this->page->currentUser->getUserName()
+            $this->page
         );
         return $get->fetchall();
     }
@@ -575,27 +617,37 @@ class Domains
      * @param int $recordId The record to remove.
      * @return bool Whether the deletion was successful.
      */
-    public function deleteRecord($recordId)
+    public function deleteRecord(int $recordId): bool
     {
-        $did = $this->getDomainIDForRecord($recordId);
-        $set = $this->page->db->query("
-            DELETE r, dru, ptr FROM records r
-            LEFT JOIN dns_records_users dru
-              ON r.id = dru.records_id
-            LEFT JOIN records ptr
-              ON r.name = ptr.content AND ptr.type = 'PTR'
-            WHERE
-              r.id = ? AND
-              (? = 'admin' OR user = ?)
-        ",
-            $recordId,
-            $this->page->currentUser->getLevel(),
-            $this->page->currentUser->getUserName()
-        );
-        if ($set->rowCount() > 0) {
-            return $this->updateSOARecord($did);
+        $this->page->db->beginTransaction();
+        try {
+            $did = $this->getDomainIDForRecord($recordId);
+            $set = $this->page->db->query("
+                DELETE r, dru, ptr FROM records r
+                LEFT JOIN dns_records_users dru
+                  ON r.id = dru.records_id
+                LEFT JOIN records ptr
+                  ON r.name = ptr.content AND ptr.type = 'PTR'
+                WHERE
+                  r.id = ? AND
+                  (? = 'admin' OR user = ?)
+            ",
+                $recordId,
+                $this->page,
+                $this->page
+            );
+            if ($set->rowCount() > 0) {
+                $result = $this->updateSOARecord($did);
+                $this->page->db->commit();
+                return $result;
+            }
+            $this->page->db->commit();
+            return false;
+        } catch (Exception $e) {
+            $this->page->db->rollBack();
+            error_log("deleteRecord transaction failed: " . $e->getMessage());
+            return false;
         }
-        return FALSE;
     }
 
     /**
@@ -606,13 +658,13 @@ class Domains
      * @param string $value The value to update the key to.
      * @return bool Whether the update was successful.
      */
-    public function updateRecord($recordId, $key, $value)
+    public function updateRecord(int $recordId, string $key, string $value): bool
     {
         if (
             $key == 'name' &&
-            !$this->testRecordType($value, NULL, $recordId)
+            !$this->testRecordType($value, null, $recordId)
         )
-            return FALSE;
+            return false;
 
         switch ($key) {
             case 'name':
@@ -624,32 +676,43 @@ class Domains
                 $table = 'dru';
                 break;
             default:
-                return FALSE;
+                return false;
         }
 
-        $set = $this->page->db->query("
-            UPDATE records r
-            LEFT JOIN dns_records_users dru
-              ON r.id = dru.records_id
-            INNER JOIN dns_users u
-              ON dru.user = u.username
-            SET
-              $table.$key = ?,
-              change_date = UNIX_TIMESTAMP()
-            WHERE
-              id = ? AND
-              (? = 'admin' OR u.username = ?)
-        ",
-            $value,
-            $recordId,
-            $this->page->currentUser->getLevel(),
-            $this->page->currentUser->getUserName()
-        );
+        $this->page->db->beginTransaction();
+        try {
+            $set = $this->page->db->query("
+                UPDATE records r
+                LEFT JOIN dns_records_users dru
+                  ON r.id = dru.records_id
+                INNER JOIN dns_users u
+                  ON dru.user = u.username
+                SET
+                  $table.$key = ?
+                WHERE
+                  id = ? AND
+                  (? = 'admin' OR u.username = ?)
+            ",
+                $value,
+                $recordId,
+                $this->page,
+                $this->page
+            );
 
-        if ($set->rowCount() > 0)
-            return $this->updateSOARecord($this->getDomainIDForRecord($recordId));
+            if ($set->rowCount() > 0) {
+                $this->touchRecord($recordId);
+                $result = $this->updateSOARecord($this->getDomainIDForRecord($recordId));
+                $this->page->db->commit();
+                return $result;
+            }
 
-        return FALSE;
+            $this->page->db->commit();
+            return false;
+        } catch (Exception $e) {
+            $this->page->db->rollBack();
+            error_log("updateRecord transaction failed: " . $e->getMessage());
+            return false;
+        }
     }
 
     /**
@@ -660,13 +723,12 @@ class Domains
      * @param string|null $content The content, or null to auto-detect IP.
      * @return bool Whether the record is set correctly.
      */
-    public function recordUpdateIP($recordId, $password, $content = NULL)
+    public function recordUpdateIP(int $recordId, string $password, ?string $content = null): bool
     {
         $get = $this->page->db->query("SELECT name, type FROM records WHERE id = ?", $recordId);
-        if ($get && $row = $get->fetch()) {
+        if ($row = $get->fetch())
             return $this->recordUpdateIPx($row['name'], $password, $row['type'], $content);
-        }
-        return FALSE;
+        return false;
     }
 
     /**
@@ -678,10 +740,10 @@ class Domains
      * @param string|null $content The content, or null to auto-detect IP.
      * @return bool Whether the record is set correctly.
      */
-    public function recordUpdateByName($recordName, $password, $recordType, $content = NULL)
+    public function recordUpdateByName(string $recordName, string $password, string $recordType, ?string $content = null): bool
     {
         if (!in_array($recordType, array('A', 'AAAA')))
-            return FALSE;
+            return false;
         return $this->recordUpdateIPx($recordName, $password, $recordType, $content);
     }
 
@@ -691,132 +753,151 @@ class Domains
      * @param string $recordName The name of the record.
      * @param string $password The update password of the record.
      * @param string $recordType The type of the record.
-     * @param string $content The content, or null to use the IP the request came from.
+     * @param string|null $content The content, or null to use the IP the request came from.
      * @return bool Whether successful.
      */
-    private function recordUpdateIPx($recordName, $password, $recordType, $content = NULL)
+    private function recordUpdateIPx(string $recordName, string $password, string $recordType, ?string $content = null): bool
     {
         $ip = $_SERVER['REMOTE_ADDR'];
         $check = $this->page->db->query(
             "SELECT COUNT(*) AS c FROM dns_login_attempts WHERE ip = ? AND attempt_time > DATE_SUB(NOW(), INTERVAL 15 MINUTE)",
             $ip
         );
-        if ($check && $row = $check->fetch()) {
-            if ($row['c'] >= 10)
-                return FALSE;
-        }
+        $row = $check->fetch();
+        if ($row && $row['c'] >= 10)
+            return false;
 
-        if ($content === NULL) {
+        if ($content === null) {
             if ($recordType === 'A')
                 $content = $this->page->currentUser->getIPv4();
             elseif ($recordType === 'AAAA')
                 $content = $this->page->currentUser->getIPv6();
-            if ($content === NULL)
-                return FALSE;
+            if ($content === null)
+                return false;
         }
 
         switch ($recordType) {
             case 'A':
                 if (!$this->isValidIPv4($content))
-                    return FALSE;
+                    return false;
                 break;
 
             case 'AAAA':
                 if (!$this->isValidIPv6($content))
-                    return FALSE;
+                    return false;
                 break;
 
             case 'CNAME':
                 if (!$this->isValidDomainName($content))
-                    return FALSE;
+                    return false;
                 break;
 
             default:
-                return FALSE;
+                return false;
         }
 
-        $check = $this->page->db->query("
-            UPDATE records r
-            LEFT JOIN dns_records_users dru
-              ON r.id = dru.records_id
-            SET r.content = ?, r.change_date = UNIX_TIMESTAMP()
-            WHERE
-              r.name = ? AND
-              dru.password = ? AND
-              LENGTH(dru.password) > 0 AND
-              r.type = ?
-        ",
-            $content, $recordName, $password, $recordType
-        );
+        $this->page->db->beginTransaction();
+        try {
+            $check = $this->page->db->query("
+                UPDATE records r
+                LEFT JOIN dns_records_users dru
+                  ON r.id = dru.records_id
+                SET r.content = ?
+                WHERE
+                  r.name = ? AND
+                  dru.password = ? AND
+                  LENGTH(dru.password) > 0 AND
+                  r.type = ?
+            ",
+                $content, $recordName, $password, $recordType
+            );
 
-        if ($check->rowCount() > 0) {
-            $this->page->db->query("DELETE FROM dns_login_attempts WHERE ip = ?", $ip);
+            if ($check->rowCount() > 0) {
+                $this->page->db->query("DELETE FROM dns_login_attempts WHERE ip = ?", $ip);
 
-            $ptr = $this->getPTRName($recordType, $content);
+                $recordIdQuery = $this->page->db->query("
+                    SELECT r.id FROM records r
+                    LEFT JOIN dns_records_users dru ON r.id = dru.records_id
+                    WHERE r.name = ? AND dru.password = ? AND LENGTH(dru.password) > 0 AND r.type = ?
+                ", $recordName, $password, $recordType);
+                if ($rid = $recordIdQuery->fetch())
+                    $this->touchRecord($rid['id']);
 
-            if (isset($ptr))
-                $this->page->db->query("
-					UPDATE records
-                    SET name = ?, change_date = UNIX_TIMESTAMP()
-                    WHERE type = 'PTR' AND content = ?
-				",
-                    $ptr, $recordName
+                $ptr = $this->getPTRName($recordType, $content);
+
+                if (isset($ptr))
+                    $this->page->db->query("
+                        UPDATE records
+                        SET name = ?
+                        WHERE type = 'PTR' AND content = ?
+                    ",
+                        $ptr, $recordName
+                    );
+
+                $get = $this->page->db->query("
+                    SELECT domain_id
+                    FROM records r
+                    LEFT JOIN dns_records_users dru
+                      ON r.id = dru.records_id
+                    WHERE
+                      r.name = ? AND
+                      dru.password = ? AND
+                      LENGTH(dru.password) > 0 AND
+                      r.type = ?
+                ",
+                    $recordName, $password, $recordType
                 );
+                if ($row = $get->fetch()) {
+                    $result = $this->updateSOARecord($row['domain_id']);
+                    $this->page->db->commit();
+                    return $result;
+                }
+            } else {
+                $get = $this->page->db->query("
+                    SELECT COUNT(*) AS c
+                    FROM records r
+                    LEFT JOIN dns_records_users dru
+                      ON r.id = dru.records_id
+                    WHERE
+                      r.name = ? AND
+                      dru.password = ? AND
+                      LENGTH(dru.password) > 0 AND
+                      r.type = ?
+                ",
+                    $recordName, $password, $recordType
+                );
+                $row = $get->fetch();
+                if ($row && $row['c'] == 1) {
+                    $this->page->db->commit();
+                    return true;
+                }
 
-            $get = $this->page->db->query("
-                SELECT domain_id
-                FROM records r
-                LEFT JOIN dns_records_users dru
-                  ON r.id = dru.records_id
-                WHERE
-                  r.name = ? AND
-                  dru.password = ? AND
-                  LENGTH(dru.password) > 0 AND
-                  r.type = ?
-            ",
-                $recordName, $password, $recordType
-            );
-            if ($get && $row = $get->fetch())
-                return $this->updateSOARecord($row['domain_id']);
-        } else {
-            $get = $this->page->db->query("
-                SELECT COUNT(*) AS c
-                FROM records r
-                LEFT JOIN dns_records_users dru
-                  ON r.id = dru.records_id
-                WHERE
-                  r.name = ? AND
-                  dru.password = ? AND
-                  LENGTH(dru.password) > 0 AND
-                  r.type = ?
-            ",
-                $recordName, $password, $recordType
-            );
-            if ($get && $row = $get->fetch()) {
-                if ($row['c'] == 1)
-                    return TRUE;
+                $this->page->db->query(
+                    "INSERT INTO dns_login_attempts (ip, username, attempt_time) VALUES (?, ?, NOW())",
+                    $ip, $recordName
+                );
             }
-
-            $this->page->db->query(
-                "INSERT INTO dns_login_attempts (ip, username, attempt_time) VALUES (?, ?, NOW())",
-                $ip, $recordName
-            );
+            $this->page->db->commit();
+            return false;
+        } catch (Exception $e) {
+            $this->page->db->rollBack();
+            error_log("recordUpdateIPx transaction failed: " . $e->getMessage());
+            return false;
         }
-        return FALSE;
     }
 
     /**
      * Returns the ID of the domain for a specific record ID.
      *
      * @param int $recordId The ID of a record.
-     * @return bool The domain ID, or FALSE on error.
+     * @return int|null The domain ID, or null on error.
      */
-    private function getDomainIDForRecord($recordId)
+    private function getDomainIDForRecord(int $recordId): ?int
     {
         $get = $this->page->db->query("SELECT domain_id FROM records WHERE id = ?", $recordId);
-        if ($get && $row = $get->fetch())
-            return $row['domain_id'];
-        return FALSE;
+        if ($row = $get->fetch())
+            return (int) $row['domain_id'];
+        return null;
     }
 
     /**
@@ -826,25 +907,22 @@ class Domains
      *
      * @param string $recordName The name of a record.
      * @param string $recordType The type of a record.
-     * @param int $recordId The ID of a record.
+     * @param int|null $recordId The ID of a record.
      * @return bool Whether successful.
      */
-    private function testRecordType($recordName, $recordType, $recordId = NULL)
+    private function testRecordType(string $recordName, string $recordType, ?int $recordId = null): bool
     {
-        if ($recordType == NULL) {
+        if ($recordType == null) {
             $get = $this->page->db->query("SELECT type FROM records WHERE id = ?", $recordId);
-            if ($get && $row = $get->fetch())
+            if ($row = $get->fetch())
                 $recordType = $row['type'];
         }
         $get = $this->page->db->query("SELECT id FROM records WHERE name = ? AND type = ?", $recordName, $recordType);
-        if ($get) {
-            $ok = true;
-            while ($row = $get->fetch()) {
-                if ($row['id'] != $recordId)
-                    $ok = FALSE;
-            }
-            return $ok;
+        $ok = true;
+        while ($row = $get->fetch()) {
+            if ($row['id'] != $recordId)
+                $ok = false;
         }
-        return FALSE;
+        return $ok;
     }
 }

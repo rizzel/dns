@@ -9,24 +9,24 @@ abstract class Feeds {
     /**
      * @var Page The base page instance.
      */
-    protected $page;
+    protected Page $page;
 
     /**
      * @var string Optional special headers to send.
      */
-    protected $specialHeader;
+    protected string $specialHeader;
 
     /**
      * @var array The result to send to the client.
      */
-    protected $result;
+    protected array $result;
 
     /**
      * @var bool Whether this is a raw result.
      */
-    protected $rawResult;
+    protected bool $rawResult;
 
-    function __construct($page) {
+    function __construct(Page $page) {
         $this->page = $page;
         $this->result = array('status' => 'error');
     }
@@ -34,7 +34,7 @@ abstract class Feeds {
     /**
      * Output the result.
      */
-    public function printResult() {
+    public function printResult(): void {
         if (isset($this->specialHeader)) {
             if (strlen($this->specialHeader) > 0) {
                 header($this->specialHeader);
@@ -57,18 +57,18 @@ abstract class Feeds {
      *
      * @param string $header The special header.
      */
-    public function setSpecialHeader($header = '') {
+    public function setSpecialHeader(string $header = ''): void {
         $this->specialHeader = $header;
     }
 
     /**
      * Sets the data to be sent to the client.
      *
-     * @param null $data The data to send.
+     * @param null|mixed $data The data to send.
      * @param string $status The status to send.
      * @param bool $raw Whether this is a raw result (not JSON).
      */
-    public function setResult($data = NULL, $status = 'ok', $raw = FALSE) {
+    public function setResult(mixed $data = null, string $status = 'ok', bool $raw = false): void {
         $this->result = array('data' => $data, 'status' => $status);
         $this->rawResult = $raw;
     }

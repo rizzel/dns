@@ -1,10 +1,12 @@
 <?php
 
+use JetBrains\PhpStorm\NoReturn;
+
 if (!function_exists('pgettext')) {
     function pgettext($context, $msgId)
     {
         $contextString = "{$context}\004{$msgId}";
-        $translation = dcgettext(textdomain(NULL), $contextString, LC_MESSAGES);
+        $translation = dcgettext(textdomain(null), $contextString, LC_MESSAGES);
         if ($translation == $contextString)
             return $msgId;
         else
@@ -23,63 +25,63 @@ class Page {
     /**
      * @var string The HTML title.
      */
-	private $title = '';
+	private string $title = '';
     /**
      * @var array HTML metadata tags.
      */
-	private $metadata = array();
+	private array $metadata = array();
     /**
      * @var array Used css styles.
      */
-	private $styles = array();
+	private array $styles = array();
     /**
      * @var array Used javascript.
      */
-	private $scripts = array();
+	private array $scripts = array();
 
     /**
      * @var DB The DB instance.
      */
-	public $db;
+	public DB $db;
     /**
      * @var array The settings array.
      */
-	public $settings;
+	public array $settings;
     /**
-     * @var User The User instance.
+     * @var Users The User instance.
      */
-	public $users;
+	public Users $users;
     /**
      * @var Domains The Domains instance.
      */
-	public $domains;
+	public Domains $domains;
     /**
      * @var Email The email instance.
      */
-	public $email;
+	public Email $email;
     /**
      * @var array Instances of all feeds.
      */
-	public $feeds = array();
-	public $queryParams;
+	public array $feeds = array();
+	public mixed $queryParams;
 
     /**
      * @var User The currently logged in user.
      */
-    public $currentUser;
+    public User $currentUser;
 
     /**
      * @var array The variables to render the header.
      */
-	public $header;
+	public array $header;
     /**
      * @var array The variables to render the footer.
      */
-	public $footer;
+	public array $footer;
     /**
      * @var array Template variables.
      */
-	public $t;
+	public array $t;
 
 	function __construct() {
 		$this->settings = require(__DIR__ . '/settings.php');
@@ -126,7 +128,9 @@ class Page {
     /**
      * Return a 404 and exit.
      */
-	public function call404() {
+	#[NoReturn]
+    public function call404(): void
+    {
 		header("HTTP/1.0 404 Not Found");
 		exit(0);
 	}
@@ -134,7 +138,9 @@ class Page {
     /**
      * Redirect to / and exit.
      */
-	public function redirectIndex() {
+	#[NoReturn]
+    public function redirectIndex(): void
+    {
 		header("HTTP/1.0 302 Back to home");
 		header("Location: /");
 		exit(0);
@@ -145,7 +151,8 @@ class Page {
      *
      * @param string $title The title.
      */
-	public function setTitle($title) {
+	public function setTitle(string $title): void
+    {
 		$this->title = $title;
 	}
 
@@ -155,7 +162,8 @@ class Page {
      * @param string $type The key of the metadata.
      * @param string $value The value of the metadata.
      */
-	public function setMetaData($type, $value) {
+	public function setMetaData(string $type, string $value): void
+    {
 		$this->metadata[$type] = $value;
 	}
 
@@ -164,8 +172,9 @@ class Page {
      *
      * @param string $style The CSS style.
      */
-	public function addStyle($style) {
-		array_push($this->styles, $style);
+	public function addStyle(string $style): void
+    {
+		$this->styles[] = $style;
 	}
 
     /**
@@ -173,8 +182,8 @@ class Page {
      *
      * @param string $script The javascript file.
      */
-	public function addScript($script) {
-		array_push($this->scripts, $script);
+	public function addScript(string $script): void {
+		$this->scripts[] = $script;
 	}
 
     /**
@@ -182,7 +191,8 @@ class Page {
      *
      * @param array $extras Optional extra values for rendering the header.
      */
-	public function renderHeader($extras = array()) {
+	public function renderHeader(array $extras = array()): void
+    {
 		header("Content-Type: text/html; charset=utf-8");
 		$this->header = array_merge(array(
 			'title' => $this->title,
@@ -199,7 +209,8 @@ class Page {
      *
      * @param array $extras Optional extra values for rendering the footer.
      */
-	public function renderFooter($extras = array()) {
+	public function renderFooter(array $extras = array()): void
+    {
 		$this->footer = array_merge(array(), $extras);
 		include(__DIR__ . '/../templates/footer.php');
 	}
@@ -209,7 +220,8 @@ class Page {
      *
      * @return array The javascript to include.
      */
-	public function getIncludeScripts() {
+	public function getIncludeScripts(): array
+    {
 		return $this->scripts;
 	}
 
@@ -218,24 +230,27 @@ class Page {
      *
      * @return array The CSS styles to include.
      */
-	public function getIncludeStyles() {
+	public function getIncludeStyles(): array
+    {
 		return $this->styles;
 	}
 
     /**
      * Render a specific template.
      *
-     * @param array $template The template to render (relative to templates-folder).
+     * @param string $template The template to render (relative to templates-folder).
      * @param array $vars Extra variables for rendering the template.
      */
-	public function renderTemplate($template, $vars = array()) {
+	public function renderTemplate(string $template, array $vars = array()): void
+    {
 		$this->t = array_merge(array(
 			'user' => $this->currentUser->getPrintableUser()
 		), $vars);
 		include(__DIR__ . "/../templates/$template");
 	}
 
-    public function toObject($x) {
+    public function toObject($x): mixed
+    {
         return (is_object($x) || is_array($x)) ? json_decode(json_encode($x)) : (object)$x;
     }
 }

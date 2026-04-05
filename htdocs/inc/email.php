@@ -10,14 +10,14 @@ class Email
     /**
      * @var Page The base page instance
      */
-    private $page;
+    private Page $page;
 
     /**
      * @var bool Whether this host has PEAR mail support (detect on instantiation).
      */
-    private $hasPearMail = FALSE;
+    private bool $hasPearMail = false;
 
-    function __construct($page)
+    function __construct(Page $page)
     {
         $this->page = $page;
         $this->cleanUpTokens();
@@ -30,7 +30,7 @@ class Email
     /**
      * Cleanup old tokens.
      */
-    public function cleanUpTokens()
+    public function cleanUpTokens(): void
     {
         $this->page->db->query("DELETE FROM dns_users_update WHERE DATEDIFF(NOW(), requesttime) > 2");
         $this->page->db->query("DELETE FROM dns_login_attempts WHERE attempt_time < DATE_SUB(NOW(), INTERVAL 1 HOUR)");
@@ -43,9 +43,9 @@ class Email
      * @param string $body The body of the email.
      * @return bool Whether successful.
      */
-    public function sendToCurrent($subject, $body)
+    public function sendToCurrent(string $subject, string $body): bool
     {
-        return $this->sendTo($this->page->currentUser->getEmail(), $subject, $body);
+        return $this->sendTo($this->page, $subject, $body);
     }
 
     /**
@@ -56,14 +56,14 @@ class Email
      * @param string $body The body of the email.
      * @return bool Whether successful.
      */
-    public function sendTo($to, $subject, $body)
+    public function sendTo(string $to, string $subject, string $body): bool
     {
         if (!filter_var($to, FILTER_VALIDATE_EMAIL))
-            return FALSE;
+            return false;
 
         $mailSettings = $this->page->settings['mail'];
         if (!isset($mailSettings['from']))
-            return FALSE;
+            return false;
         $from = $mailSettings['from'];
         $subject = "=?UTF-8?B?" . base64_encode($subject) . "?=";
 
@@ -98,7 +98,7 @@ class Email
             )));
         }
 
-        return TRUE;
+        return true;
     }
 
     /**
@@ -111,29 +111,29 @@ class Email
      * @param string|null $username Username or null for current user.
      * @return bool Whether successful.
      */
-    public function createUpdate($subject, $text, $key, $value, $username = null)
+    public function createUpdate(string $subject, string $text, string $key, string $value, ?string $username = null): bool
     {
-        $withURL = TRUE;
+        $withURL = true;
         if ($username != null) {
-            $withURL = FALSE;
+            $withURL = false;
             $user = $this->page->users->getUserByName($username);
         } else {
             $user = $this->page->currentUser;
         }
-        if ($user->getUserName() == 'anonymous')
-            return FALSE;
+        if ($user->username == 'anonymous')
+            return false;
 
         $token = bin2hex(random_bytes(32));
 
         $url = sprintf("%s://%s/u?u=%s&t=%s",
             isset($_SERVER['HTTPS']) ? 'https' : 'http',
             $_SERVER['SERVER_NAME'],
-            $user->getUserName(),
+            $user->username,
             $token
         );
 
         $this->sendTo(
-            $user->getEmail(),
+            $user->email,
             $subject,
             $text . "\n" .
             ($withURL ? "\nURL: $url\nODER" : "") .
@@ -144,12 +144,12 @@ class Email
         $this->page->db->query("
             INSERT INTO dns_users_update VALUES (?, NOW(), ?, ?, ?)
         ",
-            $user->getUserName(),
+            $user->username,
             $token,
             $key,
             $value
         );
-        return TRUE;
+        return true;
     }
 
     /**
@@ -157,9 +157,9 @@ class Email
      *
      * @param string $user The user the update belongs to.
      * @param string $token The token to verify.
-     * @return bool|array The key and value to update.
+     * @return array|null The key and value to update, or null on failure.
      */
-    public function verifyUpdate($user, $token)
+    public function verifyUpdate(string $user, string $token): ?array
     {
         $get = $this->page->db->query("
             SELECT * FROM dns_users_update
@@ -168,7 +168,7 @@ class Email
             $user, $token
         );
 
-        if ($get && $row = $get->fetch()) {
+        if ($row = $get->fetch()) {
             $this->page->db->query("
                 DELETE FROM dns_users_update
                 WHERE username = ? AND token = ?
@@ -179,16 +179,15 @@ class Email
             switch ($row['key']) {
                 case 'password':
                     if (!$this->page->users->confirmPasswordUpdate($user, $row['value'], true))
-                        return FALSE;
+                        return null;
                     break;
                 case 'email':
                     if (!$this->page->users->confirmEmailUpdate($user, $row['value']))
-                        return FALSE;
+                        return null;
                     break;
             }
             return $row;
         }
-        return FALSE;
+        return null;
     }
 }
-
