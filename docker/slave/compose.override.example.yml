@@ -1,0 +1,16 @@
+services:
+  mariadb:
+    ports:
+      - "${WG_PORT:-51821}:51820/udp"   # WireGuard (mariadb owns the network namespace)
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  wireguard:
+    volumes:
+      - ./wireguard/wg0.conf:/config/wg_confs/wg0.conf:ro
+      - /lib/modules:/lib/modules:ro
+
+  pdns:
+    ports:
+      - "${DNS_PORT:-53}:53/tcp"
+      - "${DNS_PORT:-53}:53/udp"

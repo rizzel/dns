@@ -4,10 +4,6 @@ services:
     container_name: dns-slave-mariadb
     networks:
       - internal
-    ports:
-      - "${WG_PORT:-51821}:51820/udp"   # WireGuard (mariadb owns the network namespace)
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
     environment:
       MARIADB_RANDOM_ROOT_PASSWORD: "yes"
       MARIADB_DATABASE: ${MARIADB_DATABASE:-pdns}
@@ -37,9 +33,6 @@ services:
       - SYS_MODULE
     sysctls:
       - net.ipv4.conf.all.src_valid_mark=1
-    volumes:
-      - ./wireguard/wg0.conf:/config/wg_confs/wg0.conf:ro
-      - /lib/modules:/lib/modules:ro
     healthcheck:
       test: ["CMD", "wg", "show", "wg0"]
       interval: 10s
@@ -52,9 +45,6 @@ services:
     container_name: dns-slave-pdns
     networks:
       - internal
-    ports:
-      - "${DNS_PORT:-53}:53/tcp"
-      - "${DNS_PORT:-53}:53/udp"
     depends_on:
       mariadb:
         condition: service_healthy

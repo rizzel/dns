@@ -4,8 +4,6 @@ services:
     container_name: dns-mariadb-master
     networks:
       - internal
-    ports:
-      - "${WG_PORT:-51820}:51820/udp"   # WireGuard (mariadb owns the network namespace)
     environment:
       MARIADB_RANDOM_ROOT_PASSWORD: "yes"
       MARIADB_DATABASE: ${MARIADB_DATABASE:-pdns}
@@ -36,9 +34,6 @@ services:
     sysctls:
       - net.ipv4.conf.all.src_valid_mark=1
       - net.ipv4.ip_forward=1
-    volumes:
-      - ./wireguard/wg0.conf:/config/wg_confs/wg0.conf:ro
-      - /lib/modules:/lib/modules:ro
     healthcheck:
       test: ["CMD", "wg", "show", "wg0"]
       interval: 10s
@@ -51,9 +46,6 @@ services:
     container_name: dns-pdns
     networks:
       - internal
-    ports:
-      - "${DNS_PORT:-53}:53/tcp"
-      - "${DNS_PORT:-53}:53/udp"
     depends_on:
       mariadb:
         condition: service_healthy
@@ -79,8 +71,6 @@ services:
     container_name: dns-php
     networks:
       - internal
-    ports:
-      - "${HTTP_PORT:-8080}:80/tcp"
     depends_on:
       mariadb:
         condition: service_healthy
