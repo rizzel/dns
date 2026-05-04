@@ -766,13 +766,7 @@ class Domains
     private function recordUpdateIPx(string $recordName, string $password, string $recordType, ?string $content = null): bool
     {
         $ip = $_SERVER['REMOTE_ADDR'];
-        $check = $this->page->db->query(
-            "SELECT COUNT(*) AS c FROM dns_login_attempts WHERE ip = ? AND attempt_time > DATE_SUB(NOW(), INTERVAL 15 MINUTE)",
-            $ip
-        );
-        $row = $check->fetch();
-        if ($row && $row['c'] >= 10)
-            return false;
+        $this->page->loginAttempts->enforce($ip);
 
         if ($content === null) {
             if ($recordType === 'A')
@@ -820,7 +814,7 @@ class Domains
             );
 
             if ($check->rowCount() > 0) {
-                $this->page->db->query("DELETE FROM dns_login_attempts WHERE ip = ?", $ip);
+                $this->page->loginAttempts->clear($ip);
 
                 $recordIdQuery = $this->page->db->query("
                     SELECT r.id FROM records r
@@ -879,10 +873,7 @@ class Domains
                     return true;
                 }
 
-                $this->page->db->query(
-                    "INSERT INTO dns_login_attempts (ip, username, attempt_time) VALUES (?, ?, NOW())",
-                    $ip, $recordName
-                );
+                $this->page->loginAttempts->recordFailure($ip, $recordName);
             }
             $this->page->db->commit();
             return false;
@@ -890,6 +881,154 @@ class Domains
             $this->page->db->rollBack();
             error_log("recordUpdateIPx transaction failed: " . $e->getMessage());
             return false;
+        }
+    }
+
+    /**
+     * Sets (or overwrites) the _acme-challenge TXT record for a domain
+     * the caller proves ownership of via the per-record update password
+     * of an existing A/AAAA/CNAME at exactly $recordName.
+     *
+     * @param string $recordName The base record name (no _acme-challenge prefix).
+     * @param string $password The update password of the underlying A/AAAA/CNAME record.
+     * @param string $token The raw ACME challenge token (RFC 8555 §8.4).
+     * @return bool Returns success.
+     */
+    public function setAcmeChallenge(string $recordName, string $password, string $token): bool
+    {
+        $this->expireAcmeChallenges();
+
+        $ip = $_SERVER['REMOTE_ADDR'];
+        $this->page->loginAttempts->enforce($ip);
+
+        if (!$this->isValidDomainName($recordName))
+            return false;
+        if (!preg_match('/^[\x21-\x7E]{1,255}$/', $token))
+            return false;
+
+        $this->page->db->beginTransaction();
+        try {
+            $get = $this->page->db->query("
+                SELECT DISTINCT r.domain_id
+                FROM records r
+                INNER JOIN dns_records_users dru ON r.id = dru.records_id
+                WHERE r.name = ? AND dru.password = ? AND LENGTH(dru.password) > 0
+                  AND r.type IN ('A', 'AAAA', 'CNAME')
+                LIMIT 1
+            ", $recordName, $password);
+            $row = $get->fetch();
+            if (!$row) {
+                $this->page->loginAttempts->recordFailure($ip, $recordName);
+                $this->page->db->commit();
+                return false;
+            }
+            $domainId = (int)$row['domain_id'];
+            $acmeName = '_acme-challenge.' . $recordName;
+
+            $get = $this->page->db->query("
+                SELECT id FROM records WHERE domain_id = ? AND name = ? AND type = 'TXT' LIMIT 1
+            ", $domainId, $acmeName);
+            if ($existing = $get->fetch()) {
+                $recordId = (int)$existing['id'];
+                $this->page->db->query("
+                    UPDATE records SET content = ?, ttl = 60 WHERE id = ?
+                ", $token, $recordId);
+            } else {
+                $this->page->db->query("
+                    INSERT INTO records (domain_id, name, type, content, ttl)
+                    VALUES (?, ?, 'TXT', ?, 60)
+                ", $domainId, $acmeName, $token);
+                $recordId = $this->page->db->getLastInsertId();
+            }
+            $this->touchRecord($recordId);
+            $this->updateSOARecord($domainId);
+            $this->page->loginAttempts->clear($ip);
+            $this->page->db->commit();
+            return true;
+        } catch (Exception $e) {
+            $this->page->db->rollBack();
+            error_log("setAcmeChallenge transaction failed: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Clears the _acme-challenge TXT record for a domain the caller proves
+     * ownership of. Idempotent: returns success even if no row was present.
+     *
+     * @param string $recordName The base record name (no _acme-challenge prefix).
+     * @param string $password The update password of the underlying A/AAAA/CNAME record.
+     * @return bool Returns success.
+     */
+    public function clearAcmeChallenge(string $recordName, string $password): bool
+    {
+        $this->expireAcmeChallenges();
+
+        $ip = $_SERVER['REMOTE_ADDR'];
+        $this->page->loginAttempts->enforce($ip);
+
+        if (!$this->isValidDomainName($recordName))
+            return false;
+
+        $this->page->db->beginTransaction();
+        try {
+            $get = $this->page->db->query("
+                SELECT DISTINCT r.domain_id
+                FROM records r
+                INNER JOIN dns_records_users dru ON r.id = dru.records_id
+                WHERE r.name = ? AND dru.password = ? AND LENGTH(dru.password) > 0
+                  AND r.type IN ('A', 'AAAA', 'CNAME')
+                LIMIT 1
+            ", $recordName, $password);
+            $row = $get->fetch();
+            if (!$row) {
+                $this->page->loginAttempts->recordFailure($ip, $recordName);
+                $this->page->db->commit();
+                return false;
+            }
+            $domainId = (int)$row['domain_id'];
+            $acmeName = '_acme-challenge.' . $recordName;
+            $del = $this->page->db->query("
+                DELETE FROM records WHERE domain_id = ? AND name = ? AND type = 'TXT'
+            ", $domainId, $acmeName);
+            if ($del->rowCount() > 0)
+                $this->updateSOARecord($domainId);
+            $this->page->loginAttempts->clear($ip);
+            $this->page->db->commit();
+            return true;
+        } catch (Exception $e) {
+            $this->page->db->rollBack();
+            error_log("clearAcmeChallenge transaction failed: " . $e->getMessage());
+            return false;
+        }
+    }
+
+    /**
+     * Lazy sweep: deletes every _acme-challenge TXT row whose change_date
+     * is older than 30 minutes and bumps the SOA serial of each affected
+     * domain. Called at the top of set/clear requests.
+     */
+    private function expireAcmeChallenges(): void
+    {
+        $get = $this->page->db->query("
+            SELECT DISTINCT r.domain_id
+            FROM records r
+            INNER JOIN dns_records dr ON r.id = dr.records_id
+            WHERE r.type = 'TXT' AND r.name LIKE '\\_acme-challenge.%'
+              AND dr.change_date < NOW() - INTERVAL 30 MINUTE
+        ");
+        $domainIds = array_column($get->fetchall(), 'domain_id');
+        if (empty($domainIds))
+            return;
+        $del = $this->page->db->query("
+            DELETE r FROM records r
+            INNER JOIN dns_records dr ON r.id = dr.records_id
+            WHERE r.type = 'TXT' AND r.name LIKE '\\_acme-challenge.%'
+              AND dr.change_date < NOW() - INTERVAL 30 MINUTE
+        ");
+        if ($del->rowCount() > 0) {
+            foreach ($domainIds as $did)
+                $this->updateSOARecord((int)$did);
         }
     }
 

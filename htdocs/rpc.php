@@ -66,6 +66,18 @@
 			if (count($args) >= 2 && $page->domains->recordUpdateByName($args[1], $args[0], 'AAAA', isset($args[2]) ? $args[2] : NULL))
 				exit(0);
             break;
+		case '/acme-set':
+			if (count($args) >= 3 && $page->domains->setAcmeChallenge($args[0], $args[1], $args[2]))
+				exit(0);
+			else
+				$page->call404();
+			break;
+		case '/acme-clear':
+			if (count($args) >= 2 && $page->domains->clearAcmeChallenge($args[0], $args[1]))
+				exit(0);
+			else
+				$page->call404();
+			break;
 		case '/myip':
 			print implode("\n", $page->currentUser->getIPs());
 			break;

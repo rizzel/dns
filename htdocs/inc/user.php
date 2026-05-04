@@ -321,17 +321,11 @@ class User
     public function login(string $username, string $password): bool
     {
         $ip = $_SERVER['REMOTE_ADDR'];
-        $check = $this->page->db->query(
-            "SELECT COUNT(*) AS c FROM dns_login_attempts WHERE ip = ? AND attempt_time > DATE_SUB(NOW(), INTERVAL 15 MINUTE)",
-            $ip
-        );
-        $row = $check->fetch();
-        if ($row && $row['c'] >= 10)
-            return false;
+        $this->page->loginAttempts->enforce($ip);
 
         $u = $this->page->users->getUserByName($username);
         if ($u->checkLogin($password)) {
-            $this->page->db->query("DELETE FROM dns_login_attempts WHERE ip = ?", $ip);
+            $this->page->loginAttempts->clear($ip);
             $this->loadUserByName($username);
             session_regenerate_id(true);
             $this->page->db->query(
@@ -343,10 +337,7 @@ class User
             return true;
         }
 
-        $this->page->db->query(
-            "INSERT INTO dns_login_attempts (ip, username, attempt_time) VALUES (?, ?, NOW())",
-            $ip, $username
-        );
+        $this->page->loginAttempts->recordFailure($ip, $username);
         return false;
     }
 

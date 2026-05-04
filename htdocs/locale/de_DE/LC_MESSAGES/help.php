@@ -122,6 +122,26 @@ Für <em>Source of IP address</em> kann <a href="/myip" target="_blank">diese UR
     zu finden. Es funktionieren jedoch nicht alle mit <?php echo $host; ?>.
 </p>
 
+<h4>ACME DNS-01 Challenge</h4>
+<p>
+    Der <code>_acme-challenge.<var>RECORDNAME</var></code> TXT-Record kann
+    mit dem Passwort eines A-, AAAA- oder CNAME-Records gesetzt oder gelöscht
+    werden, der exakt unter <var>RECORDNAME</var> existiert. Das Präfix
+    <code>_acme-challenge.</code> wird serverseitig vorangestellt. Ein
+    erneuter Aufruf von <code>/acme-set</code> überschreibt den vorherigen
+    Token; <code>/acme-clear</code> ist idempotent. Veraltete
+    Challenge-Records werden nach 30 Minuten automatisch entfernt.
+    <br/>
+    Möglichkeiten:
+<blockquote>http://<?php echo $host; ?>/acme-set?<var>RECORDNAME</var>;<var>PASSWORT</var>;<var>TOKEN</var></blockquote>
+<blockquote>http://<?php echo $host; ?>/acme-clear?<var>RECORDNAME</var>;<var>PASSWORT</var></blockquote>
+    JSON-Variante (<code>POST</code>):
+<blockquote>http://<?php echo $host; ?>/acme.php<br/>
+    Body: <code>{"action":"set","name":"<var>RECORDNAME</var>","password":"<var>PASSWORT</var>","token":"<var>TOKEN</var>"}</code></blockquote>
+<blockquote>http://<?php echo $host; ?>/acme.php<br/>
+    Body: <code>{"action":"clear","name":"<var>RECORDNAME</var>","password":"<var>PASSWORT</var>"}</code></blockquote>
+</p>
+
 <h4>Client IP</h4>
 <p>
     Die IP des Clients aus Sicht des Webservers <?php echo $host; ?> kann via

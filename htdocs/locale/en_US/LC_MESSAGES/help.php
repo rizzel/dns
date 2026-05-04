@@ -122,6 +122,25 @@ To run inadyn as a service with Windows the following software is required:
     However, not all clients work with <?php echo $host; ?>.
 </p>
 
+<h4>ACME DNS-01 challenge</h4>
+<p>
+    The <code>_acme-challenge.<var>RECORDNAME</var></code> TXT record can be set
+    or cleared with the password of an A, AAAA, or CNAME record at exactly
+    <var>RECORDNAME</var>. The <code>_acme-challenge.</code> prefix is added by
+    the server. Repeating <code>/acme-set</code> overwrites the previous token;
+    <code>/acme-clear</code> is idempotent. Stale challenge records expire
+    automatically after 30 minutes.
+    <br/>
+    Possible URLs:
+<blockquote>http://<?php echo $host; ?>/acme-set?<var>RECORDNAME</var>;<var>PASSWORD</var>;<var>TOKEN</var></blockquote>
+<blockquote>http://<?php echo $host; ?>/acme-clear?<var>RECORDNAME</var>;<var>PASSWORD</var></blockquote>
+    JSON variant (<code>POST</code>):
+<blockquote>http://<?php echo $host; ?>/acme.php<br/>
+    Body: <code>{"action":"set","name":"<var>RECORDNAME</var>","password":"<var>PASSWORD</var>","token":"<var>TOKEN</var>"}</code></blockquote>
+<blockquote>http://<?php echo $host; ?>/acme.php<br/>
+    Body: <code>{"action":"clear","name":"<var>RECORDNAME</var>","password":"<var>PASSWORD</var>"}</code></blockquote>
+</p>
+
 <h4>Client IP</h4>
 <p>
     The public IP address of the client can be queried via

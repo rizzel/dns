@@ -60,6 +60,10 @@ class Page {
      */
 	public Email $email;
     /**
+     * @var LoginAttempts The per-IP rate limiter.
+     */
+	public LoginAttempts $loginAttempts;
+    /**
      * @var array Instances of all feeds.
      */
 	public array $feeds = array();
@@ -103,6 +107,9 @@ class Page {
 
         require_once(__DIR__ . '/email.php');
 		$this->email = new Email($this);
+
+		require_once(__DIR__ . '/login_attempts.php');
+		$this->loginAttempts = new LoginAttempts($this);
 
 		require_once(__DIR__ . '/domains.php');
 		$this->domains = new Domains($this);

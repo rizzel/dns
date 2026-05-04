@@ -73,6 +73,33 @@ The client's IP is auto-detected. To specify an IP explicitly, append it as a th
 GET /ip4?<record_name>;<password>;<ip_address>
 ```
 
+### ACME DNS-01 challenge
+
+Set or clear the `_acme-challenge.<record_name>` TXT record for any A, AAAA, or
+CNAME record you own. Authentication uses that underlying record's update
+password. Set is overwrite-on-repeat; clear is idempotent. Stale challenge
+records are auto-removed after 30 minutes.
+
+Query-string style:
+
+```
+GET /acme-set?<record_name>;<password>;<token>
+GET /acme-clear?<record_name>;<password>
+```
+
+JSON style:
+
+```
+POST /acme.php
+Content-Type: application/json
+
+{ "action": "set",   "name": "<record_name>", "password": "...", "token": "..." }
+{ "action": "clear", "name": "<record_name>", "password": "..." }
+```
+
+`<record_name>` is the bare name (e.g. `home.example.com`); the
+`_acme-challenge.` prefix is added by the server.
+
 ## Configuration
 
 The application configuration is in `htdocs/inc/settings.php`. The Docker setup populates this from environment variables defined in `.env`.

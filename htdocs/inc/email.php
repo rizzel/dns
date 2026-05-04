@@ -33,7 +33,7 @@ class Email
     public function cleanUpTokens(): void
     {
         $this->page->db->query("DELETE FROM dns_users_update WHERE DATEDIFF(NOW(), requesttime) > 2");
-        $this->page->db->query("DELETE FROM dns_login_attempts WHERE attempt_time < DATE_SUB(NOW(), INTERVAL 1 HOUR)");
+        $this->page->loginAttempts->purgeOld();
     }
 
     /**
